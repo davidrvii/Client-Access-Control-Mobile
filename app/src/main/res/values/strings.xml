@@ -1,0 +1,126 @@
+<resources>
+    <string name="app_name">Client Access Control</string>
+    <string name="client_detail">Client Detail</string>
+    <string name="edit_router">Edit Router</string>
+    <string name="new_client">New Client</string>
+
+    <string name="connect_to">Connect to</string>
+    <string name="address">Address</string>
+    <string name="client_ip">192.xxx.xxx.xxx</string>
+    <string name="client_address">Jl. XXXXXXXXXXXX, No. XX, Kel. XXXXX, Kec. XXXXX, Kota XXXXX</string>
+    <string name="username">Username</string>
+    <string name="client_name">Client Name</string>
+    <string name="password">Password</string>
+    <string name="client_phone">08xxxxxxxxxx</string>
+    <string name="search_hint">Search Client</string>
+
+    <string name="internet_speed">Internet Speed</string>
+    <string name="internet_access">Internet Access</string>
+
+    <string name="logout">Logout</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="save">Save</string>
+    <string name="connect_button">Connect</string>
+    <string name="done">Done</string>
+    <string name="bt_next">Next</string>
+
+    <string name="save_title_dialog">Save changes?</string>
+    <string name="delete_title_dialog">Delete the client?</string>
+    <string name="logout_title_dialog">Logout?</string>
+
+    <string name="logout_desc_dialog">You will be disconnected from the server</string>
+    <string name="save_desc_dialog">This changes will be saved</string>
+    <string name="delete_desc_dialog">This thing will be deleted</string>
+
+    <string name="tv_password_desc">Password Input Form</string>
+    <string name="tv_username_desc">Username Input Form</string>
+    <string name="tv_address_desc">Address Input Form</string>
+
+    <string name="iv_access_indicator">Access Indicator</string>
+    <string name="iv_logo_desc">Application Logo</string>
+
+    <string name="bt_new_client">Add New Client</string>
+    <string name="bt_search_desc">Search Input</string>
+    <string name="bt_logout_desc">Logout from Server</string>
+    <string name="bt_save_desc">Save Changes</string>
+    <string name="bt_connect_desc">Connect to Server</string>
+    <string name="bt_filter_desc">Filter Client</string>
+    <string name="bt_edit_desc">Edit Router Information</string>
+    <string name="bt_save_yes">Save The Changes</string>
+    <string name="bt_save_cancel">Cancel Save Changes</string>
+    <string name="bt_logout_yes">Logout From this Account</string>
+    <string name="bt_logout_cancel">Cancel Logout</string>
+    <string name="bt_delete_yes">Delete this Client</string>
+    <string name="bt_delete_cancel">Cancel Delete Client</string>
+    <string name="bt_done_new_client">Done Adding Client</string>
+    <string name="bt_next_desc">Next Client Form</string>
+
+    <string name="BTS">Base Transceiver Station</string>
+    <string name="client_BTS">Client BTS</string>
+    <string name="client_mode">Client Mode</string>
+    <string name="mode">Mode</string>
+    <string name="client_ssid">Client SSID</string>
+    <string name="ssid">SSID</string>
+    <string name="ip_internet">IP Internet</string>
+    <string name="client_ip_internet">Client IP Internet</string>
+    <string name="radio">Radio</string>
+    <string name="client_radio">Client Radio</string>
+    <string name="radio_name">Radio Name</string>
+    <string name="client_radio_name">Client Radio Name</string>
+    <string name="ip_radio">IP Radio</string>
+    <string name="client_ip_radio">Client IP Radio</string>
+    <string name="frequency">Frequency</string>
+    <string name="client_frequency">Client Frequency</string>
+    <string name="channel_width">Channel Width</string>
+    <string name="client_channel_width">Client Channel Width</string>
+    <string name="signal">Signal</string>
+    <string name="client_signal">Client Signal</string>
+    <string name="preshared_key">Preshared Key</string>
+    <string name="client_preshared_key">Client Preshared Key</string>
+    <string name="ap_location">AP Location</string>
+    <string name="wlan_mac_address">WLAN Mac Address</string>
+    <string name="client_wlan_mac_address">Client WLAN MAC Address</string>
+    <string name="user_password">User Password</string>
+    <string name="client_user_password">Client User Password</string>
+    <string name="comment">Comment</string>
+    <string name="client_comment">Client Comment</string>
+    <string name="client_ap_location">Client AP Location</string>
+    <string name="upload">Upload</string>
+    <string name="router">Router</string>
+    <string name="parent">Parent</string>
+    <string name="packet_marks">Packet Marks</string>
+    <string name="name">Name</string>
+    <string name="name_upload">Name Upload</string>
+    <string name="name_download">Name Download</string>
+    <string name="profile">Profile</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="packet_mark">Packet Mark</string>
+    <string name="download">Download</string>
+    <string name="packet_mark_upload">Packet Mark Upload</string>
+    <string name="packet_mark_download">Packet Mark Download</string>
+    <string name="new_packet_mark">New Packet Mark</string>
+    <string name="bt_back_desc">Back to previous page</string>
+    <string name="filter_menu">Filter</string>
+    <string name="filter_by">Filter By</string>
+    <string name="access">Access</string>
+    <string name="speed">Speed</string>
+    <string name="apply">Apply</string>
+    <string name="reset_all">Reset All</string>
+    <string name="actived">Actived</string>
+    <string name="non_actived">Non-Actived</string>
+    <string name="_10_mbps">10 Mbps</string>
+    <string name="_20_mbps">20 Mbps</string>
+    <string name="_30_mbps">30 Mbps</string>
+    <string name="_40_mbps">40 Mbps</string>
+    <string name="_50_mbps">50 Mbps</string>
+    <string name="_100_mbps">100 Mbps</string>
+    <string name="network">Network</string>
+    <string name="bt_bts_desc">Base Transceiver Station Category</string>
+    <string name="network_list">Network List</string>
+    <string name="add_title_dialog">Add New Network</string>
+    <string name="add">Add</string>
+    <string name="network_filter">Network Filter</string>
+
+
+</resources>
