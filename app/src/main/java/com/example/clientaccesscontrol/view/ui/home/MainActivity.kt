@@ -97,7 +97,7 @@ class MainActivity : AppCompatActivity() {
             when (result) {
                 is Results.Success -> {
                     clients = result.data.clients
-                    showLoading(false)
+                    showLoading(true)
                     Log.d("MainActivity", "Received client data: ${result.data.clients}")
                     clientAdapter.updateData(result.data.clients?.filterNotNull() ?: emptyList())
                     mainViewModel.getQueueTree()
@@ -118,7 +118,7 @@ class MainActivity : AppCompatActivity() {
             when (queueTreeResult) {
                 is Results.Success -> {
                     queueTrees = queueTreeResult.data
-                    showLoading(false)
+                    showLoading(true)
                     updateClientList()
                     Log.d("MainActivity", "Received queue tree data: ${queueTreeResult.data}")
                 }
@@ -207,7 +207,7 @@ class MainActivity : AppCompatActivity() {
                 is Results.Success -> {
                     mainViewModel.updateClient.removeObservers(this)
                     //Get New Client ID
-                    showLoading(false)
+                    showLoading(true)
                     val clientId = result.data.newClient?.clientId!!.toInt()
                     mainViewModel.updateNetwork(
                         clientId,
@@ -227,6 +227,7 @@ class MainActivity : AppCompatActivity() {
                         "",
                         1
                     )
+                    mainViewModel.getAllClient()
                 }
 
                 is Results.Error -> {
