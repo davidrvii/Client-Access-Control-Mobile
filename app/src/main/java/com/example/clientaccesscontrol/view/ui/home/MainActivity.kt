@@ -56,8 +56,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         mainViewModel.getSession()
-        mainViewModel.getAllClient()
-        mainViewModel.getQueueTree()
         buttonMenuAction()
         searchBarAction()
         buttonNewClientAction()
@@ -117,27 +115,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupClientList() {
+        mainViewModel.getAllClient()
         mainViewModel.getAllClient.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
                     showLoading(false)
                     Log.d("MainActivity", "Received client data: ${result.data.clients}")
                     clientAdapter.updateData(result.data.clients?.filterNotNull() ?: emptyList())
-
-                    mainViewModel.getQueueTree.observe(this) { queueTreeResult ->
-                        when (queueTreeResult) {
-                            is Results.Success -> {
-                                showLoading(false)
-                                updateClientList()
-                                Log.d("MainActivity", "Received queue tree data: ${queueTreeResult.data}")
-                            }
-                            is Results.Error -> {
-                                showLoading(false)
-                                Log.d("MainActivity", "Error Getting Queue Tree: ${queueTreeResult.error}")
-                            }
-                            is Results.Loading -> { showLoading(true) }
-                        }
-                    }
+                    mainViewModel.getQueueTree()
                 }
 
                 is Results.Error -> {
@@ -148,6 +133,22 @@ class MainActivity : AppCompatActivity() {
                 is Results.Loading -> { showLoading(true) }
             }
         }
+
+        mainViewModel.getQueueTree.observe(this) { queueTreeResult ->
+            when (queueTreeResult) {
+                is Results.Success -> {
+                    showLoading(false)
+                    updateClientList()
+                    Log.d("MainActivity", "Received queue tree data: ${queueTreeResult.data}")
+                }
+                is Results.Error -> {
+                    showLoading(false)
+                    Log.d("MainActivity", "Error Getting Queue Tree: ${queueTreeResult.error}")
+                }
+                is Results.Loading -> { showLoading(true) }
+            }
+        }
+
         setupClientRecyclerView()
     }
 
