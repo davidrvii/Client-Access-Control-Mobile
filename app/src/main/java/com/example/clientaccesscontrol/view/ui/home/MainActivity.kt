@@ -23,6 +23,7 @@ import com.example.clientaccesscontrol.data.mikrotikresponse.GetQueueTreeRespons
 import com.example.clientaccesscontrol.data.result.Results
 import com.example.clientaccesscontrol.databinding.ActivityMainBinding
 import com.example.clientaccesscontrol.databinding.CustomLogoutDialogBinding
+import com.example.clientaccesscontrol.view.ui.clientdetail.ClientDetailActivity
 import com.example.clientaccesscontrol.view.ui.connect.ConnectActivity
 import com.example.clientaccesscontrol.view.ui.filter.FilterBottomSheet
 import com.example.clientaccesscontrol.view.ui.network.NetworkActivity
@@ -68,8 +69,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        mainViewModel.getAllClient()
-        mainViewModel.getQueueTree()
+        if (ClientDetailActivity.UPDATE_CLIENT == "TRUE") {
+            ClientDetailActivity.UPDATE_CLIENT = "FALSE"
+            mainViewModel.getAllClient()
+        }
     }
 
     private fun updateClientList() {

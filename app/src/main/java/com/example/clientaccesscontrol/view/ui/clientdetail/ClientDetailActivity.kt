@@ -207,6 +207,7 @@ class ClientDetailActivity : AppCompatActivity() {
 
     private fun updateClient() {
         if (accessSelectedId != 0 && speedSelectedId != 0) {
+            UPDATE_CLIENT = "TRUE"
             clientDetailViewModel.updateClient(clientId, accessSelectedId, speedSelectedId)
         }
     }
@@ -295,5 +296,6 @@ class ClientDetailActivity : AppCompatActivity() {
 
     companion object {
         const val CLIENT_ID = "CLIENT_ID"
+        var UPDATE_CLIENT = "UPDATE_CLIENT"
     }
 }
