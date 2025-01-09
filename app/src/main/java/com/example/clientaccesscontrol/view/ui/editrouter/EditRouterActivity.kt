@@ -408,6 +408,7 @@ class EditRouterActivity : AppCompatActivity() {
             editRouterViewModel.updateNetwork.observe(this) { result ->
                 when (result) {
                     is Results.Success -> {
+                        UPDATE_DETAIL_CLIENT = "TRUE"
                         finish()
                         dialog.dismiss()
                     }
@@ -427,5 +428,6 @@ class EditRouterActivity : AppCompatActivity() {
 
     companion object {
         const val CLIENT_ID = "CLIENT_ID"
+        var UPDATE_DETAIL_CLIENT = "FALSE"
     }
 }

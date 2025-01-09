@@ -256,7 +256,6 @@ class ClientDetailActivity : AppCompatActivity() {
 
         bindingDialog.btYesDelete.setOnClickListener {
             clientDetailViewModel.deleteClient(clientId)
-            UPDATE_CLIENT = "TRUE"
             deleteResult()
             dialog.dismiss()
             finish()
@@ -272,6 +271,7 @@ class ClientDetailActivity : AppCompatActivity() {
         clientDetailViewModel.deleteClient.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
+                    UPDATE_CLIENT = "TRUE"
                     showLoading(false)
                     Toast.makeText(this, result.data.message, Toast.LENGTH_SHORT).show()
                 }
@@ -288,7 +288,10 @@ class ClientDetailActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        clientDetailViewModel.getClientDetail(clientId)
+        if (EditRouterActivity.UPDATE_DETAIL_CLIENT == "TRUE") {
+            EditRouterActivity.UPDATE_DETAIL_CLIENT = "FALSE"
+            clientDetailViewModel.getClientDetail(clientId)
+        }
     }
 
     private fun showLoading(isLoading: Boolean) {
