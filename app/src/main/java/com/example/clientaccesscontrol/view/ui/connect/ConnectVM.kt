@@ -12,6 +12,5 @@ class ConnectVM(private val repository: Repository) : ViewModel() {
 
     suspend fun register(username: String, password: String, ipAddress: String): RegisterResponse {
         return repository.register(username, password, ipAddress)
-
     }
 }

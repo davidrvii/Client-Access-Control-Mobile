@@ -98,7 +98,7 @@ class MainActivity : AppCompatActivity() {
 
                     is Results.Error -> {
                         showLoading(false)
-                        Log.d("MainActivity", "Error updating client: ${result.error}")
+                        Log.d("MainActivity", "Error Updating Client: ${result.error}")
                     }
 
                     is Results.Loading -> { showLoading(true) }
@@ -120,20 +120,20 @@ class MainActivity : AppCompatActivity() {
         mainViewModel.getAllClient.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
-                    showLoading(true)
+                    showLoading(false)
                     Log.d("MainActivity", "Received client data: ${result.data.clients}")
                     clientAdapter.updateData(result.data.clients?.filterNotNull() ?: emptyList())
 
-                    mainViewModel.getQueueTree.observe(this) { result ->
-                        when (result) {
+                    mainViewModel.getQueueTree.observe(this) { queueTreeResult ->
+                        when (queueTreeResult) {
                             is Results.Success -> {
-                                showLoading(true)
+                                showLoading(false)
                                 updateClientList()
-                                Log.d("MainActivity", "Received queue tree data: ${result.data}")
+                                Log.d("MainActivity", "Received queue tree data: ${queueTreeResult.data}")
                             }
                             is Results.Error -> {
                                 showLoading(false)
-                                Log.d("MainActivity", "Error: ${result.error}")
+                                Log.d("MainActivity", "Error Getting Queue Tree: ${queueTreeResult.error}")
                             }
                             is Results.Loading -> { showLoading(true) }
                         }
@@ -142,7 +142,7 @@ class MainActivity : AppCompatActivity() {
 
                 is Results.Error -> {
                     showLoading(false)
-                    Log.d("MainActivity", "Error: ${result.error}")
+                    Log.d("MainActivity", "Error Getting Client: ${result.error}")
                 }
 
                 is Results.Loading -> { showLoading(true) }

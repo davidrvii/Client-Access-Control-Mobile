@@ -150,18 +150,21 @@
                     app:layout_constraintStart_toStartOf="@id/spParentUpload"
                     app:layout_constraintTop_toBottomOf="@id/spParentUpload" />
 
-                <Spinner
-                    android:id="@+id/spPacketMarksUpload"
+                <EditText
+                    android:id="@+id/etPacketMarksUpload"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:layout_marginTop="4dp"
                     android:background="@drawable/rounded_grey_stroke_rectangle"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="12dp"
+                    android:hint="@string/upload_packet_marks"
+                    android:importantForAutofill="no"
+                    android:inputType="text"
+                    android:padding="12dp"
                     android:textColor="@color/white"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    android:textColorHint="#888888"
+                    android:textSize="16sp"
                     app:layout_constraintStart_toStartOf="@id/tvPacketMarksUpload"
-                    app:layout_constraintTop_toBottomOf="@id/tvPacketMarksUpload" />
+                    app:layout_constraintTop_toBottomOf="@+id/tvPacketMarksUpload" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -253,20 +256,23 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="@id/spParentDownload"
-                    app:layout_constraintTop_toBottomOf="@id/spParentDownload" />
+                    app:layout_constraintTop_toBottomOf="@id/spParentDownload"/>
 
-                <Spinner
-                    android:id="@+id/spPacketMarksDownload"
+                <EditText
+                    android:id="@+id/etPacketMarksDownload"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:layout_marginTop="4dp"
                     android:background="@drawable/rounded_grey_stroke_rectangle"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="12dp"
+                    android:hint="@string/download_packet_mark"
+                    android:importantForAutofill="no"
+                    android:inputType="text"
+                    android:padding="12dp"
                     android:textColor="@color/white"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    android:textColorHint="#888888"
+                    android:textSize="16sp"
                     app:layout_constraintStart_toStartOf="@id/tvPacketMarksDownload"
-                    app:layout_constraintTop_toBottomOf="@id/tvPacketMarksDownload" />
+                    app:layout_constraintTop_toBottomOf="@+id/tvPacketMarksDownload" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -278,7 +284,7 @@
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="20dp"
-                android:backgroundTint="@color/black"
+                android:backgroundTint="#4D4D4D"
                 android:elevation="8dp"
                 android:paddingVertical="16dp"
                 android:text="@string/bt_next"
@@ -289,6 +295,7 @@
                 app:icon="@drawable/next_icon"
                 app:iconGravity="end"
                 app:iconTint="@color/white"
+                android:enabled="false"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

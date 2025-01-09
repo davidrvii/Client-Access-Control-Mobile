@@ -114,7 +114,7 @@
                     app:layout_constraintTop_toBottomOf="@id/tvUpload" />
 
                 <EditText
-                    android:id="@+id/etNameUpload"
+                    android:id="@+id/etClientName"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:layout_marginTop="4dp"
@@ -126,7 +126,7 @@
                     android:textColor="@color/black"
                     android:textColorHint="#757575"
                     android:textSize="16sp"
-                    app:layout_constraintStart_toStartOf="@id/tvNameUpload"
+                    app:layout_constraintStart_toStartOf="@+id/tvNameUpload"
                     app:layout_constraintTop_toBottomOf="@+id/tvNameUpload" />
 
                 <TextView
@@ -138,8 +138,8 @@
                     android:textColor="@color/black"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    app:layout_constraintStart_toStartOf="@id/etNameUpload"
-                    app:layout_constraintTop_toBottomOf="@id/etNameUpload" />
+                    app:layout_constraintStart_toStartOf="@+id/etClientName"
+                    app:layout_constraintTop_toBottomOf="@+id/etClientName" />
 
                 <EditText
                     android:id="@+id/etPhoneNumber"
@@ -154,7 +154,7 @@
                     android:textColor="@color/black"
                     android:textColorHint="#757575"
                     android:textSize="16sp"
-                    app:layout_constraintStart_toStartOf="@id/tvPhoneNumber"
+                    app:layout_constraintStart_toStartOf="@+id/tvPhoneNumber"
                     app:layout_constraintTop_toBottomOf="@+id/tvPhoneNumber"
                     tools:ignore="TextFields" />
 
@@ -167,8 +167,8 @@
                     android:textColor="@color/black"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    app:layout_constraintStart_toStartOf="@id/etPhoneNumber"
-                    app:layout_constraintTop_toBottomOf="@id/etPhoneNumber" />
+                    app:layout_constraintStart_toStartOf="@+id/etPhoneNumber"
+                    app:layout_constraintTop_toBottomOf="@+id/etPhoneNumber" />
 
                 <EditText
                     android:id="@+id/etAddress"
@@ -183,7 +183,7 @@
                     android:textColor="@color/black"
                     android:textColorHint="#757575"
                     android:textSize="16sp"
-                    app:layout_constraintStart_toStartOf="@id/tvAddress"
+                    app:layout_constraintStart_toStartOf="@+id/tvAddress"
                     app:layout_constraintTop_toBottomOf="@+id/tvAddress" />
 
                 <TextView
@@ -195,8 +195,8 @@
                     android:textColor="@color/black"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    app:layout_constraintStart_toStartOf="@id/etAddress"
-                    app:layout_constraintTop_toBottomOf="@id/etAddress" />
+                    app:layout_constraintStart_toStartOf="@+id/etAddress"
+                    app:layout_constraintTop_toBottomOf="@+id/etAddress" />
 
                 <Spinner
                     android:id="@+id/spInternetSpeed"
@@ -353,7 +353,7 @@
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="20dp"
-                android:backgroundTint="@color/black"
+                android:backgroundTint="#4D4D4D"
                 android:elevation="8dp"
                 android:paddingVertical="16dp"
                 android:text="@string/bt_next"
@@ -364,6 +364,7 @@
                 app:icon="@drawable/next_icon"
                 app:iconGravity="end"
                 app:iconTint="@color/white"
+                android:enabled="false"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

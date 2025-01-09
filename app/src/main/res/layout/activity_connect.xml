@@ -113,7 +113,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:backgroundTint="@color/white"
+            android:backgroundTint="#4D4D4D"
             app:cornerRadius="20sp"
             android:contentDescription="@string/bt_connect_desc"
             android:elevation="16dp"

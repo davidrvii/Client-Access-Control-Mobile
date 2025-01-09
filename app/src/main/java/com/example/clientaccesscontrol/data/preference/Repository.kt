@@ -6,6 +6,7 @@ import androidx.lifecycle.liveData
 import com.example.clientaccesscontrol.data.cacresponse.CreateBTSResponse
 import com.example.clientaccesscontrol.data.cacresponse.CreateChannelWidthResponse
 import com.example.clientaccesscontrol.data.cacresponse.CreateModeResponse
+import com.example.clientaccesscontrol.data.cacresponse.CreateNewClientResponse
 import com.example.clientaccesscontrol.data.cacresponse.CreatePresharedKeyResponse
 import com.example.clientaccesscontrol.data.cacresponse.CreateRadioResponse
 import com.example.clientaccesscontrol.data.cacresponse.DeleteBTSResponse
@@ -26,6 +27,11 @@ import com.example.clientaccesscontrol.data.cacresponse.GetSpeedResponse
 import com.example.clientaccesscontrol.data.cacresponse.RegisterResponse
 import com.example.clientaccesscontrol.data.cacresponse.UpdateClientDetailResponse
 import com.example.clientaccesscontrol.data.cacresponse.UpdateNetworkResponse
+import com.example.clientaccesscontrol.data.mikrotikresponse.CreateFilterRulesResponse
+import com.example.clientaccesscontrol.data.mikrotikresponse.CreateMangleDownloadResponse
+import com.example.clientaccesscontrol.data.mikrotikresponse.CreateMangleLANResponse
+import com.example.clientaccesscontrol.data.mikrotikresponse.CreateMangleUploadResponse
+import com.example.clientaccesscontrol.data.mikrotikresponse.CreateQueueTreeResponse
 import com.example.clientaccesscontrol.data.mikrotikresponse.GetQueueTreeResponseItem
 import com.example.clientaccesscontrol.data.result.Results
 import com.example.clientaccesscontrol.data.retrofit.ServiceApiCAC
@@ -88,6 +94,26 @@ class Repository private constructor(
 
     suspend fun logout() {
         userPreference.logout()
+    }
+
+    suspend fun createNewClient(
+        token: String,
+        name: String,
+        phone: String,
+        address: String,
+        comment: String,
+        accessId: Int,
+        speedId: Int,
+    ): LiveData<Results<CreateNewClientResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceCAC.createNewClient(token, name, phone, address, comment, accessId, speedId)
+            Log.d("Repository", "Response: $response")
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            emit(Results.Error(e.message.toString()))
+            Log.d("Repository", "Error: ${e.message}")
+        }
     }
 
     suspend fun createBTS(
@@ -404,6 +430,128 @@ class Repository private constructor(
         emit(Results.Loading)
         try {
             val response = apiServiceCAC.deleteClient("Bearer $token", id)
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            emit(Results.Error(e.message.toString()))
+        }
+    }
+
+    suspend fun createQueueTree(
+        name: String,
+        parent: String,
+        comment: String,
+        packetMark: String,
+        limitAt: String,
+        maxLimit: String,
+        burstTime: String,
+        burstThreshold: String,
+        burstLimit: String,
+    ): LiveData<Results<CreateQueueTreeResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceMikrotik.createQueueTree(
+                name,
+                parent,
+                comment,
+                packetMark,
+                limitAt,
+                maxLimit,
+                burstTime,
+                burstThreshold,
+                burstLimit
+            )
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            emit(Results.Error(e.message.toString()))
+        }
+    }
+
+    suspend fun createMangleUpload(
+        comment: String,
+        chain: String,
+        srcAddress: String,
+        inInterface: String,
+        action: String,
+        newPacketMark: String,
+    ): LiveData<Results<CreateMangleUploadResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceMikrotik.createMangleUpload(
+                comment,
+                chain,
+                srcAddress,
+                inInterface,
+                action,
+                newPacketMark
+            )
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            emit(Results.Error(e.message.toString()))
+        }
+    }
+
+    suspend fun createMangleDownload(
+        comment: String,
+        chain: String,
+        dstAddress: String,
+        outInterface: String,
+        action: String,
+        newPacketMark: String,
+    ): LiveData<Results<CreateMangleDownloadResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceMikrotik.createMangleDownload(
+                comment,
+                chain,
+                dstAddress,
+                outInterface,
+                action,
+                newPacketMark
+            )
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            emit(Results.Error(e.message.toString()))
+        }
+    }
+
+    suspend fun createMangleLAN(
+        comment: String,
+        chain: String,
+        dstAddress: String,
+        srcAddressList: String,
+        action: String,
+        newPacketMark: String,
+    ): LiveData<Results<CreateMangleLANResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceMikrotik.createMangleLAN(
+                comment,
+                chain,
+                dstAddress,
+                srcAddressList,
+                action,
+                newPacketMark
+            )
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            emit(Results.Error(e.message.toString()))
+        }
+    }
+
+    suspend fun createFilterRules(
+        comment: String,
+        chain: String,
+        srcAddress: String,
+        action: String,
+        ): LiveData<Results<CreateFilterRulesResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceMikrotik.createFilterRules(
+                comment,
+                chain,
+                srcAddress,
+                action
+            )
             emit(Results.Success(response))
         } catch (e: Exception) {
             emit(Results.Error(e.message.toString()))

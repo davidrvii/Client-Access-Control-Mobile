@@ -24,8 +24,7 @@ class ClientDetailVM(private val repository: Repository) : ViewModel() {
         viewModelScope.launch {
             repository.getSession().collect { user ->
                 user.token.let { token ->
-                    val bearerToken = "Bearer $token"
-                    val source = repository.deleteClient(bearerToken, id)
+                    val source = repository.deleteClient(token, id)
                     _deleteClient.addSource(source) { result ->
                         _deleteClient.value = result
                         _deleteClient.removeSource(source)

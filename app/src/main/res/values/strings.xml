@@ -121,6 +121,10 @@
     <string name="add_title_dialog">Add New Network</string>
     <string name="add">Add</string>
     <string name="network_filter">Network Filter</string>
+    <string name="upload_packet_marks">Upload Packet Marks</string>
+    <string name="download_packet_mark">Download Packet Mark</string>
+    <string name="loading_new_client">Creating New Client</string>
+    <string name="loading_desc">Please wait…</string>
 
 
 </resources>

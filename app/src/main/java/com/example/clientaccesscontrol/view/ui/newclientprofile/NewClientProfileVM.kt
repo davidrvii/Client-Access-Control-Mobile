@@ -4,9 +4,9 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.clientaccesscontrol.data.preference.Repository
 import com.example.clientaccesscontrol.data.cacresponse.GetAccessResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetSpeedResponse
+import com.example.clientaccesscontrol.data.preference.Repository
 import com.example.clientaccesscontrol.data.result.Results
 import kotlinx.coroutines.launch
 

@@ -3,6 +3,7 @@ package com.example.clientaccesscontrol.data.retrofit
 import com.example.clientaccesscontrol.data.cacresponse.CreateBTSResponse
 import com.example.clientaccesscontrol.data.cacresponse.CreateChannelWidthResponse
 import com.example.clientaccesscontrol.data.cacresponse.CreateModeResponse
+import com.example.clientaccesscontrol.data.cacresponse.CreateNewClientResponse
 import com.example.clientaccesscontrol.data.cacresponse.CreatePresharedKeyResponse
 import com.example.clientaccesscontrol.data.cacresponse.CreateRadioResponse
 import com.example.clientaccesscontrol.data.cacresponse.DeleteBTSResponse
@@ -49,6 +50,18 @@ interface ServiceApiCAC {
         @Field("username") username: String,
         @Field("password") password: String,
     ): LoginResponse
+
+    @FormUrlEncoded
+    @POST("client/add")
+    suspend fun createNewClient(
+        @Header("Authorization") token: String,
+        @Field("name") name: String,
+        @Field("phone") phone: String,
+        @Field("address") address: String,
+        @Field("comment") comment: String,
+        @Field("access_id") accessId: Int,
+        @Field("speed_id") speedId: Int,
+    ): CreateNewClientResponse
 
     @FormUrlEncoded
     @POST("bts/add")

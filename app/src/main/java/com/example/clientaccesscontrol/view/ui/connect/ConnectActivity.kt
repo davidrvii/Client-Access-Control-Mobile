@@ -1,6 +1,8 @@
 package com.example.clientaccesscontrol.view.ui.connect
 
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -64,30 +66,7 @@ class ConnectActivity : AppCompatActivity() {
     }
 
     private fun setupAction() {
-        binding.etUsername.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                buttonSet()
-            }
-
-            override fun afterTextChanged(s: Editable?) {}
-        })
-        binding.etPassword.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                buttonSet()
-            }
-
-            override fun afterTextChanged(s: Editable?) {}
-        })
-        binding.etAddress.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                buttonSet()
-            }
-
-            override fun afterTextChanged(s: Editable?) {}
-        })
+        textFieldWatcher()
 
         binding.btConnect.setOnClickListener {
             val username = binding.etUsername.text.toString().trim()
@@ -99,14 +78,40 @@ class ConnectActivity : AppCompatActivity() {
         }
     }
 
+    private fun textFieldWatcher() {
+        val textFields = listOf(
+            binding.etUsername,
+            binding.etPassword,
+            binding.etAddress
+        )
+        for (textField in textFields) {
+            textField.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                    buttonSet()
+                }
+                override fun afterTextChanged(p0: Editable?) {}
+            })
+        }
+    }
+
     private fun buttonSet() {
         val username = binding.etUsername.text.toString()
         val password = binding.etPassword.text.toString()
         val ipAddress = binding.etAddress.text.toString()
 
-        val isFieldFilled = username.isNotEmpty() && password.isNotEmpty() && ipAddress.isNotEmpty()
+        val isFieldFilled =
+                    username.isNotEmpty() &&
+                    password.isNotEmpty() &&
+                    ipAddress.isNotEmpty()
 
-        binding.btConnect.isEnabled = isFieldFilled
+        if (isFieldFilled) {
+            binding.btConnect.isEnabled = true
+            binding.btConnect.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
+        } else {
+            binding.btConnect.isEnabled = false
+            binding.btConnect.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#4D4D4D"))
+        }
     }
 
     private suspend fun loginProcess(username: String, password: String, ipAddress: String) {
