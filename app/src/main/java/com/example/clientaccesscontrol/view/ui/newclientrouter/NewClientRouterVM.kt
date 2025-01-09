@@ -25,7 +25,6 @@ class NewClientRouterVM(private val repository: Repository) : ViewModel() {
         name: String,
         phone: String,
         address: String,
-        comment: String,
         accessId: Int,
         speedId: Int,
     ) {
@@ -39,7 +38,6 @@ class NewClientRouterVM(private val repository: Repository) : ViewModel() {
                             name,
                             phone,
                             address,
-                            comment,
                             accessId,
                             speedId
                         )

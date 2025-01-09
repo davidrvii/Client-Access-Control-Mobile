@@ -31,9 +31,6 @@ data class NewClient(
 	@field:SerializedName("access_id")
 	val accessId: Int? = null,
 
-	@field:SerializedName("comment")
-	val comment: String? = null,
-
 	@field:SerializedName("speed_id")
 	val speedId: Int? = null
 )

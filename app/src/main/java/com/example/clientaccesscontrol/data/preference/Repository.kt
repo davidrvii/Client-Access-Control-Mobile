@@ -101,13 +101,12 @@ class Repository private constructor(
         name: String,
         phone: String,
         address: String,
-        comment: String,
         accessId: Int,
         speedId: Int,
     ): LiveData<Results<CreateNewClientResponse>> = liveData {
         emit(Results.Loading)
         try {
-            val response = apiServiceCAC.createNewClient(token, name, phone, address, comment, accessId, speedId)
+            val response = apiServiceCAC.createNewClient(token, name, phone, address, accessId, speedId)
             Log.d("Repository", "Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {

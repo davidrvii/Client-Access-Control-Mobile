@@ -257,7 +257,6 @@ class NewClientRouterActivity : AppCompatActivity() {
             clientName,
             phone,
             address,
-            comment,
             accessId,
             speedId
         )
@@ -265,7 +264,6 @@ class NewClientRouterActivity : AppCompatActivity() {
             when (result) {
                 is Results.Success -> {
                     //Get New Client ID
-                    Log.d("NewClientRouterActivity", "Delay 3 detik")
                     val clientId = result.data.newClient?.clientId!!.toInt()
                     newClientRouterViewModel.updateNetwork(
                         clientId,

@@ -10,6 +10,7 @@ import android.view.Window
 import android.view.WindowManager
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -43,9 +44,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     //Button Menu Animation
-    private val rotateOpen: Animation by lazy { AnimationUtils.loadAnimation(this, R.anim.rotate_open_anim) }
-    private val rotateClose: Animation by lazy { AnimationUtils.loadAnimation(this, R.anim.rotate_close_anim) }
-    private val fromTop: Animation by lazy { AnimationUtils.loadAnimation(this, R.anim.from_top_anim) }
+    private val rotateOpen: Animation by lazy {
+        AnimationUtils.loadAnimation(
+            this,
+            R.anim.rotate_open_anim
+        )
+    }
+    private val rotateClose: Animation by lazy {
+        AnimationUtils.loadAnimation(
+            this,
+            R.anim.rotate_close_anim
+        )
+    }
+    private val fromTop: Animation by lazy {
+        AnimationUtils.loadAnimation(
+            this,
+            R.anim.from_top_anim
+        )
+    }
     private val toTop: Animation by lazy { AnimationUtils.loadAnimation(this, R.anim.to_top_anim) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,52 +91,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateClientList() {
-        if (clients != null && queueTrees != null) {
-            val queueTreeComments = queueTrees!!.map { it.comment }.toSet()
-            clients!!.forEach { client ->
-                if (!queueTreeComments.contains(client?.comment)) {
-                    client?.clientId?.let { clientId ->
-                        client.speedId?.let { speedId ->
-                            mainViewModel.updateClient(clientId, 3, speedId)
-                        }
-                    }
-                }
-            }
-
-            mainViewModel.updateClient.observe(this) { result ->
-                when (result) {
-                    is Results.Success -> {
-                        showLoading(false)
-                        Log.d("MainActivity", "Client updated: ${result.data.updatedClient?.clientId}")
-                    }
-
-                    is Results.Error -> {
-                        showLoading(false)
-                        Log.d("MainActivity", "Error Updating Client: ${result.error}")
-                    }
-
-                    is Results.Loading -> { showLoading(true) }
-                }
-            }
-        }
-
-        if (queueTrees != null && clients != null) {
-            val clientComment = clients!!.map { it?.comment }
-            queueTrees!!.forEach { queueTree ->
-                if (!clientComment.contains(queueTree.comment)) {
-                    Log.d("MainActivity", "Queue tree not found in client list: ${queueTree.comment}")
-                }
-            }
-        }
-    }
-
     private fun setupClientList() {
         mainViewModel.getAllClient()
         mainViewModel.getAllClient.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
-                    clients =  result.data.clients
+                    clients = result.data.clients
                     showLoading(false)
                     Log.d("MainActivity", "Received client data: ${result.data.clients}")
                     clientAdapter.updateData(result.data.clients?.filterNotNull() ?: emptyList())
@@ -132,7 +108,9 @@ class MainActivity : AppCompatActivity() {
                     Log.d("MainActivity", "Error Getting Client: ${result.error}")
                 }
 
-                is Results.Loading -> { showLoading(true) }
+                is Results.Loading -> {
+                    showLoading(true)
+                }
             }
         }
 
@@ -144,11 +122,15 @@ class MainActivity : AppCompatActivity() {
                     updateClientList()
                     Log.d("MainActivity", "Received queue tree data: ${queueTreeResult.data}")
                 }
+
                 is Results.Error -> {
                     showLoading(false)
                     Log.d("MainActivity", "Error Getting Queue Tree: ${queueTreeResult.error}")
                 }
-                is Results.Loading -> { showLoading(true) }
+
+                is Results.Loading -> {
+                    showLoading(true)
+                }
             }
         }
 
@@ -160,6 +142,128 @@ class MainActivity : AppCompatActivity() {
         binding.rvClientList.apply {
             adapter = clientAdapter
             layoutManager = LinearLayoutManager(context)
+        }
+    }
+
+    private fun updateClientList() {
+        val queueTreeComments = queueTrees!!.map { it.comment?.trim() }.toSet()
+        val clientComments = clients!!.map { it?.comment?.trim() }.toSet()
+
+        if (clients != null && queueTrees != null) {
+            val clientCommentNotInQueueTree = clientComments.subtract(queueTreeComments)
+            clientCommentNotInQueueTree.forEach { comment ->
+                val client = clients!!.find { it?.comment == comment }
+                Log.d("MainActivity", "Client to update: $client")
+                if (client?.clientId != null && client.speedId != null) {
+                    mainViewModel.updateClient(client.clientId, 3, client.speedId)
+                }
+            }
+            mainViewModel.updateClient.observe(this) { result ->
+                when (result) {
+                    is Results.Success -> {
+                        mainViewModel.updateClient.removeObservers(this)
+                        showLoading(false)
+                        Log.d(
+                            "MainActivity",
+                            "Client updated: ${result.data.updatedClient?.clientId}"
+                        )
+                    }
+
+                    is Results.Error -> {
+                        mainViewModel.updateClient.removeObservers(this)
+                        showLoading(false)
+                        Log.d("MainActivity", "Error Updating Client: ${result.error}")
+                    }
+
+                    is Results.Loading -> {
+                        showLoading(true)
+                    }
+                }
+            }
+
+            val queueTreeCommentsNotInClient = queueTreeComments.subtract(clientComments)
+            queueTreeCommentsNotInClient.forEach { comment ->
+                if (comment?.contains("Total") == false) {
+                    val existingClient = clients?.find { it?.comment == comment }
+                    if (existingClient == null) {
+                        createNewClient(comment.toString())
+                        Log.d("queueTreeCommentsNotInClient", "New client created: $comment")
+                    } else {
+                        Log.d("queueTreeCommentsNotInClient", "Client with comment '$comment' already exists.")
+                    }
+
+                } else {
+                    Log.d("queueTreeCommentsNotInClient", "Client with comment '$comment' not included")
+                }
+            }
+        }
+    }
+
+    private fun createNewClient(comment: String) {
+        //Crate New Client
+        mainViewModel.createNewClient(comment, "", "", 1, 1)
+        mainViewModel.createNewClient.observe(this) { result ->
+            when (result) {
+                is Results.Success -> {
+                    mainViewModel.updateClient.removeObservers(this)
+                    //Get New Client ID
+                    showLoading(false)
+                    val clientId = result.data.newClient?.clientId!!.toInt()
+                    mainViewModel.updateNetwork(
+                        clientId,
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        1,
+                        1,
+                        1,
+                        1,
+                        comment,
+                        "",
+                        1
+                    )
+                }
+
+                is Results.Error -> {
+                    mainViewModel.updateClient.removeObservers(this)
+                    showLoading(false)
+                    Toast.makeText(
+                        this,
+                        "Create New Client Error: ${result.error}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    Log.d("NewClientRouterActivity", "Create New Client Error: ${result.error}")
+                }
+
+                is Results.Loading -> {
+                    showLoading(true)
+                }
+            }
+        }
+
+        mainViewModel.updateNetwork.observe(this) { result ->
+            when (result) {
+                is Results.Success -> {
+                    mainViewModel.updateClient.removeObservers(this)
+                    showLoading(false)
+                }
+
+                is Results.Error -> {
+                    mainViewModel.updateClient.removeObservers(this)
+                    showLoading(false)
+                    Toast.makeText(this, "Update New Client Failed", Toast.LENGTH_SHORT).show()
+                    Log.d("NewClientRouterActivity", "Update New Client Error: ${result.error}")
+                }
+
+                is Results.Loading -> {
+                    showLoading(true)
+                }
+            }
         }
     }
 

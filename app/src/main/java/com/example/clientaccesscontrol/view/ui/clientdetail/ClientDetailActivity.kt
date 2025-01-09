@@ -256,6 +256,7 @@ class ClientDetailActivity : AppCompatActivity() {
 
         bindingDialog.btYesDelete.setOnClickListener {
             clientDetailViewModel.deleteClient(clientId)
+            UPDATE_CLIENT = "TRUE"
             deleteResult()
             dialog.dismiss()
             finish()

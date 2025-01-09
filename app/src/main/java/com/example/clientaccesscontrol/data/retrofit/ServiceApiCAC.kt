@@ -58,7 +58,6 @@ interface ServiceApiCAC {
         @Field("name") name: String,
         @Field("phone") phone: String,
         @Field("address") address: String,
-        @Field("comment") comment: String,
         @Field("access_id") accessId: Int,
         @Field("speed_id") speedId: Int,
     ): CreateNewClientResponse

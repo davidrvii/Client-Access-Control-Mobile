@@ -7,8 +7,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.clientaccesscontrol.data.cacresponse.CreateNewClientResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetAllClientResponse
 import com.example.clientaccesscontrol.data.cacresponse.UpdateClientDetailResponse
+import com.example.clientaccesscontrol.data.cacresponse.UpdateNetworkResponse
 import com.example.clientaccesscontrol.data.mikrotikresponse.GetQueueTreeResponseItem
 import com.example.clientaccesscontrol.data.preference.Repository
 import com.example.clientaccesscontrol.data.preference.UserModel
@@ -19,6 +21,93 @@ class MainVM(private val repository: Repository) : ViewModel() {
 
     fun getSession(): LiveData<UserModel> {
         return repository.getSession().asLiveData()
+    }
+
+    //Create New Client
+    private val _createNewClient = MediatorLiveData<Results<CreateNewClientResponse>>()
+    val createNewClient: MutableLiveData<Results<CreateNewClientResponse>> = _createNewClient
+
+    fun createNewClient(
+        name: String,
+        phone: String,
+        address: String,
+        accessId: Int,
+        speedId: Int,
+    ) {
+        viewModelScope.launch {
+            repository.getSession().collect { user ->
+                user.token.let { token ->
+                    val bearerToken = "Bearer $token"
+                    _createNewClient.addSource(
+                        repository.createNewClient(
+                            bearerToken,
+                            name,
+                            phone,
+                            address,
+                            accessId,
+                            speedId
+                        )
+                    ) { result ->
+                        _createNewClient.value = result
+                    }
+                }
+            }
+        }
+    }
+
+    //Create New Network
+    private val _updateNetwork = MediatorLiveData<Results<UpdateNetworkResponse>>()
+    val updateNetwork: MutableLiveData<Results<UpdateNetworkResponse>> = _updateNetwork
+
+    fun updateNetwork(
+        id: Int,
+        radioName: String,
+        frequency: String,
+        ipRadio: String,
+        ipAddress: String,
+        wlanMacAddress: String,
+        ssid: String,
+        radioSignal: String,
+        apLocation: String,
+        radio: Int,
+        mode: Int,
+        channelWidth: Int,
+        presharedKey: Int,
+        comment: String,
+        password: String,
+        bts: Int,
+    ) {
+        viewModelScope.launch {
+            _updateNetwork.value = Results.Loading
+            try {
+                repository.getSession().collect { user ->
+                    user.token.let { token ->
+                        val response = repository.updateNetwork(
+                            token,
+                            id,
+                            radioName,
+                            frequency,
+                            ipRadio,
+                            ipAddress,
+                            wlanMacAddress,
+                            ssid,
+                            radioSignal,
+                            apLocation,
+                            radio,
+                            mode,
+                            channelWidth,
+                            presharedKey,
+                            comment,
+                            password,
+                            bts
+                        )
+                        _updateNetwork.value = Results.Success(response)
+                    }
+                }
+            } catch (e: Exception) {
+                _updateNetwork.value = Results.Error(e.message.toString())
+            }
+        }
     }
 
     private val _getQueueTree = MediatorLiveData<Results<List<GetQueueTreeResponseItem>>>()
