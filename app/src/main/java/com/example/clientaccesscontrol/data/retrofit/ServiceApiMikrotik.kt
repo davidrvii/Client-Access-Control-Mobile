@@ -5,6 +5,7 @@ import com.example.clientaccesscontrol.data.mikrotikresponse.CreateMangleDownloa
 import com.example.clientaccesscontrol.data.mikrotikresponse.CreateMangleLANResponse
 import com.example.clientaccesscontrol.data.mikrotikresponse.CreateMangleUploadResponse
 import com.example.clientaccesscontrol.data.mikrotikresponse.CreateQueueTreeResponse
+import com.example.clientaccesscontrol.data.mikrotikresponse.GetFilterRulesResponseItem
 import com.example.clientaccesscontrol.data.mikrotikresponse.GetQueueTreeResponseItem
 import retrofit2.http.Field
 import retrofit2.http.GET
@@ -14,6 +15,9 @@ interface ServiceApiMikrotik {
 
     @GET("queue/tree")
     suspend fun getQueueTree(): List<GetQueueTreeResponseItem>
+
+    @GET("ip/firewall/filter")
+    suspend fun getFilterRules(): List<GetFilterRulesResponseItem>
 
     @POST("queue/tree/add")
     suspend fun createQueueTree(

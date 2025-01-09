@@ -11,6 +11,7 @@ import com.example.clientaccesscontrol.data.cacresponse.CreateNewClientResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetAllClientResponse
 import com.example.clientaccesscontrol.data.cacresponse.UpdateClientDetailResponse
 import com.example.clientaccesscontrol.data.cacresponse.UpdateNetworkResponse
+import com.example.clientaccesscontrol.data.mikrotikresponse.GetFilterRulesResponseItem
 import com.example.clientaccesscontrol.data.mikrotikresponse.GetQueueTreeResponseItem
 import com.example.clientaccesscontrol.data.preference.Repository
 import com.example.clientaccesscontrol.data.preference.UserModel
@@ -21,6 +22,18 @@ class MainVM(private val repository: Repository) : ViewModel() {
 
     fun getSession(): LiveData<UserModel> {
         return repository.getSession().asLiveData()
+    }
+
+    //Get Filter Rules
+    private val _getFilterRules = MediatorLiveData<Results<List<GetFilterRulesResponseItem>>>()
+    val getFilterRules: LiveData<Results<List<GetFilterRulesResponseItem>>> = _getFilterRules
+
+    fun getFilterRules() {
+        viewModelScope.launch {
+            _getFilterRules.addSource(repository.getFilterRules()) { result ->
+                _getFilterRules.value = result
+            }
+        }
     }
 
     //Create New Client
@@ -115,12 +128,8 @@ class MainVM(private val repository: Repository) : ViewModel() {
 
     fun getQueueTree() {
         viewModelScope.launch {
-            repository.getSession().collect { user ->
-                user.token.let { token ->
-                    _getQueueTree.addSource(repository.getQueueTree()) { result ->
-                        _getQueueTree.value = result
-                    }
-                }
+            _getQueueTree.addSource(repository.getQueueTree()) { result ->
+                _getQueueTree.value = result
             }
         }
     }

@@ -32,6 +32,7 @@ import com.example.clientaccesscontrol.data.mikrotikresponse.CreateMangleDownloa
 import com.example.clientaccesscontrol.data.mikrotikresponse.CreateMangleLANResponse
 import com.example.clientaccesscontrol.data.mikrotikresponse.CreateMangleUploadResponse
 import com.example.clientaccesscontrol.data.mikrotikresponse.CreateQueueTreeResponse
+import com.example.clientaccesscontrol.data.mikrotikresponse.GetFilterRulesResponseItem
 import com.example.clientaccesscontrol.data.mikrotikresponse.GetQueueTreeResponseItem
 import com.example.clientaccesscontrol.data.result.Results
 import com.example.clientaccesscontrol.data.retrofit.ServiceApiCAC
@@ -183,13 +184,25 @@ class Repository private constructor(
 
     suspend fun getQueueTree(): LiveData<Results<List<GetQueueTreeResponseItem>>> = liveData {
         emit(Results.Loading)
+        Log.d("Repository", "Getting Queue Tree Loading")
         try {
-            Log.d("Repository", "Calling getQueueTree()")
             val response = apiServiceMikrotik.getQueueTree()
+            emit(Results.Success(response))
             Log.d("Repository", "Queue Tree Response: $response")
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Get Queue Tree: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun getFilterRules(): LiveData<Results<List<GetFilterRulesResponseItem>>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceMikrotik.getFilterRules()
+            Log.d("Repository", "Filter Rules Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {
-            Log.e("Repository", "Error: ${e.message}")
+            Log.e("Repository", "Error Get Filter Rules: ${e.message}")
             emit(Results.Error(e.message.toString()))
         }
     }

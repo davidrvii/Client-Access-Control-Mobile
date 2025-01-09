@@ -20,6 +20,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.clientaccesscontrol.R
 import com.example.clientaccesscontrol.data.cacresponse.ClientsItem
+import com.example.clientaccesscontrol.data.mikrotikresponse.GetFilterRulesResponseItem
 import com.example.clientaccesscontrol.data.mikrotikresponse.GetQueueTreeResponseItem
 import com.example.clientaccesscontrol.data.result.Results
 import com.example.clientaccesscontrol.databinding.ActivityMainBinding
@@ -38,30 +39,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var clientAdapter: ClientAdapter
     private var queueTrees: List<GetQueueTreeResponseItem>? = null
     private var clients: List<ClientsItem?>? = null
+    private var filterRules: List<GetFilterRulesResponseItem>? = null
     private var clicked = false
     private val mainViewModel by viewModels<MainVM> {
         FactoryViewModel.getInstance(this)
     }
 
     //Button Menu Animation
-    private val rotateOpen: Animation by lazy {
-        AnimationUtils.loadAnimation(
-            this,
-            R.anim.rotate_open_anim
-        )
-    }
-    private val rotateClose: Animation by lazy {
-        AnimationUtils.loadAnimation(
-            this,
-            R.anim.rotate_close_anim
-        )
-    }
-    private val fromTop: Animation by lazy {
-        AnimationUtils.loadAnimation(
-            this,
-            R.anim.from_top_anim
-        )
-    }
+    private val rotateOpen: Animation by lazy { AnimationUtils.loadAnimation(this, R.anim.rotate_open_anim) }
+    private val rotateClose: Animation by lazy { AnimationUtils.loadAnimation(this, R.anim.rotate_close_anim) }
+    private val fromTop: Animation by lazy { AnimationUtils.loadAnimation(this, R.anim.from_top_anim) }
     private val toTop: Animation by lazy { AnimationUtils.loadAnimation(this, R.anim.to_top_anim) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,6 +75,8 @@ class MainActivity : AppCompatActivity() {
         if (ClientDetailActivity.UPDATE_CLIENT == "TRUE") {
             ClientDetailActivity.UPDATE_CLIENT = "FALSE"
             mainViewModel.getAllClient()
+        }  else {
+            Log.d("MainActivity", "There is No Client to Update")
         }
     }
 
@@ -97,17 +86,15 @@ class MainActivity : AppCompatActivity() {
             when (result) {
                 is Results.Success -> {
                     clients = result.data.clients
-                    showLoading(true)
+                    showLoading(false)
                     Log.d("MainActivity", "Received client data: ${result.data.clients}")
                     clientAdapter.updateData(result.data.clients?.filterNotNull() ?: emptyList())
                     mainViewModel.getQueueTree()
                 }
-
                 is Results.Error -> {
                     showLoading(false)
                     Log.d("MainActivity", "Error Getting Client: ${result.error}")
                 }
-
                 is Results.Loading -> {
                     showLoading(true)
                 }
@@ -118,14 +105,32 @@ class MainActivity : AppCompatActivity() {
             when (queueTreeResult) {
                 is Results.Success -> {
                     queueTrees = queueTreeResult.data
-                    showLoading(true)
-                    updateClientList()
+                    showLoading(false)
+                    mainViewModel.getFilterRules()
                     Log.d("MainActivity", "Received queue tree data: ${queueTreeResult.data}")
+                }
+                is Results.Error -> {
+                    showLoading(false)
+                    Log.d("MainActivity", "Error Getting Queue Tree: ${queueTreeResult.error}")
+                }
+                is Results.Loading -> {
+                    showLoading(true)
+                }
+            }
+        }
+
+        mainViewModel.getFilterRules.observe(this) { filterRulesResult ->
+            when (filterRulesResult) {
+                is Results.Success -> {
+                    filterRules = filterRulesResult.data
+                    showLoading(false)
+                    updateClientList()
+                    Log.d("MainActivity", "Received filter rules data: ${filterRulesResult.data}")
                 }
 
                 is Results.Error -> {
                     showLoading(false)
-                    Log.d("MainActivity", "Error Getting Queue Tree: ${queueTreeResult.error}")
+                    Log.d("MainActivity", "Error Getting Filter Rules: ${filterRulesResult.error}")
                 }
 
                 is Results.Loading -> {
@@ -133,7 +138,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-
         setupClientRecyclerView()
     }
 
@@ -148,39 +152,37 @@ class MainActivity : AppCompatActivity() {
     private fun updateClientList() {
         val queueTreeComments = queueTrees!!.map { it.comment?.trim() }.toSet()
         val clientComments = clients!!.map { it?.comment?.trim() }.toSet()
+        val filterRulesComment = filterRules!!.map { it.comment?.trim() }.toSet()
 
-        if (clients != null && queueTrees != null) {
+        if (clients != null && queueTrees != null && filterRules != null) {
+
+            //Client Access Change to Not Found If Not Found in Mikrotik but Exist in Database
             val clientCommentNotInQueueTree = clientComments.subtract(queueTreeComments)
             clientCommentNotInQueueTree.forEach { comment ->
                 val client = clients!!.find { it?.comment == comment }
                 Log.d("MainActivity", "Client to update: $client")
                 if (client?.clientId != null && client.speedId != null) {
                     mainViewModel.updateClient(client.clientId, 3, client.speedId)
-                }
-            }
-            mainViewModel.updateClient.observe(this) { result ->
-                when (result) {
-                    is Results.Success -> {
-                        mainViewModel.updateClient.removeObservers(this)
-                        showLoading(false)
-                        Log.d(
-                            "MainActivity",
-                            "Client updated: ${result.data.updatedClient?.clientId}"
-                        )
-                    }
-
-                    is Results.Error -> {
-                        mainViewModel.updateClient.removeObservers(this)
-                        showLoading(false)
-                        Log.d("MainActivity", "Error Updating Client: ${result.error}")
-                    }
-
-                    is Results.Loading -> {
-                        showLoading(true)
-                    }
+                } else {
+                    Log.d("MainActivity", "Client or Rule is null")
                 }
             }
 
+            //Client Access Change to Actived/Non-Actived If There is a Filter Rules On/Off
+            val commentInFilterRulesAndClient = filterRulesComment.intersect(clientComments)
+            commentInFilterRulesAndClient.forEach { comment ->
+                val client = clients!!.find { it?.comment == comment }
+                val rule = filterRules!!.find { it.comment == comment }
+
+                if (client?.clientId != null && client.speedId != null) {
+                    val access = if (rule?.disabled == "true") 1 else 2
+                    mainViewModel.updateClient(client.clientId, access, client.speedId)
+                } else {
+                    Log.d("MainActivity", "Client or Rule is null")
+                }
+            }
+
+            //Create New Client If Not Found in Database but Exist in Mikrotik
             val queueTreeCommentsNotInClient = queueTreeComments.subtract(clientComments)
             queueTreeCommentsNotInClient.forEach { comment ->
                 if (comment?.contains("Total") == false) {
@@ -191,9 +193,29 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         Log.d("queueTreeCommentsNotInClient", "Client with comment '$comment' already exists.")
                     }
-
                 } else {
                     Log.d("queueTreeCommentsNotInClient", "Client with comment '$comment' not included")
+                }
+            }
+        } else {
+            Log.d("MainActivity", "Queue Tree or Client or Rules data is null")
+        }
+
+        //Update Client Observer
+        mainViewModel.updateClient.observe(this) { result ->
+            when (result) {
+                is Results.Success -> {
+                    mainViewModel.updateClient.removeObservers(this)
+                    showLoading(false)
+                    Log.d("MainActivity", "Client updated: ${result.data.updatedClient?.clientId}")
+                }
+                is Results.Error -> {
+                    mainViewModel.updateClient.removeObservers(this)
+                    showLoading(false)
+                    Log.d("MainActivity", "Error Updating Client: ${result.error}")
+                }
+                is Results.Loading -> {
+                    showLoading(true)
                 }
             }
         }
@@ -206,11 +228,10 @@ class MainActivity : AppCompatActivity() {
             when (result) {
                 is Results.Success -> {
                     mainViewModel.updateClient.removeObservers(this)
-                    //Get New Client ID
-                    showLoading(true)
-                    val clientId = result.data.newClient?.clientId!!.toInt()
+                    showLoading(false)
+                    val newClientID = result.data.newClient?.clientId!!.toInt()
                     mainViewModel.updateNetwork(
-                        clientId,
+                        newClientID,
                         "",
                         "",
                         "",
@@ -229,18 +250,12 @@ class MainActivity : AppCompatActivity() {
                     )
                     mainViewModel.getAllClient()
                 }
-
                 is Results.Error -> {
                     mainViewModel.updateClient.removeObservers(this)
                     showLoading(false)
-                    Toast.makeText(
-                        this,
-                        "Create New Client Error: ${result.error}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this, "Create New Client Error: ${result.error}", Toast.LENGTH_SHORT).show()
                     Log.d("NewClientRouterActivity", "Create New Client Error: ${result.error}")
                 }
-
                 is Results.Loading -> {
                     showLoading(true)
                 }
