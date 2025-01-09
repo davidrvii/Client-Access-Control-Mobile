@@ -18,6 +18,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.clientaccesscontrol.R
+import com.example.clientaccesscontrol.data.cacresponse.ClientsItem
+import com.example.clientaccesscontrol.data.mikrotikresponse.GetQueueTreeResponseItem
 import com.example.clientaccesscontrol.data.result.Results
 import com.example.clientaccesscontrol.databinding.ActivityMainBinding
 import com.example.clientaccesscontrol.databinding.CustomLogoutDialogBinding
@@ -32,12 +34,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var bindingDialog: CustomLogoutDialogBinding
     private lateinit var clientAdapter: ClientAdapter
+    private var queueTrees: List<GetQueueTreeResponseItem>? = null
+    private var clients: List<ClientsItem?>? = null
     private var clicked = false
     private val mainViewModel by viewModels<MainVM> {
         FactoryViewModel.getInstance(this)
     }
 
-    //Button Menu Animationfjfj
+    //Button Menu Animation
     private val rotateOpen: Animation by lazy { AnimationUtils.loadAnimation(this, R.anim.rotate_open_anim) }
     private val rotateClose: Animation by lazy { AnimationUtils.loadAnimation(this, R.anim.rotate_close_anim) }
     private val fromTop: Animation by lazy { AnimationUtils.loadAnimation(this, R.anim.from_top_anim) }
@@ -69,15 +73,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateClientList() {
-        val queueTrees = (mainViewModel.getQueueTree.value as? Results.Success)?.data
-        Log.d("MainActivity", "Queue Trees: $queueTrees")
-
-        val clients = (mainViewModel.getAllClient.value as? Results.Success)?.data?.clients
-        Log.d("MainActivity", "Clients: $clients")
-
         if (clients != null && queueTrees != null) {
-            val queueTreeComments = queueTrees.map { it.comment }.toSet()
-            clients.forEach { client ->
+            val queueTreeComments = queueTrees!!.map { it.comment }.toSet()
+            clients!!.forEach { client ->
                 if (!queueTreeComments.contains(client?.comment)) {
                     client?.clientId?.let { clientId ->
                         client.speedId?.let { speedId ->
@@ -105,8 +103,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (queueTrees != null && clients != null) {
-            val clientComment = clients.map { it?.comment }
-            queueTrees.forEach { queueTree ->
+            val clientComment = clients!!.map { it?.comment }
+            queueTrees!!.forEach { queueTree ->
                 if (!clientComment.contains(queueTree.comment)) {
                     Log.d("MainActivity", "Queue tree not found in client list: ${queueTree.comment}")
                 }
@@ -119,6 +117,7 @@ class MainActivity : AppCompatActivity() {
         mainViewModel.getAllClient.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
+                    clients =  result.data.clients
                     showLoading(false)
                     Log.d("MainActivity", "Received client data: ${result.data.clients}")
                     clientAdapter.updateData(result.data.clients?.filterNotNull() ?: emptyList())
@@ -137,6 +136,7 @@ class MainActivity : AppCompatActivity() {
         mainViewModel.getQueueTree.observe(this) { queueTreeResult ->
             when (queueTreeResult) {
                 is Results.Success -> {
+                    queueTrees = queueTreeResult.data
                     showLoading(false)
                     updateClientList()
                     Log.d("MainActivity", "Received queue tree data: ${queueTreeResult.data}")
