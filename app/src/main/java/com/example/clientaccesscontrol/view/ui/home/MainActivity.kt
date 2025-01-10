@@ -82,6 +82,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupClientList() {
         mainViewModel.getAllClient()
+        mainViewModel.getAllClient.removeObservers(this)
         mainViewModel.getAllClient.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
@@ -101,6 +102,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        mainViewModel.getQueueTree.removeObservers(this)
         mainViewModel.getQueueTree.observe(this) { queueTreeResult ->
             when (queueTreeResult) {
                 is Results.Success -> {
@@ -119,6 +121,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        mainViewModel.getFilterRules.removeObservers(this)
         mainViewModel.getFilterRules.observe(this) { filterRulesResult ->
             when (filterRulesResult) {
                 is Results.Success -> {
@@ -175,7 +178,7 @@ class MainActivity : AppCompatActivity() {
                 val rule = filterRules!!.find { it.comment == comment }
 
                 if (client?.clientId != null && client.speedId != null) {
-                    val access = if (rule?.disabled == "true") 1 else 2
+                    val access = if (rule?.disabled == "false") 1 else 2
                     mainViewModel.updateClient(client.clientId, access, client.speedId)
                 } else {
                     Log.d("MainActivity", "Client or Rule is null")
@@ -202,15 +205,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         //Update Client Observer
+        mainViewModel.updateClient.removeObservers(this)
         mainViewModel.updateClient.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
-                    mainViewModel.updateClient.removeObservers(this)
                     showLoading(false)
                     Log.d("MainActivity", "Client updated: ${result.data.updatedClient?.clientId}")
                 }
                 is Results.Error -> {
-                    mainViewModel.updateClient.removeObservers(this)
                     showLoading(false)
                     Log.d("MainActivity", "Error Updating Client: ${result.error}")
                 }
@@ -224,10 +226,10 @@ class MainActivity : AppCompatActivity() {
     private fun createNewClient(comment: String) {
         //Crate New Client
         mainViewModel.createNewClient(comment, "", "", 1, 1)
+        mainViewModel.updateClient.removeObservers(this)
         mainViewModel.createNewClient.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
-                    mainViewModel.updateClient.removeObservers(this)
                     showLoading(false)
                     val newClientID = result.data.newClient?.clientId!!.toInt()
                     mainViewModel.updateNetwork(
@@ -251,7 +253,6 @@ class MainActivity : AppCompatActivity() {
                     mainViewModel.getAllClient()
                 }
                 is Results.Error -> {
-                    mainViewModel.updateClient.removeObservers(this)
                     showLoading(false)
                     Toast.makeText(this, "Create New Client Error: ${result.error}", Toast.LENGTH_SHORT).show()
                     Log.d("NewClientRouterActivity", "Create New Client Error: ${result.error}")
@@ -262,15 +263,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        mainViewModel.updateClient.removeObservers(this)
         mainViewModel.updateNetwork.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
-                    mainViewModel.updateClient.removeObservers(this)
                     showLoading(false)
                 }
-
                 is Results.Error -> {
-                    mainViewModel.updateClient.removeObservers(this)
                     showLoading(false)
                     Toast.makeText(this, "Update New Client Failed", Toast.LENGTH_SHORT).show()
                     Log.d("NewClientRouterActivity", "Update New Client Error: ${result.error}")

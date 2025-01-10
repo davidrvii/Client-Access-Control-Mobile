@@ -7,9 +7,14 @@ import com.example.clientaccesscontrol.data.mikrotikresponse.CreateMangleUploadR
 import com.example.clientaccesscontrol.data.mikrotikresponse.CreateQueueTreeResponse
 import com.example.clientaccesscontrol.data.mikrotikresponse.GetFilterRulesResponseItem
 import com.example.clientaccesscontrol.data.mikrotikresponse.GetQueueTreeResponseItem
+import com.example.clientaccesscontrol.data.mikrotikresponse.UpdateFilterRulesResponse
+import retrofit2.http.Body
 import retrofit2.http.Field
 import retrofit2.http.GET
+import retrofit2.http.Headers
 import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Path
 
 interface ServiceApiMikrotik {
 
@@ -19,6 +24,7 @@ interface ServiceApiMikrotik {
     @GET("ip/firewall/filter")
     suspend fun getFilterRules(): List<GetFilterRulesResponseItem>
 
+    @Headers("Content-Type: application/json")
     @POST("queue/tree/add")
     suspend fun createQueueTree(
         @Field ("name") name: String,
@@ -32,6 +38,7 @@ interface ServiceApiMikrotik {
         @Field ("burst-limit") burstLimit: String,
     ): CreateQueueTreeResponse
 
+    @Headers("Content-Type: application/json")
     @POST("/ip/firewall/mangle/add")
     suspend fun createMangleUpload(
         @Field("comment") comment: String,
@@ -42,6 +49,7 @@ interface ServiceApiMikrotik {
         @Field("new-packet-mark") newPacketMark: String,
     ): CreateMangleUploadResponse
 
+    @Headers("Content-Type: application/json")
     @POST("ip/firewall/mangle/add")
     suspend fun createMangleDownload(
         @Field("comment") comment: String,
@@ -52,6 +60,7 @@ interface ServiceApiMikrotik {
         @Field("new-packet-mark") newPacketMark: String,
     ): CreateMangleDownloadResponse
 
+    @Headers("Content-Type: application/json")
     @POST("ip/firewall/mangle/add")
     suspend fun createMangleLAN(
         @Field("comment") comment: String,
@@ -62,11 +71,16 @@ interface ServiceApiMikrotik {
         @Field("new-packet-mark") newPacketMark: String,
     ): CreateMangleLANResponse
 
-    @POST("/ip/firewall/filter/add")
+    @Headers("Content-Type: application/json")
+    @POST("ip/firewall/filter/add")
     suspend fun createFilterRules(
-        @Field("comment") comment: String,
-        @Field("chain") chain: String,
-        @Field("src-address") srcAddress: String,
-        @Field("action") action: String
+        @Body body: Map<String, String>
     ): CreateFilterRulesResponse
+
+    @Headers("Content-Type: application/json")
+    @PUT("ip/firewall/filter/{id}")
+    suspend fun updatedFilterRules(
+        @Path("id") id: String,
+        @Body body: Map<String, String>
+    ): UpdateFilterRulesResponse
 }

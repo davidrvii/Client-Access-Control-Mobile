@@ -14,5 +14,8 @@ data class CreateFilterRulesResponse(
 	val comment: String? = null,
 
 	@field:SerializedName("src-address")
-	val srcAddress: String? = null
+	val srcAddress: String? = null,
+
+	@field:SerializedName("disabled")
+	val disabled: String? = null
 )

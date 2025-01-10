@@ -34,6 +34,7 @@ import com.example.clientaccesscontrol.data.mikrotikresponse.CreateMangleUploadR
 import com.example.clientaccesscontrol.data.mikrotikresponse.CreateQueueTreeResponse
 import com.example.clientaccesscontrol.data.mikrotikresponse.GetFilterRulesResponseItem
 import com.example.clientaccesscontrol.data.mikrotikresponse.GetQueueTreeResponseItem
+import com.example.clientaccesscontrol.data.mikrotikresponse.UpdateFilterRulesResponse
 import com.example.clientaccesscontrol.data.result.Results
 import com.example.clientaccesscontrol.data.retrofit.ServiceApiCAC
 import com.example.clientaccesscontrol.data.retrofit.ServiceApiMikrotik
@@ -80,7 +81,7 @@ class Repository private constructor(
         val loginResponse = apiServiceCAC.login(ipAddress, username, password)
 
         loginResponse.loginResult?.token?.let {
-            Log.d("UserRepository", "Saving token: $it")
+            Log.d("UserRepository", "Saving token: ${"Bearer $it"}")
             saveToken(it)
         }
         loginResponse.loginResult?.ipAddress?.let {
@@ -555,18 +556,37 @@ class Repository private constructor(
         chain: String,
         srcAddress: String,
         action: String,
+        disabled: String
         ): LiveData<Results<CreateFilterRulesResponse>> = liveData {
         emit(Results.Loading)
         try {
-            val response = apiServiceMikrotik.createFilterRules(
-                comment,
-                chain,
-                srcAddress,
-                action
+            val body = mapOf(
+                "comment" to comment,
+                "chain" to chain,
+                "src-address" to srcAddress,
+                "action" to action,
+                "disabled" to disabled
             )
+            val response = apiServiceMikrotik.createFilterRules(body)
             emit(Results.Success(response))
         } catch (e: Exception) {
             emit(Results.Error(e.message.toString()))
+        }
+    }
+
+    suspend fun updatedFilterRules(
+        id: String,
+        disabled: String
+    ): LiveData<Results<UpdateFilterRulesResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val body = mapOf("disabled" to disabled)
+            val response = apiServiceMikrotik.updatedFilterRules(id, body)
+            Log.d("Repository", "Updated Filter Rules Response: $response")
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Update Filter Rules: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
         }
     }
 

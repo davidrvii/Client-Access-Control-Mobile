@@ -1,6 +1,7 @@
 package com.example.clientaccesscontrol.injection
 
 import android.content.Context
+import android.util.Log
 import com.example.clientaccesscontrol.data.preference.Repository
 import com.example.clientaccesscontrol.data.preference.UserPreference
 import com.example.clientaccesscontrol.data.preference.dataStore
@@ -15,9 +16,11 @@ object Data {
         val baseUrl = runBlocking { pref.getSession().first().ipAdress }
         val username = runBlocking { pref.getSession().first().username }
         val password = runBlocking { pref.getSession().first().password }
+        Log.d("Data", "username: $username")
+        Log.d("Data", "password: $password")
 
-        val apiServiceMikrotik = ConfigApi.getApiServiceMikrotik(baseUrl, username, password)
         val apiServiceCAC = ConfigApi.getApiServiceCAC()
+        val apiServiceMikrotik = ConfigApi.getApiServiceMikrotik(baseUrl, username, password)
 
         return Repository.getInstance(pref, apiServiceCAC, apiServiceMikrotik)
     }

@@ -10,11 +10,59 @@ import com.example.clientaccesscontrol.data.cacresponse.GetAccessResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetClientDetailResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetSpeedResponse
 import com.example.clientaccesscontrol.data.cacresponse.UpdateClientDetailResponse
+import com.example.clientaccesscontrol.data.mikrotikresponse.CreateFilterRulesResponse
+import com.example.clientaccesscontrol.data.mikrotikresponse.GetFilterRulesResponseItem
+import com.example.clientaccesscontrol.data.mikrotikresponse.UpdateFilterRulesResponse
 import com.example.clientaccesscontrol.data.preference.Repository
 import com.example.clientaccesscontrol.data.result.Results
 import kotlinx.coroutines.launch
 
 class ClientDetailVM(private val repository: Repository) : ViewModel() {
+
+    //Update Filter Rules
+    private val _updateFilterRules = MediatorLiveData<Results<UpdateFilterRulesResponse>>()
+    val updateFilterRules: LiveData<Results<UpdateFilterRulesResponse>> = _updateFilterRules
+
+    fun updateFilterRules(
+        id: String,
+        disabled: String
+    ) {
+        viewModelScope.launch {
+            _updateFilterRules.addSource(repository.updatedFilterRules(id, disabled)) { result ->
+                _updateFilterRules.value = result
+            }
+        }
+    }
+
+    //Get Filter Rules
+    private val _getFilterRules = MediatorLiveData<Results<List<GetFilterRulesResponseItem>>>()
+    val getFilterRules: LiveData<Results<List<GetFilterRulesResponseItem>>> = _getFilterRules
+
+    fun getFilterRules() {
+        viewModelScope.launch {
+            _getFilterRules.addSource(repository.getFilterRules()) { result ->
+                _getFilterRules.value = result
+            }
+        }
+    }
+
+    //Create Filter Rules
+    private val _createFilterRules = MediatorLiveData<Results<CreateFilterRulesResponse>>()
+    val createFilterRules: LiveData<Results<CreateFilterRulesResponse>> = _createFilterRules
+
+    fun createFilterRules(
+        comment: String,
+        chain: String,
+        srcAddress: String,
+        action: String,
+        disabled: String
+    ) {
+        viewModelScope.launch {
+            _createFilterRules.addSource(repository.createFilterRules(comment, chain, srcAddress, action, disabled)) { result ->
+                _createFilterRules.value = result
+            }
+        }
+    }
 
     //Delete Client
     private val _deleteClient = MediatorLiveData<Results<DeleteClientResponse>>()
