@@ -98,6 +98,8 @@ class Repository private constructor(
         userPreference.logout()
     }
 
+    //CLIENT ACCESS CONTROL API
+
     suspend fun createNewClient(
         token: String,
         name: String,
@@ -108,253 +110,22 @@ class Repository private constructor(
     ): LiveData<Results<CreateNewClientResponse>> = liveData {
         emit(Results.Loading)
         try {
-            val response = apiServiceCAC.createNewClient(token, name, phone, address, accessId, speedId)
-            Log.d("Repository", "Response: $response")
+            val response = apiServiceCAC.createNewClient("Bearer $token", name, phone, address, accessId, speedId)
+            Log.d("Repository", "Create New Client Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
-            Log.d("Repository", "Error: ${e.message}")
-        }
-    }
-
-    suspend fun createBTS(
-        token: String,
-        bts: String,
-    ): LiveData<Results<CreateBTSResponse>> = liveData {
-        emit(Results.Loading)
-        try {
-            val response = apiServiceCAC.createBTS(token, bts)
-            emit(Results.Success(response))
-        } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
-            Log.d("UserRepository", "Error creating BTS: ${e.message}")
-        }
-    }
-
-    suspend fun createRadio(
-        token: String,
-        radio: String,
-    ): LiveData<Results<CreateRadioResponse>> = liveData {
-        emit(Results.Loading)
-        try {
-            val response = apiServiceCAC.createRadio(token, radio)
-            emit(Results.Success(response))
-        } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
-        }
-    }
-
-    suspend fun createMode(
-        token: String,
-        mode: String,
-    ): LiveData<Results<CreateModeResponse>> = liveData {
-        emit(Results.Loading)
-        try {
-            val response = apiServiceCAC.createMode(token, mode)
-            emit(Results.Success(response))
-        } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
-        }
-    }
-
-    suspend fun createPresharedKey(
-        token: String,
-        presharedKey: String,
-    ): LiveData<Results<CreatePresharedKeyResponse>> = liveData {
-        emit(Results.Loading)
-        try {
-            val response = apiServiceCAC.createPresharedKey(token, presharedKey)
-            emit(Results.Success(response))
-        } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
-        }
-    }
-
-    suspend fun createChannelWidth(
-        token: String,
-        channelWidth: String,
-    ): LiveData<Results<CreateChannelWidthResponse>> = liveData {
-        emit(Results.Loading)
-        try {
-            val response = apiServiceCAC.createChannelWidth(token, channelWidth)
-            emit(Results.Success(response))
-        } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
-        }
-    }
-
-    suspend fun getQueueTree(): LiveData<Results<List<GetQueueTreeResponseItem>>> = liveData {
-        emit(Results.Loading)
-        Log.d("Repository", "Getting Queue Tree Loading")
-        try {
-            val response = apiServiceMikrotik.getQueueTree()
-            emit(Results.Success(response))
-            Log.d("Repository", "Queue Tree Response: $response")
-        } catch (e: Exception) {
-            Log.e("Repository", "Error Get Queue Tree: ${e.localizedMessage}", e)
+            Log.e("Repository", "Error Create New Client: ${e.localizedMessage}", e)
             emit(Results.Error(e.message ?: "Unknown error occurred"))
         }
     }
 
-    suspend fun getFilterRules(): LiveData<Results<List<GetFilterRulesResponseItem>>> = liveData {
-        emit(Results.Loading)
-        try {
-            val response = apiServiceMikrotik.getFilterRules()
-            Log.d("Repository", "Filter Rules Response: $response")
-            emit(Results.Success(response))
-        } catch (e: Exception) {
-            Log.e("Repository", "Error Get Filter Rules: ${e.message}")
-            emit(Results.Error(e.message.toString()))
-        }
-    }
-
-    suspend fun getBTS(
-        token: String,
-    ): LiveData<Results<GetBTSResponse>> = liveData {
-        emit(Results.Loading)
-        try {
-            val response = apiServiceCAC.getBTS("Bearer $token")
-            emit(Results.Success(response))
-        } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
-        }
-    }
-
-    suspend fun getRadio(
-        token: String,
-    ): LiveData<Results<GetRadioResponse>> = liveData {
-        emit(Results.Loading)
-        try {
-            val response = apiServiceCAC.getRadio("Bearer $token")
-            emit(Results.Success(response))
-        } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
-        }
-    }
-
-    suspend fun getMode(
-        token: String,
-    ): LiveData<Results<GetModeResponse>> = liveData {
-        emit(Results.Loading)
-        try {
-            val response = apiServiceCAC.getMode("Bearer $token")
-            emit(Results.Success(response))
-        } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
-        }
-    }
-
-    suspend fun getChannelWidth(
-        token: String,
-    ): LiveData<Results<GetChannelWidthResponse>> = liveData {
-        emit(Results.Loading)
-        try {
-            val response = apiServiceCAC.getChannelWidth("Bearer $token")
-            emit(Results.Success(response))
-        } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
-        }
-    }
-
-    suspend fun getPresharedKey(
-        token: String,
-    ): LiveData<Results<GetPresharedKeyResponse>> = liveData {
-        emit(Results.Loading)
-        try {
-            val response = apiServiceCAC.getPresharedKey("Bearer $token")
-            emit(Results.Success(response))
-        } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
-        }
-    }
-
-    suspend fun deleteBTS(
+    suspend fun updateClient(
         token: String,
         id: Int,
-    ): LiveData<Results<DeleteBTSResponse>> = liveData {
-        emit(Results.Loading)
-        try {
-            val response = apiServiceCAC.deleteBTS("Bearer $token", id)
-            emit(Results.Success(response))
-        } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
-        }
-    }
-
-    suspend fun deleteMode(
-        token: String,
-        id: Int,
-    ): LiveData<Results<DeleteModeResponse>> = liveData {
-        emit(Results.Loading)
-        try {
-            val response = apiServiceCAC.deleteMode("Bearer $token", id)
-            emit(Results.Success(response))
-        } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
-        }
-    }
-
-    suspend fun deleteRadio(
-        token: String,
-        id: Int,
-    ): LiveData<Results<DeleteRadioResponse>> = liveData {
-        emit(Results.Loading)
-        try {
-            val response = apiServiceCAC.deleteRadio("Bearer $token", id)
-            emit(Results.Success(response))
-        } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
-        }
-    }
-
-    suspend fun deleteChannelWidth(
-        token: String,
-        id: Int,
-    ): LiveData<Results<DeleteChannelWidthResponse>> = liveData {
-        emit(Results.Loading)
-        try {
-            val response = apiServiceCAC.deleteChannelWidth("Bearer $token", id)
-            emit(Results.Success(response))
-        } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
-        }
-    }
-
-    suspend fun deletePresharedKey(
-        token: String,
-        id: Int,
-    ): LiveData<Results<DeletePresharedKeyResponse>> = liveData {
-        emit(Results.Loading)
-        try {
-            val response = apiServiceCAC.deletePresharedKey("Bearer $token", id)
-            emit(Results.Success(response))
-        } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
-        }
-    }
-
-    suspend fun getAccess(
-        token: String,
-    ): LiveData<Results<GetAccessResponse>> = liveData {
-        emit(Results.Loading)
-        try {
-            val response = apiServiceCAC.getAccess("Bearer $token")
-            emit(Results.Success(response))
-        } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
-        }
-    }
-
-    suspend fun getSpeed(
-        token: String,
-    ): LiveData<Results<GetSpeedResponse>> = liveData {
-        emit(Results.Loading)
-        try {
-            val response = apiServiceCAC.getSpeed("Bearer $token")
-            emit(Results.Success(response))
-        } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
-        }
+        access: Int,
+        speed: Int,
+    ): UpdateClientDetailResponse {
+        return apiServiceCAC.updateClient("Bearer $token", id, access, speed)
     }
 
     suspend fun getAllClient(
@@ -363,9 +134,11 @@ class Repository private constructor(
         emit(Results.Loading)
         try {
             val response = apiServiceCAC.getAllClient("Bearer $token")
+            Log.d("Repository", "Get All Client Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
+            Log.e("Repository", "Error Get All Client: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
         }
     }
 
@@ -376,9 +149,26 @@ class Repository private constructor(
         emit(Results.Loading)
         try {
             val response = apiServiceCAC.getClientDetail("Bearer $token", id)
+            Log.d("Repository", "Get Client Detail Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
+            Log.e("Repository", "Error Get Client Detail: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun deleteClient(
+        token: String,
+        id: Int,
+    ): LiveData<Results<DeleteClientResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceCAC.deleteClient("Bearer $token", id)
+            Log.d("Repository", "Delete Client Response: $response")
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Delete Client: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
         }
     }
 
@@ -422,32 +212,255 @@ class Repository private constructor(
         )
     }
 
-    suspend fun updateClient(
+    suspend fun createBTS(
         token: String,
-        id: Int,
-        access: Int,
-        speed: Int,
-    ): UpdateClientDetailResponse {
-        return apiServiceCAC.updateClient(
-            token,
-            id,
-            access,
-            speed
-        )
-    }
-
-    suspend fun deleteClient(
-        token: String,
-        id: Int,
-    ): LiveData<Results<DeleteClientResponse>> = liveData {
+        bts: String,
+    ): LiveData<Results<CreateBTSResponse>> = liveData {
         emit(Results.Loading)
         try {
-            val response = apiServiceCAC.deleteClient("Bearer $token", id)
+            val response = apiServiceCAC.createBTS(token, bts)
+            Log.d("Repository", "Create BTS Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
+            Log.e("Repository", "Error Create BTS: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
         }
     }
+
+    suspend fun getBTS(
+        token: String,
+    ): LiveData<Results<GetBTSResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceCAC.getBTS("Bearer $token")
+            Log.d("Repository", "Get BTS Response: $response")
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Get BTS: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun deleteBTS(
+        token: String,
+        id: Int,
+    ): LiveData<Results<DeleteBTSResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceCAC.deleteBTS("Bearer $token", id)
+            Log.d("Repository", "Delete BTS Response: $response")
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Delete BTS: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun createRadio(
+        token: String,
+        radio: String,
+    ): LiveData<Results<CreateRadioResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceCAC.createRadio(token, radio)
+            Log.d("Repository", "Create Radio Response: $response")
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Create Radio: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun getRadio(
+        token: String,
+    ): LiveData<Results<GetRadioResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceCAC.getRadio("Bearer $token")
+            Log.d("Repository", "Get Radio Response: $response")
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Get Radio: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun deleteRadio(
+        token: String,
+        id: Int,
+    ): LiveData<Results<DeleteRadioResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceCAC.deleteRadio("Bearer $token", id)
+            Log.d("Repository", "Delete Radio Response: $response")
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Delete Radio: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun createMode(
+        token: String,
+        mode: String,
+    ): LiveData<Results<CreateModeResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceCAC.createMode(token, mode)
+            Log.d("Repository", "Create Mode Response: $response")
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Create Mode: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun getMode(
+        token: String,
+    ): LiveData<Results<GetModeResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceCAC.getMode("Bearer $token")
+            Log.d("Repository", "Get Mode Response: $response")
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Get Mode: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun deleteMode(
+        token: String,
+        id: Int,
+    ): LiveData<Results<DeleteModeResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceCAC.deleteMode("Bearer $token", id)
+            Log.d("Repository", "Delete Mode Response: $response")
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Delete Mode: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun createPresharedKey(
+        token: String,
+        presharedKey: String,
+    ): LiveData<Results<CreatePresharedKeyResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceCAC.createPresharedKey(token, presharedKey)
+            Log.d("Repository", "Create Preshared Key Response: $response")
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Create Preshared Key: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun getPresharedKey(
+        token: String,
+    ): LiveData<Results<GetPresharedKeyResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceCAC.getPresharedKey("Bearer $token")
+            Log.d("Repository", "Get Preshared Key Response: $response")
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Get Preshared Key: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun deletePresharedKey(
+        token: String,
+        id: Int,
+    ): LiveData<Results<DeletePresharedKeyResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceCAC.deletePresharedKey("Bearer $token", id)
+            Log.d("Repository", "Delete Preshared Key Response: $response")
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Delete Preshared Key: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun createChannelWidth(
+        token: String,
+        channelWidth: String,
+    ): LiveData<Results<CreateChannelWidthResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceCAC.createChannelWidth(token, channelWidth)
+            Log.d("Repository", "Create Channel Width Response: $response")
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Create Channel Width: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun getChannelWidth(
+        token: String,
+    ): LiveData<Results<GetChannelWidthResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceCAC.getChannelWidth("Bearer $token")
+            Log.d("Repository", "Get Channel Width Response: $response")
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Get Channel Width: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun deleteChannelWidth(
+        token: String,
+        id: Int,
+    ): LiveData<Results<DeleteChannelWidthResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceCAC.deleteChannelWidth("Bearer $token", id)
+            Log.d("Repository", "Delete Channel Width Response: $response")
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Delete Channel Width: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun getAccess(
+        token: String,
+    ): LiveData<Results<GetAccessResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceCAC.getAccess("Bearer $token")
+            Log.d("Repository", "Get Access Response: $response")
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Get Access: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun getSpeed(
+        token: String,
+    ): LiveData<Results<GetSpeedResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceCAC.getSpeed("Bearer $token")
+            Log.d("Repository", "Get Speed Response: $response")
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Get Speed: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    //MIKROTIK API
 
     suspend fun createQueueTree(
         name: String,
@@ -473,9 +486,24 @@ class Repository private constructor(
                 burstThreshold,
                 burstLimit
             )
+            Log.d("Repository", "Create Queue Tree Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
+            Log.e("Repository", "Error Create Queue Tree: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun getQueueTree(): LiveData<Results<List<GetQueueTreeResponseItem>>> = liveData {
+        emit(Results.Loading)
+        Log.d("Repository", "Getting Queue Tree Loading")
+        try {
+            val response = apiServiceMikrotik.getQueueTree()
+            emit(Results.Success(response))
+            Log.d("Repository", "Get Queue Tree Response: $response")
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Get Queue Tree: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
         }
     }
 
@@ -497,9 +525,11 @@ class Repository private constructor(
                 action,
                 newPacketMark
             )
+            Log.d("Repository", "Create Mangle Upload Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
+            Log.e("Repository", "Error Create Mangle Upload: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
         }
     }
 
@@ -521,9 +551,11 @@ class Repository private constructor(
                 action,
                 newPacketMark
             )
+            Log.d("Repository", "Create Mangle Download Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
+            Log.e("Repository", "Error Create Mangle Download: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
         }
     }
 
@@ -545,9 +577,11 @@ class Repository private constructor(
                 action,
                 newPacketMark
             )
+            Log.d("Repository", "Create Mangle LAN Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
+            Log.e("Repository", "Error Create Mangle LAN: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
         }
     }
 
@@ -568,9 +602,11 @@ class Repository private constructor(
                 "disabled" to disabled
             )
             val response = apiServiceMikrotik.createFilterRules(body)
+            Log.d("Repository", "Create Filter Rules Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {
-            emit(Results.Error(e.message.toString()))
+            Log.e("Repository", "Error Create Filter Rules: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
         }
     }
 
@@ -586,6 +622,18 @@ class Repository private constructor(
             emit(Results.Success(response))
         } catch (e: Exception) {
             Log.e("Repository", "Error Update Filter Rules: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun getFilterRules(): LiveData<Results<List<GetFilterRulesResponseItem>>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceMikrotik.getFilterRules()
+            Log.d("Repository", "Get Filter Rules Response: $response")
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Get Filter Rules: ${e.localizedMessage}", e)
             emit(Results.Error(e.message ?: "Unknown error occurred"))
         }
     }

@@ -30,16 +30,22 @@ class ClientDetailActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityClientDetailBinding
     private lateinit var bindingDialog: CustomDeleteDialogBinding
+
     private var clientId: Int = 0
-    private var accessSelectedId: Int = 0
-    private var speedSelectedId: Int = 0
+
     private var previousAccessSelectedId: Int = 0
-    private var previousSpeedSelectedId: Int = 0
+    private var accessSelectedId: Int = 0
     private var clientAccess: String = ""
+
+    private var previousSpeedSelectedId: Int = 0
+    private var speedSelectedId: Int = 0
     private var clientSpeed: String = ""
+
     private var comment: String = ""
     private var srcAddress: String = ""
+
     private var filterRules: List<GetFilterRulesResponseItem>? = null
+
     private val clientDetailViewModel by viewModels<ClientDetailVM> {
         FactoryViewModel.getInstance(this)
     }
@@ -67,6 +73,7 @@ class ClientDetailActivity : AppCompatActivity() {
             when (result) {
                 is Results.Success -> {
                     showLoading(false)
+
                     val clientDetail = result.data.clientDetail?.firstOrNull()
                     if (clientDetail != null) {
                         comment = clientDetail.comment.toString()
@@ -92,20 +99,30 @@ class ClientDetailActivity : AppCompatActivity() {
                         binding.tvClientWLANMacAddress.text = clientDetail.wlanMacAddress
                         binding.tvClientUserPassword.text = clientDetail.password
                         binding.tvClientComment.text = clientDetail.comment
+                    } else {
+                        Log.d("ClientDetailActivity", "Client Detail is Null")
                     }
                     setupActionSpinner()
                 }
-                is Results.Error -> { showLoading(false) }
-                is Results.Loading -> { showLoading(true) }
+                is Results.Error -> {
+                    Log.e("ClientDetailActivity", "Error Get Client Detail: ${result.error}")
+                    showLoading(false)
+                }
+                is Results.Loading -> {
+                    showLoading(true)
+                }
             }
         }
     }
 
     private fun setupActionSpinner() {
+        clientDetailViewModel.getAccess.removeObservers(this)
         clientDetailViewModel.getAccess.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
                     showLoading(false)
+
+                    //Setup Spinner Internet Access
                     val accessList = result.data.access?.mapNotNull { it?.internetAccess } ?: emptyList()
                     val accessAdapter = ArrayAdapter(this, R.layout.spinner_dropdown_item, accessList)
                     accessAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
@@ -115,6 +132,8 @@ class ClientDetailActivity : AppCompatActivity() {
                         binding.spInternetAccess.onItemSelectedListener = null
                         previousAccessSelectedId = accessList.indexOf(clientAccess) + 1
                         binding.spInternetAccess.setSelection(accessList.indexOf(clientAccess))
+                    } else {
+                        Log.d("ClientDetailActivity", "Access List is Empty")
                     }
 
                     binding.spInternetAccess.onItemSelectedListener =
@@ -124,6 +143,8 @@ class ClientDetailActivity : AppCompatActivity() {
                                 if (accessSelectedId != previousAccessSelectedId) {
                                     updateClient()
                                     previousAccessSelectedId = accessSelectedId
+                                } else {
+                                    Log.d("ClientDetailActivity", "Access Selected ID Doesn't Change")
                                 }
                             }
                             override fun onNothingSelected(p0: AdapterView<*>?) {
@@ -133,16 +154,22 @@ class ClientDetailActivity : AppCompatActivity() {
                 }
                 is Results.Error -> {
                     showLoading(false)
+                    Log.e("ClientDetailActivity", "Error Get Access: ${result.error}")
                     Toast.makeText(this, "Error: ${result.error}", Toast.LENGTH_SHORT).show()
                 }
-                is Results.Loading -> { showLoading(true) }
+                is Results.Loading -> {
+                    showLoading(true)
+                }
             }
         }
 
+        clientDetailViewModel.getSpeed.removeObservers(this)
         clientDetailViewModel.getSpeed.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
                     showLoading(false)
+
+                    //Setup Spinner Internet Speed
                     val speedList = result.data.speed?.mapNotNull { it?.internetSpeed } ?: emptyList()
                     val speedAdapter = ArrayAdapter(this, R.layout.spinner_dropdown_item, speedList)
                     speedAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
@@ -152,6 +179,8 @@ class ClientDetailActivity : AppCompatActivity() {
                         binding.spInternetSpeed.onItemSelectedListener = null
                         previousSpeedSelectedId = speedList.indexOf(clientSpeed) + 1
                         binding.spInternetSpeed.setSelection(speedList.indexOf(clientSpeed))
+                    } else {
+                        Log.d("ClientDetailActivity", "Speed List is Empty")
                     }
 
                     binding.spInternetSpeed.onItemSelectedListener =
@@ -161,6 +190,8 @@ class ClientDetailActivity : AppCompatActivity() {
                                 if (speedSelectedId != previousSpeedSelectedId) {
                                     updateClient()
                                     previousSpeedSelectedId = speedSelectedId
+                                } else {
+                                    Log.d("ClientDetailActivity", "Speed Selected ID Doesn't Change")
                                 }
                             }
                             override fun onNothingSelected(p0: AdapterView<*>?) {
@@ -170,9 +201,12 @@ class ClientDetailActivity : AppCompatActivity() {
                 }
                 is Results.Error -> {
                     showLoading(false)
+                    Log.e("ClientDetailActivity", "Error Get Speed: ${result.error}")
                     Toast.makeText(this, "Error: ${result.error}", Toast.LENGTH_SHORT).show()
                 }
-                is Results.Loading -> { showLoading(true) }
+                is Results.Loading -> {
+                    showLoading(true)
+                }
             }
         }
     }
@@ -180,6 +214,7 @@ class ClientDetailActivity : AppCompatActivity() {
     private fun updateClient() {
         if (accessSelectedId in 1..2 && speedSelectedId in 1..6) {
             UPDATE_CLIENT = "TRUE"
+
             clientDetailViewModel.updateClient(clientId, accessSelectedId, speedSelectedId)
             clientDetailViewModel.updateClient.removeObservers(this)
             clientDetailViewModel.updateClient.observe(this) { result ->
@@ -193,7 +228,9 @@ class ClientDetailActivity : AppCompatActivity() {
                         Log.e("ClientDetailActivity", "Error Update Client: ${result.error}")
                         Toast.makeText(this, "Error: ${result.error}", Toast.LENGTH_SHORT).show()
                     }
-                    is Results.Loading -> { showLoading(true) }
+                    is Results.Loading -> {
+                        showLoading(true)
+                    }
                 }
             }
 
@@ -201,6 +238,7 @@ class ClientDetailActivity : AppCompatActivity() {
             clientDetailViewModel.getFilterRules.observe(this) { rulesResult ->
                 when (rulesResult) {
                     is Results.Success -> {
+                        showLoading(false)
                         filterRules = rulesResult.data
 
                         //Take Filter Rules That Match With Client by Comment
@@ -226,14 +264,17 @@ class ClientDetailActivity : AppCompatActivity() {
                                 else -> Log.d("ClientDetailActivity", "Selected Access Doesn't Counted")
                             }
                         } else {
-                            Log.d("ClientDetailActivity", "Comment not found in filter rules")
+                            Log.d("ClientDetailActivity", "Comment Not Found in Filter Rules")
                         }
                     }
                     is Results.Error -> {
+                        showLoading(false)
                         Log.e("ClientDetailActivity", "Error Get Filter Rules: ${rulesResult.error}")
                         Toast.makeText(this, "Error: ${rulesResult.error}", Toast.LENGTH_SHORT).show()
                     }
-                    is Results.Loading -> {}
+                    is Results.Loading -> {
+                        showLoading(true)
+                    }
                 }
             }
         } else {
@@ -241,17 +282,45 @@ class ClientDetailActivity : AppCompatActivity() {
             Log.d("ClientDetailActivity", "Selected Access Doesn't Counted")
         }
 
+        filterRulesObserver()
+    }
+
+    private fun deleteObserver() {
+        clientDetailViewModel.deleteClient.observe(this) { result ->
+            when (result) {
+                is Results.Success -> {
+                    UPDATE_CLIENT = "TRUE"
+                    showLoading(false)
+                    Toast.makeText(this, result.data.message, Toast.LENGTH_SHORT).show()
+                }
+                is Results.Error -> {
+                    showLoading(false)
+                    Log.e("ClientDetailActivity", "Error deleting client: ${result.error}")
+                    Toast.makeText(this, "Error deleting client: ${result.error}", Toast.LENGTH_SHORT).show()
+                }
+                is Results.Loading -> {
+                    showLoading(true)
+                }
+            }
+        }
+    }
+
+    private fun filterRulesObserver() {
         clientDetailViewModel.updateFilterRules.removeObservers(this)
         clientDetailViewModel.updateFilterRules.observe(this) { updateRulesResult ->
             when (updateRulesResult) {
                 is Results.Success -> {
+                    showLoading(false)
                     Log.d("ClientDetailActivity", "Filter Rules Updated")
                 }
                 is Results.Error -> {
+                    showLoading(false)
                     Log.e("ClientDetailActivity", "Error Update Filter Rules: ${updateRulesResult.error}")
                     Toast.makeText(this, "Error: ${updateRulesResult.error}", Toast.LENGTH_SHORT).show()
                 }
-                is Results.Loading -> {}
+                is Results.Loading -> {
+                    showLoading(true)
+                }
             }
         }
 
@@ -259,17 +328,20 @@ class ClientDetailActivity : AppCompatActivity() {
         clientDetailViewModel.createFilterRules.observe(this) { createRulesResult ->
             when (createRulesResult) {
                 is Results.Success -> {
+                    showLoading(false)
                     Log.d("ClientDetailActivity", "Filter Rules Created")
                 }
                 is Results.Error -> {
+                    showLoading(false)
                     Log.e("ClientDetailActivity", "Error Create Filter Rules: ${createRulesResult.error}")
                     Toast.makeText(this, "Error: ${createRulesResult.error}", Toast.LENGTH_SHORT).show()
                 }
-                is Results.Loading -> {}
+                is Results.Loading -> {
+                    showLoading(true)
+                }
             }
         }
     }
-
 
     private fun setupActionButton() {
         binding.btDelete.setOnClickListener {
@@ -314,7 +386,7 @@ class ClientDetailActivity : AppCompatActivity() {
 
         bindingDialog.btYesDelete.setOnClickListener {
             clientDetailViewModel.deleteClient(clientId)
-            deleteResult()
+            deleteObserver()
             dialog.dismiss()
             finish()
         }
@@ -325,30 +397,13 @@ class ClientDetailActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun deleteResult() {
-        clientDetailViewModel.deleteClient.observe(this) { result ->
-            when (result) {
-                is Results.Success -> {
-                    UPDATE_CLIENT = "TRUE"
-                    showLoading(false)
-                    Toast.makeText(this, result.data.message, Toast.LENGTH_SHORT).show()
-                }
-
-                is Results.Error -> {
-                    showLoading(false)
-                    Toast.makeText(this, "Error deleting client: ${result.error}", Toast.LENGTH_SHORT).show()
-                }
-
-                is Results.Loading -> {showLoading(true)}
-            }
-        }
-    }
-
     override fun onResume() {
         super.onResume()
         if (EditRouterActivity.UPDATE_DETAIL_CLIENT == "TRUE") {
             EditRouterActivity.UPDATE_DETAIL_CLIENT = "FALSE"
             clientDetailViewModel.getClientDetail(clientId)
+        } else {
+            Log.d("ClientDetailActivity", "There is No Client Update")
         }
     }
 

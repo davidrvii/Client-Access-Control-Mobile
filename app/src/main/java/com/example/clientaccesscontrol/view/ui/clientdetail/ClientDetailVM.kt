@@ -19,33 +19,6 @@ import kotlinx.coroutines.launch
 
 class ClientDetailVM(private val repository: Repository) : ViewModel() {
 
-    //Update Filter Rules
-    private val _updateFilterRules = MediatorLiveData<Results<UpdateFilterRulesResponse>>()
-    val updateFilterRules: LiveData<Results<UpdateFilterRulesResponse>> = _updateFilterRules
-
-    fun updateFilterRules(
-        id: String,
-        disabled: String
-    ) {
-        viewModelScope.launch {
-            _updateFilterRules.addSource(repository.updatedFilterRules(id, disabled)) { result ->
-                _updateFilterRules.value = result
-            }
-        }
-    }
-
-    //Get Filter Rules
-    private val _getFilterRules = MediatorLiveData<Results<List<GetFilterRulesResponseItem>>>()
-    val getFilterRules: LiveData<Results<List<GetFilterRulesResponseItem>>> = _getFilterRules
-
-    fun getFilterRules() {
-        viewModelScope.launch {
-            _getFilterRules.addSource(repository.getFilterRules()) { result ->
-                _getFilterRules.value = result
-            }
-        }
-    }
-
     //Create Filter Rules
     private val _createFilterRules = MediatorLiveData<Results<CreateFilterRulesResponse>>()
     val createFilterRules: LiveData<Results<CreateFilterRulesResponse>> = _createFilterRules
@@ -58,8 +31,35 @@ class ClientDetailVM(private val repository: Repository) : ViewModel() {
         disabled: String
     ) {
         viewModelScope.launch {
-            _createFilterRules.addSource(repository.createFilterRules(comment, chain, srcAddress, action, disabled)) { result ->
-                _createFilterRules.value = result
+            _createFilterRules.addSource(repository.createFilterRules(comment, chain, srcAddress, action, disabled)) { createFilterRulesResult ->
+                _createFilterRules.value = createFilterRulesResult
+            }
+        }
+    }
+
+    //Update Filter Rules
+    private val _updateFilterRules = MediatorLiveData<Results<UpdateFilterRulesResponse>>()
+    val updateFilterRules: LiveData<Results<UpdateFilterRulesResponse>> = _updateFilterRules
+
+    fun updateFilterRules(
+        id: String,
+        disabled: String
+    ) {
+        viewModelScope.launch {
+            _updateFilterRules.addSource(repository.updatedFilterRules(id, disabled)) { updateFilterRulesResult ->
+                _updateFilterRules.value = updateFilterRulesResult
+            }
+        }
+    }
+
+    //Get Filter Rules
+    private val _getFilterRules = MediatorLiveData<Results<List<GetFilterRulesResponseItem>>>()
+    val getFilterRules: LiveData<Results<List<GetFilterRulesResponseItem>>> = _getFilterRules
+
+    fun getFilterRules() {
+        viewModelScope.launch {
+            _getFilterRules.addSource(repository.getFilterRules()) { getFilterRulesResult ->
+                _getFilterRules.value = getFilterRulesResult
             }
         }
     }
@@ -73,8 +73,8 @@ class ClientDetailVM(private val repository: Repository) : ViewModel() {
             repository.getSession().collect { user ->
                 user.token.let { token ->
                     val source = repository.deleteClient(token, id)
-                    _deleteClient.addSource(source) { result ->
-                        _deleteClient.value = result
+                    _deleteClient.addSource(source) { deleteClientResult ->
+                        _deleteClient.value = deleteClientResult
                         _deleteClient.removeSource(source)
                     }
                 }
@@ -118,8 +118,8 @@ class ClientDetailVM(private val repository: Repository) : ViewModel() {
             repository.getSession().collect { user ->
                 user.token.let { token ->
                     val source = repository.getClientDetail(token, id)
-                    _getClientDetail.addSource(source) { result ->
-                        _getClientDetail.value = result
+                    _getClientDetail.addSource(source) { getClientDetailResult ->
+                        _getClientDetail.value = getClientDetailResult
                     }
                 }
             }
@@ -130,11 +130,11 @@ class ClientDetailVM(private val repository: Repository) : ViewModel() {
         viewModelScope.launch {
             repository.getSession().collect { user ->
                 user.token.let { token ->
-                    _getAccess.addSource(repository.getAccess(token)) { result ->
-                        _getAccess.value = result
+                    _getAccess.addSource(repository.getAccess(token)) { getAccessResult ->
+                        _getAccess.value = getAccessResult
                     }
-                    _getSpeed.addSource(repository.getSpeed(token)) { result ->
-                        _getSpeed.value = result
+                    _getSpeed.addSource(repository.getSpeed(token)) { getSpeedResult ->
+                        _getSpeed.value = getSpeedResult
                     }
                 }
             }

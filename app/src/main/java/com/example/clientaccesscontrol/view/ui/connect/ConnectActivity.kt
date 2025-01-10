@@ -49,7 +49,6 @@ class ConnectActivity : AppCompatActivity() {
                 setupUI()
             }
         }
-
     }
 
     private fun setupUI() {
@@ -61,7 +60,6 @@ class ConnectActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
         setupAction()
     }
 
@@ -122,13 +120,15 @@ class ConnectActivity : AppCompatActivity() {
             }
         } catch (e: HttpException) {
             val errorMessage = parseErrorMessage(e)
-            Log.d("ConnectActivity", "Login failed: $errorMessage")
             Log.e("ConnectActivity", "Login failed: ${e.message}")
+
             if (errorMessage.contains("Invalid IP Address")) {
                 try {
+                    // If IP address is invalid, try to register
                     Log.d("ConnectActivity", "Trying to register with IP: $ipAddress")
                     connectViewModel.register(username, password, ipAddress)
                     try {
+                        // If registration is successful, try to login
                         Log.d("ConnectActivity", "Trying to login with IP: $ipAddress")
                         connectViewModel.login(ipAddress, username, password)
                         withContext(Dispatchers.Main) {

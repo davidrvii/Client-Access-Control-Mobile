@@ -45,14 +45,12 @@ object ConfigApi {
                     authType: String,
                 ) {
                 }
-
                 @SuppressLint("TrustAllX509TrustManager")
                 override fun checkServerTrusted(
                     chain: Array<X509Certificate>,
                     authType: String,
                 ) {
                 }
-
                 override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
             })
 
@@ -110,7 +108,6 @@ object ConfigApi {
                 Log.e("BasicAuthInterceptor", "Request failed: ${e.message}")
                 throw e
             }
-
             response
         }
         Log.d("getApiServiceMikrotik", "Basic Auth Interceptor: $basicAuth")

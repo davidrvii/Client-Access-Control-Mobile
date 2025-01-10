@@ -50,10 +50,9 @@ class MainVM(private val repository: Repository) : ViewModel() {
         viewModelScope.launch {
             repository.getSession().collect { user ->
                 user.token.let { token ->
-                    val bearerToken = "Bearer $token"
                     _createNewClient.addSource(
                         repository.createNewClient(
-                            bearerToken,
+                            token,
                             name,
                             phone,
                             address,
@@ -159,8 +158,7 @@ class MainVM(private val repository: Repository) : ViewModel() {
             try {
                 repository.getSession().collect { user ->
                     user.token.let { token ->
-                        val bearerToken = "Bearer $token"
-                        val response = repository.updateClient(bearerToken, id, access, speed)
+                        val response = repository.updateClient(token, id, access, speed)
                         _updateClient.value = Results.Success(response)
                     }
                 }
