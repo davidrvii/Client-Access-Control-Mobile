@@ -38,6 +38,11 @@ class NewClientRouterActivity : AppCompatActivity() {
     private var radioSelectedId: Int = 1
     private var channelWidthSelectedId: Int = 1
     private var presharedKeySelectedId: Int = 1
+    private var limitAt: String = ""
+    private var maxLimit: String = ""
+    private var burstTime: String = ""
+    private var burstThreshold: String = ""
+    private var burstLimit: String = ""
     private val newClientRouterViewModel by viewModels<NewClientRouterVM> {
         FactoryViewModel.getInstance(this)
     }
@@ -68,11 +73,9 @@ class NewClientRouterActivity : AppCompatActivity() {
                     btsAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
                     binding.spBTS.adapter = btsAdapter
                 }
-
                 is Results.Error -> {
                     Toast.makeText(this, "Error: ${result.error}", Toast.LENGTH_SHORT).show()
                 }
-
                 is Results.Loading -> {}
             }
             binding.spBTS.onItemSelectedListener =
@@ -85,8 +88,9 @@ class NewClientRouterActivity : AppCompatActivity() {
                     ) {
                         btsSelectedId = position + 1
                     }
-
-                    override fun onNothingSelected(p0: AdapterView<*>?) {}
+                    override fun onNothingSelected(p0: AdapterView<*>?) {
+                        btsSelectedId
+                    }
                 }
         }
 
@@ -115,7 +119,6 @@ class NewClientRouterActivity : AppCompatActivity() {
                     ) {
                         modeSelectedId = position + 1
                     }
-
                     override fun onNothingSelected(p0: AdapterView<*>?) {}
                 }
         }
@@ -145,7 +148,6 @@ class NewClientRouterActivity : AppCompatActivity() {
                     ) {
                         radioSelectedId = position + 1
                     }
-
                     override fun onNothingSelected(p0: AdapterView<*>?) {}
                 }
         }
@@ -153,18 +155,14 @@ class NewClientRouterActivity : AppCompatActivity() {
         newClientRouterViewModel.getChannelWidth.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
-                    val channelWidthList =
-                        result.data.channelWidths?.mapNotNull { it?.channelWidth } ?: emptyList()
-                    val channelWidthAdapter =
-                        ArrayAdapter(this, R.layout.spinner_dropdown_item, channelWidthList)
+                    val channelWidthList = result.data.channelWidths?.mapNotNull { it?.channelWidth } ?: emptyList()
+                    val channelWidthAdapter = ArrayAdapter(this, R.layout.spinner_dropdown_item, channelWidthList)
                     channelWidthAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
                     binding.spChannelWidth.adapter = channelWidthAdapter
                 }
-
                 is Results.Error -> {
                     Toast.makeText(this, "Error: ${result.error}", Toast.LENGTH_SHORT).show()
                 }
-
                 is Results.Loading -> {}
             }
             binding.spChannelWidth.onItemSelectedListener =
@@ -185,18 +183,14 @@ class NewClientRouterActivity : AppCompatActivity() {
         newClientRouterViewModel.getPresharedKey.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
-                    val presharedKeyList =
-                        result.data.presharedKeys?.mapNotNull { it?.presharedKey } ?: emptyList()
-                    val presharedKeyAdapter =
-                        ArrayAdapter(this, R.layout.spinner_dropdown_item, presharedKeyList)
+                    val presharedKeyList = result.data.presharedKeys?.mapNotNull { it?.presharedKey } ?: emptyList()
+                    val presharedKeyAdapter = ArrayAdapter(this, R.layout.spinner_dropdown_item, presharedKeyList)
                     presharedKeyAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
                     binding.spPresharedKey.adapter = presharedKeyAdapter
                 }
-
                 is Results.Error -> {
                     Toast.makeText(this, "Error: ${result.error}", Toast.LENGTH_SHORT).show()
                 }
-
                 is Results.Loading -> {}
             }
             binding.spPresharedKey.onItemSelectedListener =
@@ -209,7 +203,6 @@ class NewClientRouterActivity : AppCompatActivity() {
                     ) {
                         presharedKeySelectedId = position + 1
                     }
-
                     override fun onNothingSelected(p0: AdapterView<*>?) {}
                 }
         }
@@ -219,13 +212,113 @@ class NewClientRouterActivity : AppCompatActivity() {
         textFieldWatcher()
 
         binding.btDone.setOnClickListener {
-            val nameUpload = intent.getStringExtra(NAMEUPLOAD).toString()
-            val nameDownload = intent.getStringExtra(NAMEDOWNLOAD).toString()
+            createMangle()
+        }
+    }
 
-            val newUploadPacketMark = intent.getStringExtra(NEWUPLOADPACKETMARTK).toString()
-            val newDownloadPacketMark = intent.getStringExtra(NEWDOWNLOADPACKETMARTK).toString()
+    private fun createMangle() {
+        val comment = intent.getStringExtra(COMMENT).toString()
+        val ipAddress = binding.etIPInternet.text.toString()
 
-            createNewClient()
+        val newUploadPacketMark = intent.getStringExtra(NEWUPLOADPACKETMARTK).toString()
+        val newDownloadPacketMark = intent.getStringExtra(NEWDOWNLOADPACKETMARTK).toString()
+
+        //Create Mangle Upload
+        newClientRouterViewModel.createMangleUpload(comment, "forwad", ipAddress, "bridge1", "mark-packet", newUploadPacketMark)
+
+        //Mangle Upload Observer
+        newClientRouterViewModel.createMangleUpload.removeObservers(this)
+        newClientRouterViewModel.createMangleUpload.observe(this) { newMangleUploadResult ->
+            when (newMangleUploadResult) {
+                is Results.Success -> {
+                    //Create Mangle Download
+                    newClientRouterViewModel.createMangleDownload(comment, "output", ipAddress, "bridge1", "mark-packet", newDownloadPacketMark)
+                }
+                is Results.Error -> {
+                    Toast.makeText(this, "Create Mangle Error: ${newMangleUploadResult.error}", Toast.LENGTH_SHORT).show()
+                    Log.d("NewClientRouterActivity", "Create Mangle Error: ${newMangleUploadResult.error}")
+                }
+                is Results.Loading -> {}
+            }
+        }
+
+        //Mangle Download Observer
+        newClientRouterViewModel.createMangleDownload.removeObservers(this)
+        newClientRouterViewModel.createMangleDownload.observe(this) { newMangleDownloadResult ->
+            when (newMangleDownloadResult) {
+                is Results.Success -> {
+                    //Create Mangle LAN
+                    newClientRouterViewModel.createMangleLAN(comment, "forwad", ipAddress, "!LAN", "mark-packet", newDownloadPacketMark)
+                }
+                is Results.Error -> {
+                    Toast.makeText(this, "Create Mangle Error: ${newMangleDownloadResult.error}", Toast.LENGTH_SHORT).show()
+                    Log.d("NewClientRouterActivity", "Create Mangle Error: ${newMangleDownloadResult.error}")
+                }
+                is Results.Loading -> {}
+            }
+        }
+
+        //Mangle LAN Observer
+        newClientRouterViewModel.createMangleLAN.removeObservers(this)
+        newClientRouterViewModel.createMangleLAN.observe(this) { newMangleLANResult ->
+            when (newMangleLANResult) {
+                is Results.Success -> {
+                    createQueueTree()
+                }
+                is Results.Error -> {
+                    Toast.makeText(this, "Create Mangle Error: ${newMangleLANResult.error}", Toast.LENGTH_SHORT).show()
+                    Log.d("NewClientRouterActivity", "Create Mangle Error: ${newMangleLANResult.error}")
+                }
+                is Results.Loading -> {}
+            }
+
+        }
+    }
+
+    private fun createQueueTree() {
+        val nameUpload = intent.getStringExtra(NAMEUPLOAD).toString()
+        val nameDownload = intent.getStringExtra(NAMEDOWNLOAD).toString()
+
+        val newUploadPacketMark = intent.getStringExtra(NEWUPLOADPACKETMARTK).toString()
+        val newDownloadPacketMark = intent.getStringExtra(NEWDOWNLOADPACKETMARTK).toString()
+
+        val speedId = intent.getIntExtra(SPEEDID, 0)
+        clientSpeed(speedId)
+
+        val comment = intent.getStringExtra(COMMENT).toString()
+
+        //Create Queue Tree Upload
+        newClientRouterViewModel.createQueueTree(nameUpload, "Total Upload", comment, newUploadPacketMark, limitAt, maxLimit, burstTime, burstThreshold, burstLimit)
+
+        //Queue Tree Upload Observer
+        newClientRouterViewModel.createQueueTree.removeObservers(this)
+        newClientRouterViewModel.createQueueTree.observe(this) { newQueueTreeResult ->
+            when (newQueueTreeResult) {
+                is Results.Success -> {
+                    //Create Queue Tree Download
+                    newClientRouterViewModel.createQueueTree(nameDownload, "Total Download", comment, newDownloadPacketMark, limitAt, maxLimit, burstTime, burstThreshold, burstLimit)
+                }
+                is Results.Error -> {
+                    Toast.makeText(this, "Create Queue Tree Error: ${newQueueTreeResult.error}", Toast.LENGTH_SHORT).show()
+                    Log.d("NewClientRouterActivity", "Create Queue Tree Error: ${newQueueTreeResult.error}")
+                }
+                is Results.Loading -> {}
+            }
+        }
+
+        //Queue Tree Download Observer
+        newClientRouterViewModel.createQueueTree.removeObservers(this)
+        newClientRouterViewModel.createQueueTree.observe(this) { newQueueTreeResult ->
+            when (newQueueTreeResult) {
+                is Results.Success -> {
+                    createNewClient()
+                }
+                is Results.Error -> {
+                    Toast.makeText(this, "Create Queue Tree Error: ${newQueueTreeResult.error}", Toast.LENGTH_SHORT).show()
+                    Log.d("NewClientRouterActivity", "Create Queue Tree Error: ${newQueueTreeResult.error}")
+                }
+                is Results.Loading -> {}
+            }
         }
     }
 
@@ -253,17 +346,13 @@ class NewClientRouterActivity : AppCompatActivity() {
         val speedId = intent.getIntExtra(SPEEDID, 0)
 
         //Crate New Client
-        newClientRouterViewModel.createNewClient(
-            clientName,
-            phone,
-            address,
-            accessId,
-            speedId
-        )
+        newClientRouterViewModel.createNewClient(clientName, phone, address, accessId, speedId)
+
+        //New Client Observer
+        newClientRouterViewModel.createNewClient.removeObservers(this)
         newClientRouterViewModel.createNewClient.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
-                    //Get New Client ID
                     val clientId = result.data.newClient?.clientId!!.toInt()
                     newClientRouterViewModel.updateNetwork(
                         clientId,
@@ -284,23 +373,19 @@ class NewClientRouterActivity : AppCompatActivity() {
                         bts
                     )
                 }
-
                 is Results.Error -> {
                     hideCustomDialogLoading()
-                    Toast.makeText(
-                        this,
-                        "Create New Client Error: ${result.error}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this, "Create New Client Error: ${result.error}", Toast.LENGTH_SHORT).show()
                     Log.d("NewClientRouterActivity", "Create New Client Error: ${result.error}")
                 }
-
                 is Results.Loading -> {
                     showCustomDialogLoading()
                 }
             }
         }
 
+        //Update New Client Network Observer
+        newClientRouterViewModel.updateNetwork.removeObservers(this)
         newClientRouterViewModel.updateNetwork.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
@@ -319,6 +404,53 @@ class NewClientRouterActivity : AppCompatActivity() {
                 is Results.Loading -> {
                     showCustomDialogLoading()
                 }
+            }
+        }
+    }
+
+    private fun clientSpeed(speedId: Int) {
+        when (speedId) {
+            1 -> {
+                limitAt = "0M"
+                maxLimit = "0M"
+                burstTime = "0"
+                burstThreshold = "0M"
+                burstLimit = "0M"
+            }
+            2 -> {
+                limitAt = "5M"
+                maxLimit = "10M"
+                burstTime = "10"
+                burstThreshold = "7M"
+                burstLimit = "15M"
+            }
+            3 -> {
+                limitAt = "10M"
+                maxLimit = "20M"
+                burstTime = "10"
+                burstThreshold = "15M"
+                burstLimit = "30M"
+            }
+            4 -> {
+                limitAt = "15M"
+                maxLimit = "30M"
+                burstTime = "10"
+                burstThreshold = "22M"
+                burstLimit = "40M"
+            }
+            5 -> {
+                limitAt = "25M"
+                maxLimit = "50M"
+                burstTime = "10"
+                burstThreshold = "37M"
+                burstLimit = "65M"
+            }
+            6 -> {
+                limitAt = "50M"
+                maxLimit = "100M"
+                burstTime = "10"
+                burstThreshold = "75M"
+                burstLimit = "120M"
             }
         }
     }
@@ -369,7 +501,6 @@ class NewClientRouterActivity : AppCompatActivity() {
                 override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                     buttonSet()
                 }
-
                 override fun afterTextChanged(p0: Editable?) {}
             })
         }
@@ -387,7 +518,6 @@ class NewClientRouterActivity : AppCompatActivity() {
                 override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                     buttonSet()
                 }
-
                 override fun onNothingSelected(p0: AdapterView<*>?) {}
             }
         }
@@ -410,7 +540,7 @@ class NewClientRouterActivity : AppCompatActivity() {
         val password = binding.etPassword.text.toString()
 
         val isFieldFilled =
-            bts != 0 &&
+                    bts != 0 &&
                     mode != 0 &&
                     ssid.isNotEmpty() &&
                     ipAddress.isNotEmpty() &&

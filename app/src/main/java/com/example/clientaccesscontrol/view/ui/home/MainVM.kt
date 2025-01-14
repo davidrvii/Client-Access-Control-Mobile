@@ -1,6 +1,5 @@
 package com.example.clientaccesscontrol.view.ui.home
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
@@ -20,6 +19,7 @@ import kotlinx.coroutines.launch
 
 class MainVM(private val repository: Repository) : ViewModel() {
 
+    //Check Login Session
     fun getSession(): LiveData<UserModel> {
         return repository.getSession().asLiveData()
     }
@@ -30,8 +30,8 @@ class MainVM(private val repository: Repository) : ViewModel() {
 
     fun getFilterRules() {
         viewModelScope.launch {
-            _getFilterRules.addSource(repository.getFilterRules()) { result ->
-                _getFilterRules.value = result
+            _getFilterRules.addSource(repository.getFilterRules()) { getFilterRulesResult ->
+                _getFilterRules.value = getFilterRulesResult
             }
         }
     }
@@ -51,16 +51,8 @@ class MainVM(private val repository: Repository) : ViewModel() {
             repository.getSession().collect { user ->
                 user.token.let { token ->
                     _createNewClient.addSource(
-                        repository.createNewClient(
-                            token,
-                            name,
-                            phone,
-                            address,
-                            accessId,
-                            speedId
-                        )
-                    ) { result ->
-                        _createNewClient.value = result
+                        repository.createNewClient(token, name, phone, address, accessId, speedId)) { createNewClientResult ->
+                        _createNewClient.value = createNewClientResult
                     }
                 }
             }
@@ -122,17 +114,19 @@ class MainVM(private val repository: Repository) : ViewModel() {
         }
     }
 
+    //Get Queue Tree
     private val _getQueueTree = MediatorLiveData<Results<List<GetQueueTreeResponseItem>>>()
     val getQueueTree: LiveData<Results<List<GetQueueTreeResponseItem>>> = _getQueueTree
 
     fun getQueueTree() {
         viewModelScope.launch {
-            _getQueueTree.addSource(repository.getQueueTree()) { result ->
-                _getQueueTree.value = result
+            _getQueueTree.addSource(repository.getQueueTree()) { getQueueTreeResult ->
+                _getQueueTree.value = getQueueTreeResult
             }
         }
     }
 
+    //Get All Client
     private val _getAllClient = MediatorLiveData<Results<GetAllClientResponse>>()
     val getAllClient: LiveData<Results<GetAllClientResponse>> = _getAllClient
 
@@ -140,30 +134,30 @@ class MainVM(private val repository: Repository) : ViewModel() {
         viewModelScope.launch {
             repository.getSession().collect { user ->
                 user.token.let { token ->
-                    _getAllClient.addSource(repository.getAllClient(token)) { result ->
-                        _getAllClient.value = result
+                    _getAllClient.addSource(repository.getAllClient(token)) { getAllClientResult ->
+                        _getAllClient.value = getAllClientResult
                     }
                 }
             }
         }
     }
 
-    private val _updateClient = MediatorLiveData<Results<UpdateClientDetailResponse>>()
-    val updateClient: MutableLiveData<Results<UpdateClientDetailResponse>> = _updateClient
+    //Update Client Access
+    private val _updateAccess = MediatorLiveData<Results<UpdateClientDetailResponse>>()
+    val updateAccess: MutableLiveData<Results<UpdateClientDetailResponse>> = _updateAccess
 
-    fun updateClient(id: Int, access: Int, speed: Int) {
-        Log.d("MainVM", "Updating client $id with access $access and speed $speed")
+    fun updateAccess(id: Int, access: Int) {
         viewModelScope.launch {
-            _updateClient.value = Results.Loading
+            _updateAccess.value = Results.Loading
             try {
                 repository.getSession().collect { user ->
                     user.token.let { token ->
-                        val response = repository.updateClient(token, id, access, speed)
-                        _updateClient.value = Results.Success(response)
+                        val response = repository.updateAccess(token, id, access)
+                        _updateAccess.value = Results.Success(response)
                     }
                 }
             } catch (e: Exception) {
-                _updateClient.value = Results.Error(e.message.toString())
+                _updateAccess.value = Results.Error(e.message.toString())
             }
         }
     }

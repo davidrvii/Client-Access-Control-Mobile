@@ -34,7 +34,6 @@ import com.example.clientaccesscontrol.data.mikrotikresponse.CreateMangleUploadR
 import com.example.clientaccesscontrol.data.mikrotikresponse.CreateQueueTreeResponse
 import com.example.clientaccesscontrol.data.mikrotikresponse.GetFilterRulesResponseItem
 import com.example.clientaccesscontrol.data.mikrotikresponse.GetQueueTreeResponseItem
-import com.example.clientaccesscontrol.data.mikrotikresponse.UpdateFilterRulesResponse
 import com.example.clientaccesscontrol.data.result.Results
 import com.example.clientaccesscontrol.data.retrofit.ServiceApiCAC
 import com.example.clientaccesscontrol.data.retrofit.ServiceApiMikrotik
@@ -45,21 +44,6 @@ class Repository private constructor(
     private val apiServiceCAC: ServiceApiCAC,
     private val apiServiceMikrotik: ServiceApiMikrotik,
 ) {
-
-    private suspend fun saveToken(token: String) {
-        Log.d("UserRepository", "Token Saved in Session: $token")
-        userPreference.saveToken(token)
-    }
-
-    private suspend fun saveUrlBase(baseUrl: String) {
-        Log.d("UserRepository", "Base URL Saved in Session: $baseUrl")
-        userPreference.saveBaseUrl(baseUrl)
-    }
-
-    private suspend fun saveMikortikLogin(username: String, password: String) {
-        Log.d("UserRepository", "Username & Password for Mikrotik Login : $username & $password")
-        userPreference.saveMikrotikLogin(username, password)
-    }
 
     fun getSession(): Flow<UserModel> {
         return userPreference.getSession()
@@ -81,16 +65,16 @@ class Repository private constructor(
         val loginResponse = apiServiceCAC.login(ipAddress, username, password)
 
         loginResponse.loginResult?.token?.let {
-            Log.d("UserRepository", "Saving token: ${"Bearer $it"}")
-            saveToken(it)
+            userPreference.saveToken(it)
+            Log.d("Repository", "Saved Token in Session: $it")
         }
         loginResponse.loginResult?.ipAddress?.let {
-            Log.d("UserRepository", "Saving base URL: $it")
-            saveUrlBase(it)
+            userPreference.saveBaseUrl(it)
+            Log.d("Repository", "Saved Base URL in Session: $it")
         }
         loginResponse.loginResult?.let {
-            Log.d("UserRepository", "Saving username & password: ${it.username} & ${it.password}")
-            saveMikortikLogin(it.username.toString(), it.password.toString())
+            userPreference.saveMikrotikLogin(it.username.toString(), it.password.toString())
+            Log.d("Repository", "Saved Username & Password for Mikrotik Login : $username & $password")
         }
     }
 
@@ -119,13 +103,22 @@ class Repository private constructor(
         }
     }
 
-    suspend fun updateClient(
+    suspend fun updateSpeed(
         token: String,
         id: Int,
-        access: Int,
-        speed: Int,
+        speed: Int
     ): UpdateClientDetailResponse {
-        return apiServiceCAC.updateClient("Bearer $token", id, access, speed)
+        Log.d("Repository", "Update Speed to $speed with ID $id")
+        return apiServiceCAC.updateSpeed("Bearer $token", id, speed)
+    }
+
+    suspend fun updateAccess(
+        token: String,
+        id: Int,
+        access: Int
+    ): UpdateClientDetailResponse {
+        Log.d("Repository", "Update Access to $access with ID $id")
+        return apiServiceCAC.updateAccess("Bearer $token", id, access)
     }
 
     suspend fun getAllClient(
@@ -191,25 +184,27 @@ class Repository private constructor(
         password: String,
         bts: Int,
     ): UpdateNetworkResponse {
-        return apiServiceCAC.updateNetwork(
-            token,
-            id,
-            radioName,
-            frequency,
-            ipRadio,
-            ipAddress,
-            wlanMacAddress,
-            ssid,
-            radioSignal,
-            apLocation,
-            radio,
-            mode,
-            channelWidth,
-            presharedKey,
-            comment,
-            password,
-            bts
-        )
+        val response = apiServiceCAC.updateNetwork(
+                token,
+                id,
+                radioName,
+                frequency,
+                ipRadio,
+                ipAddress,
+                wlanMacAddress,
+                ssid,
+                radioSignal,
+                apLocation,
+                radio,
+                mode,
+                channelWidth,
+                presharedKey,
+                comment,
+                password,
+                bts
+            )
+        Log.d("Repository", "Update Network Response: $response")
+        return response
     }
 
     suspend fun createBTS(
@@ -218,7 +213,7 @@ class Repository private constructor(
     ): LiveData<Results<CreateBTSResponse>> = liveData {
         emit(Results.Loading)
         try {
-            val response = apiServiceCAC.createBTS(token, bts)
+            val response = apiServiceCAC.createBTS("Bearer $token", bts)
             Log.d("Repository", "Create BTS Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {
@@ -262,7 +257,7 @@ class Repository private constructor(
     ): LiveData<Results<CreateRadioResponse>> = liveData {
         emit(Results.Loading)
         try {
-            val response = apiServiceCAC.createRadio(token, radio)
+            val response = apiServiceCAC.createRadio("Bearer $token", radio)
             Log.d("Repository", "Create Radio Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {
@@ -306,7 +301,7 @@ class Repository private constructor(
     ): LiveData<Results<CreateModeResponse>> = liveData {
         emit(Results.Loading)
         try {
-            val response = apiServiceCAC.createMode(token, mode)
+            val response = apiServiceCAC.createMode("Bearer $token", mode)
             Log.d("Repository", "Create Mode Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {
@@ -350,7 +345,7 @@ class Repository private constructor(
     ): LiveData<Results<CreatePresharedKeyResponse>> = liveData {
         emit(Results.Loading)
         try {
-            val response = apiServiceCAC.createPresharedKey(token, presharedKey)
+            val response = apiServiceCAC.createPresharedKey("Bearer $token", presharedKey)
             Log.d("Repository", "Create Preshared Key Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {
@@ -394,7 +389,7 @@ class Repository private constructor(
     ): LiveData<Results<CreateChannelWidthResponse>> = liveData {
         emit(Results.Loading)
         try {
-            val response = apiServiceCAC.createChannelWidth(token, channelWidth)
+            val response = apiServiceCAC.createChannelWidth("Bearer $token", channelWidth)
             Log.d("Repository", "Create Channel Width Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {
@@ -475,21 +470,49 @@ class Repository private constructor(
     ): LiveData<Results<CreateQueueTreeResponse>> = liveData {
         emit(Results.Loading)
         try {
-            val response = apiServiceMikrotik.createQueueTree(
-                name,
-                parent,
-                comment,
-                packetMark,
-                limitAt,
-                maxLimit,
-                burstTime,
-                burstThreshold,
-                burstLimit
+            val createQueueTreeBody = mapOf(
+                "name" to name,
+                "parent" to parent,
+                "comment" to comment,
+                "packet-mark" to packetMark,
+                "limit-at" to limitAt,
+                "max-limit" to maxLimit,
+                "burst-time" to burstTime,
+                "burst-threshold" to burstThreshold,
+                "burst-limit" to burstLimit
             )
+            val response = apiServiceMikrotik.createQueueTree(createQueueTreeBody)
             Log.d("Repository", "Create Queue Tree Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {
             Log.e("Repository", "Error Create Queue Tree: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun updateQueueTree(
+        numbers: String,
+        limitAt: String,
+        maxLimit: String,
+        burstTime: String,
+        burstThreshold: String,
+        burstLimit: String,
+    ): LiveData<Results<Unit>> = liveData {
+        emit(Results.Loading)
+        try {
+            val updateQueueTreeBody = mapOf(
+                "numbers" to numbers,
+                "limit-at" to limitAt,
+                "max-limit" to maxLimit,
+                "burst-time" to burstTime,
+                "burst-threshold" to burstThreshold,
+                "burst-limit" to burstLimit
+            )
+            val response = apiServiceMikrotik.updateQueueTree(updateQueueTreeBody)
+            Log.d("Repository", "Update Queue Tree Response: $response")
+            emit(Results.Success(response.body() ?: Unit))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Update Queue Tree: ${e.localizedMessage}", e)
             emit(Results.Error(e.message ?: "Unknown error occurred"))
         }
     }
@@ -499,8 +522,8 @@ class Repository private constructor(
         Log.d("Repository", "Getting Queue Tree Loading")
         try {
             val response = apiServiceMikrotik.getQueueTree()
-            emit(Results.Success(response))
             Log.d("Repository", "Get Queue Tree Response: $response")
+            emit(Results.Success(response))
         } catch (e: Exception) {
             Log.e("Repository", "Error Get Queue Tree: ${e.localizedMessage}", e)
             emit(Results.Error(e.message ?: "Unknown error occurred"))
@@ -517,14 +540,15 @@ class Repository private constructor(
     ): LiveData<Results<CreateMangleUploadResponse>> = liveData {
         emit(Results.Loading)
         try {
-            val response = apiServiceMikrotik.createMangleUpload(
-                comment,
-                chain,
-                srcAddress,
-                inInterface,
-                action,
-                newPacketMark
+            val createMangleUploadBody = mapOf(
+                "comment" to comment,
+                "chain" to chain,
+                "srcAddress" to srcAddress,
+                "inInterface" to inInterface,
+                "action" to action,
+                "newPacketMark" to newPacketMark
             )
+            val response = apiServiceMikrotik.createMangleUpload(createMangleUploadBody)
             Log.d("Repository", "Create Mangle Upload Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {
@@ -543,14 +567,15 @@ class Repository private constructor(
     ): LiveData<Results<CreateMangleDownloadResponse>> = liveData {
         emit(Results.Loading)
         try {
-            val response = apiServiceMikrotik.createMangleDownload(
-                comment,
-                chain,
-                dstAddress,
-                outInterface,
-                action,
-                newPacketMark
+            val createMangleDownloadBody = mapOf(
+                "comment" to comment,
+                "chain" to chain,
+                "dstAddress" to dstAddress,
+                "outInterface" to outInterface,
+                "action" to action,
+                "newPacketMark" to newPacketMark
             )
+            val response = apiServiceMikrotik.createMangleDownload(createMangleDownloadBody)
             Log.d("Repository", "Create Mangle Download Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {
@@ -569,14 +594,15 @@ class Repository private constructor(
     ): LiveData<Results<CreateMangleLANResponse>> = liveData {
         emit(Results.Loading)
         try {
-            val response = apiServiceMikrotik.createMangleLAN(
-                comment,
-                chain,
-                dstAddress,
-                srcAddressList,
-                action,
-                newPacketMark
+            val createMangleLANBody = mapOf(
+                "comment" to comment,
+                "chain" to chain,
+                "dstAddress" to dstAddress,
+                "srcAddressList" to srcAddressList,
+                "action" to action,
+                "newPacketMark" to newPacketMark
             )
+            val response = apiServiceMikrotik.createMangleLAN(createMangleLANBody)
             Log.d("Repository", "Create Mangle LAN Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {
@@ -613,13 +639,16 @@ class Repository private constructor(
     suspend fun updatedFilterRules(
         id: String,
         disabled: String
-    ): LiveData<Results<UpdateFilterRulesResponse>> = liveData {
+    ): LiveData<Results<Unit>> = liveData {
         emit(Results.Loading)
         try {
-            val body = mapOf("disabled" to disabled)
-            val response = apiServiceMikrotik.updatedFilterRules(id, body)
+            val updateFilterRulesBody = mapOf(
+                "numbers" to id,
+                "disabled" to disabled
+            )
+            val response = apiServiceMikrotik.updatedFilterRules(updateFilterRulesBody)
             Log.d("Repository", "Updated Filter Rules Response: $response")
-            emit(Results.Success(response))
+            emit(Results.Success(response.body() ?: Unit))
         } catch (e: Exception) {
             Log.e("Repository", "Error Update Filter Rules: ${e.localizedMessage}", e)
             emit(Results.Error(e.message ?: "Unknown error occurred"))

@@ -23,8 +23,8 @@ class NetworkFilterVM(private val repository: Repository) : ViewModel() {
             repository.getSession().collect { user ->
                 user.token.let { token ->
                     val source = repository.deleteBTS(token, id)
-                    _deleteBTS.addSource(source) { result ->
-                        _deleteBTS.value = result
+                    _deleteBTS.addSource(source) { deleteBTSResult ->
+                        _deleteBTS.value = deleteBTSResult
                         _deleteBTS.removeSource(source)
                     }
                 }
@@ -40,8 +40,8 @@ class NetworkFilterVM(private val repository: Repository) : ViewModel() {
             repository.getSession().collect { user ->
                 user.token.let { token ->
                     val source = repository.deleteMode(token, id)
-                    _deleteMode.addSource(source) { result ->
-                        _deleteMode.value = result
+                    _deleteMode.addSource(source) { deleteModeResult ->
+                        _deleteMode.value = deleteModeResult
                         _deleteMode.removeSource(source)
                     }
                 }
@@ -57,8 +57,8 @@ class NetworkFilterVM(private val repository: Repository) : ViewModel() {
             repository.getSession().collect { user ->
                 user.token.let { token ->
                     val source = repository.deleteRadio(token, id)
-                    _deleteRadio.addSource(source) { result ->
-                        _deleteRadio.value = result
+                    _deleteRadio.addSource(source) { deleteRadioResult ->
+                        _deleteRadio.value = deleteRadioResult
                         _deleteRadio.removeSource(source)
                     }
                 }
@@ -74,8 +74,8 @@ class NetworkFilterVM(private val repository: Repository) : ViewModel() {
             repository.getSession().collect { user ->
                 user.token.let { token ->
                     val source = repository.deleteChannelWidth(token, id)
-                    _deleteChannelWidth.addSource(source) { result ->
-                        _deleteChannelWidth.value = result
+                    _deleteChannelWidth.addSource(source) { deleteChannelWidthResult ->
+                        _deleteChannelWidth.value = deleteChannelWidthResult
                         _deleteChannelWidth.removeSource(source)
                     }
                 }
@@ -91,8 +91,8 @@ class NetworkFilterVM(private val repository: Repository) : ViewModel() {
             repository.getSession().collect { user ->
                 user.token.let { token ->
                     val source = repository.deletePresharedKey(token, id)
-                    _deletePresharedKey.addSource(source) { result ->
-                        _deletePresharedKey.value = result
+                    _deletePresharedKey.addSource(source) { deletePresharedKeyResult ->
+                        _deletePresharedKey.value = deletePresharedKeyResult
                         _deletePresharedKey.removeSource(source)
                     }
                 }

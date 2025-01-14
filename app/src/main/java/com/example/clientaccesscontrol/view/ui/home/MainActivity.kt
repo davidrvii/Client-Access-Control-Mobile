@@ -66,7 +66,6 @@ class MainActivity : AppCompatActivity() {
         mainViewModel.getSession()
         buttonMenuAction()
         searchBarAction()
-        buttonNewClientAction()
         setupClientList()
     }
 
@@ -88,16 +87,22 @@ class MainActivity : AppCompatActivity() {
                 is Results.Success -> {
                     clients = result.data.clients
                     showLoading(false)
-                    Log.d("MainActivity", "Received client data: ${result.data.clients}")
+                    Log.d("MainActivity", "Received Client Data: ${result.data.clients}")
                     clientAdapter.updateData(result.data.clients?.filterNotNull() ?: emptyList())
                     mainViewModel.getQueueTree()
                 }
                 is Results.Error -> {
                     showLoading(false)
-                    Log.d("MainActivity", "Error Getting Client: ${result.error}")
+                    Log.e("MainActivity", "Error Getting Client: ${result.error}")
+                    mainViewModel.logout()
+                    val intent = Intent(this, ConnectActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                    Toast.makeText(this, "Gagal Terhubung Ke Router", Toast.LENGTH_SHORT).show()
                 }
                 is Results.Loading -> {
                     showLoading(true)
+                    Log.d("MainActivity", "Loading Client Data")
                 }
             }
         }
@@ -109,14 +114,20 @@ class MainActivity : AppCompatActivity() {
                     queueTrees = queueTreeResult.data
                     showLoading(false)
                     mainViewModel.getFilterRules()
-                    Log.d("MainActivity", "Received queue tree data: ${queueTreeResult.data}")
+                    Log.d("MainActivity", "Received Queue Tree Data: ${queueTreeResult.data}")
                 }
                 is Results.Error -> {
                     showLoading(false)
-                    Log.d("MainActivity", "Error Getting Queue Tree: ${queueTreeResult.error}")
+                    Log.e("MainActivity", "Error Getting Queue Tree: ${queueTreeResult.error}")
+                    mainViewModel.logout()
+                    val intent = Intent(this, ConnectActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                    Toast.makeText(this, "Gagal Terhubung Ke Router", Toast.LENGTH_SHORT).show()
                 }
                 is Results.Loading -> {
                     showLoading(true)
+                    Log.d("MainActivity", "Loading Get Queue Tree Data")
                 }
             }
         }
@@ -133,11 +144,12 @@ class MainActivity : AppCompatActivity() {
 
                 is Results.Error -> {
                     showLoading(false)
-                    Log.d("MainActivity", "Error Getting Filter Rules: ${filterRulesResult.error}")
+                    Log.e("MainActivity", "Error Getting Filter Rules: ${filterRulesResult.error}")
                 }
 
                 is Results.Loading -> {
                     showLoading(true)
+                    Log.d("MainActivity", "Loading Filter Rules Data")
                 }
             }
         }
@@ -164,8 +176,8 @@ class MainActivity : AppCompatActivity() {
             clientCommentNotInQueueTree.forEach { comment ->
                 val client = clients!!.find { it?.comment == comment }
                 Log.d("MainActivity", "Client to update: $client")
-                if (client?.clientId != null && client.speedId != null) {
-                    mainViewModel.updateClient(client.clientId, 3, client.speedId)
+                if (client?.clientId != null) {
+                    mainViewModel.updateAccess(client.clientId, 3)
                 } else {
                     Log.d("MainActivity", "Client or Rule is null")
                 }
@@ -177,9 +189,9 @@ class MainActivity : AppCompatActivity() {
                 val client = clients!!.find { it?.comment == comment }
                 val rule = filterRules!!.find { it.comment == comment }
 
-                if (client?.clientId != null && client.speedId != null) {
+                if (client?.clientId != null) {
                     val access = if (rule?.disabled == "false") 1 else 2
-                    mainViewModel.updateClient(client.clientId, access, client.speedId)
+                    mainViewModel.updateAccess(client.clientId, access)
                 } else {
                     Log.d("MainActivity", "Client or Rule is null")
                 }
@@ -204,12 +216,13 @@ class MainActivity : AppCompatActivity() {
             Log.d("MainActivity", "Queue Tree or Client or Rules data is null")
         }
 
-        //Update Client Observer
-        mainViewModel.updateClient.removeObservers(this)
-        mainViewModel.updateClient.observe(this) { result ->
+        //Update Access Observer
+        mainViewModel.updateAccess.removeObservers(this)
+        mainViewModel.updateAccess.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
                     showLoading(false)
+                    mainViewModel.getAllClient()
                     Log.d("MainActivity", "Client updated: ${result.data.updatedClient?.clientId}")
                 }
                 is Results.Error -> {
@@ -218,6 +231,26 @@ class MainActivity : AppCompatActivity() {
                 }
                 is Results.Loading -> {
                     showLoading(true)
+                    Log.d("MainActivity", "Loading Updating Client")
+                }
+            }
+        }
+
+
+        mainViewModel.getAllClient.removeObservers(this)
+        mainViewModel.getAllClient.observe(this) { clientResult ->
+            when (clientResult) {
+                is Results.Success -> {
+                    clients = clientResult.data.clients
+                    // Update data pada adapter
+                    clientAdapter.updateData(clients?.filterNotNull() ?: emptyList())
+                    Log.d("MainActivity", "Client updated UI: ${clientResult.data.clients}")
+                }
+                is Results.Error -> {
+                    Log.e("MainActivity", "Error Getting Clients UI: ${clientResult.error}")
+                }
+                is Results.Loading -> {
+                    Log.d("MainActivity", "Loading Clients Data UI")
                 }
             }
         }
@@ -226,7 +259,7 @@ class MainActivity : AppCompatActivity() {
     private fun createNewClient(comment: String) {
         //Crate New Client
         mainViewModel.createNewClient(comment, "", "", 1, 1)
-        mainViewModel.updateClient.removeObservers(this)
+        mainViewModel.createNewClient.removeObservers(this)
         mainViewModel.createNewClient.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
@@ -259,11 +292,12 @@ class MainActivity : AppCompatActivity() {
                 }
                 is Results.Loading -> {
                     showLoading(true)
+                    Log.d("NewClientRouterActivity", "Loading Create New Client")
                 }
             }
         }
 
-        mainViewModel.updateClient.removeObservers(this)
+        mainViewModel.updateNetwork.removeObservers(this)
         mainViewModel.updateNetwork.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
@@ -277,6 +311,7 @@ class MainActivity : AppCompatActivity() {
 
                 is Results.Loading -> {
                     showLoading(true)
+                    Log.d("NewClientRouterActivity", "Loading Update New Client")
                 }
             }
         }
@@ -296,6 +331,12 @@ class MainActivity : AppCompatActivity() {
         binding.btLogout.setOnClickListener {
             onButtonMenuClicked()
             showCustomDialog()
+        }
+
+        binding.btNewClient.setOnClickListener {
+            val intent = Intent(this, NewClientProfileActivity::class.java)
+            startActivity(intent)
+            if (clicked) onButtonMenuClicked()
         }
     }
 
@@ -385,15 +426,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun buttonNewClientAction() {
-        binding.btNewClient.setOnClickListener {
-            val intent = Intent(this, NewClientProfileActivity::class.java)
-            startActivity(intent)
-            if (clicked) onButtonMenuClicked()
-        }
-    }
-
     private fun showLoading(isLoading: Boolean) {
+        Log.d("MainActivity", "showLoading: $isLoading")
         binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 

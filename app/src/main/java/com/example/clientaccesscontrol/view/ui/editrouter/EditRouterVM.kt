@@ -81,8 +81,8 @@ class EditRouterVM(private val repository: Repository) : ViewModel() {
             repository.getSession().collect { user ->
                 user.token.let { token ->
                     val source = repository.getClientDetail(token, id)
-                    _getClientDetail.addSource(source) { result ->
-                        _getClientDetail.value = result
+                    _getClientDetail.addSource(source) { getClientDetailResult ->
+                        _getClientDetail.value = getClientDetailResult
                     }
                 }
             }
@@ -113,20 +113,20 @@ class EditRouterVM(private val repository: Repository) : ViewModel() {
         viewModelScope.launch {
             repository.getSession().collect { user ->
                 user.token.let { token ->
-                    _getBTS.addSource(repository.getBTS(token)) { result ->
-                        _getBTS.value = result
+                    _getBTS.addSource(repository.getBTS(token)) { getBTSResult ->
+                        _getBTS.value = getBTSResult
                     }
-                    _getRadio.addSource(repository.getRadio(token)) { result ->
-                        _getRadio.value = result
+                    _getRadio.addSource(repository.getRadio(token)) { getRadioResult ->
+                        _getRadio.value = getRadioResult
                     }
-                    _getMode.addSource(repository.getMode(token)) { result ->
-                        _getMode.value = result
+                    _getMode.addSource(repository.getMode(token)) { getModeResult ->
+                        _getMode.value = getModeResult
                     }
-                    _getPresharedKey.addSource(repository.getPresharedKey(token)) { result ->
-                        _getPresharedKey.value = result
+                    _getPresharedKey.addSource(repository.getPresharedKey(token)) { getPresharedKeyResult ->
+                        _getPresharedKey.value = getPresharedKeyResult
                     }
-                    _getChanelWidth.addSource(repository.getChannelWidth(token)) { result ->
-                        _getChanelWidth.value = result
+                    _getChanelWidth.addSource(repository.getChannelWidth(token)) { getChannelWidthResult ->
+                        _getChanelWidth.value = getChannelWidthResult
                     }
                 }
             }

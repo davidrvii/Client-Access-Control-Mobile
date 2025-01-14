@@ -13,7 +13,6 @@ import com.example.clientaccesscontrol.view.ui.home.MainVM
 import com.example.clientaccesscontrol.view.ui.networkfilter.NetworkFilterVM
 import com.example.clientaccesscontrol.view.ui.networklist.NetworkListVM
 import com.example.clientaccesscontrol.view.ui.newclientprofile.NewClientProfileVM
-import com.example.clientaccesscontrol.view.ui.newclientqueue.NewClientQueueVM
 import com.example.clientaccesscontrol.view.ui.newclientrouter.NewClientRouterVM
 
 class FactoryViewModel(
@@ -41,10 +40,6 @@ class FactoryViewModel(
 
             modelClass.isAssignableFrom(NewClientProfileVM::class.java) -> {
                 NewClientProfileVM(repository) as T
-            }
-
-            modelClass.isAssignableFrom(NewClientQueueVM::class.java) -> {
-                NewClientQueueVM(repository) as T
             }
 
             modelClass.isAssignableFrom(NewClientRouterVM::class.java) -> {

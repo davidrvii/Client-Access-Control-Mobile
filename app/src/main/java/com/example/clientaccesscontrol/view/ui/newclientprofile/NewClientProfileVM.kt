@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 
 class NewClientProfileVM(private val repository: Repository) : ViewModel() {
 
+    //Setup Spinner
     private val _getAccess = MediatorLiveData<Results<GetAccessResponse>>()
     val getAccess: MutableLiveData<Results<GetAccessResponse>> = _getAccess
 
@@ -22,11 +23,11 @@ class NewClientProfileVM(private val repository: Repository) : ViewModel() {
         viewModelScope.launch {
             repository.getSession().collect { user ->
                 user.token.let { token ->
-                    _getAccess.addSource(repository.getAccess(token)) { result ->
-                        _getAccess.value = result
+                    _getAccess.addSource(repository.getAccess(token)) { getAccessResult ->
+                        _getAccess.value = getAccessResult
                     }
-                    _getSpeed.addSource(repository.getSpeed(token)) { result ->
-                        _getSpeed.value = result
+                    _getSpeed.addSource(repository.getSpeed(token)) { getSpeedResult ->
+                        _getSpeed.value = getSpeedResult
                     }
                 }
             }

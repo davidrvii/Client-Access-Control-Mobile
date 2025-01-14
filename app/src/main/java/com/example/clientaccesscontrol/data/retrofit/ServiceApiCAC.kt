@@ -121,11 +121,18 @@ interface ServiceApiCAC {
 
     @FormUrlEncoded
     @PATCH("client/{id}")
-    suspend fun updateClient(
+    suspend fun updateSpeed(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int,
+        @Field("fk_speed_id") speed: Int,
+    ): UpdateClientDetailResponse
+
+    @FormUrlEncoded
+    @PATCH("client/{id}")
+    suspend fun updateAccess(
         @Header("Authorization") token: String,
         @Path("id") id: Int,
         @Field("fk_access_id") access: Int,
-        @Field("fk_speed_id") speed: Int,
     ): UpdateClientDetailResponse
 
     @GET("bts/")

@@ -1,7 +1,6 @@
 package com.example.clientaccesscontrol.view.ui.home
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
 import android.util.Log

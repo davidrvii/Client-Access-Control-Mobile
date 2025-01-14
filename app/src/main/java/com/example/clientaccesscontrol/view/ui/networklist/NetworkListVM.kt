@@ -1,6 +1,5 @@
 package com.example.clientaccesscontrol.view.ui.networklist
 
-import android.util.Log
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -32,9 +31,8 @@ class NetworkListVM(private val repository: Repository) : ViewModel() {
         viewModelScope.launch {
             repository.getSession().collect { user ->
                 user.token.let { token ->
-                    _createBTS.addSource(repository.createBTS(token, bts)) { result ->
-                        _createBTS.value = result
-                        Log.d("NetworkListVM", "createBTS result: $result")
+                    _createBTS.addSource(repository.createBTS(token, bts)) { createBTSResult ->
+                        _createBTS.value = createBTSResult
                     }
                 }
             }
@@ -52,8 +50,8 @@ class NetworkListVM(private val repository: Repository) : ViewModel() {
         viewModelScope.launch {
             repository.getSession().collect { user ->
                 user.token.let { token ->
-                    _createRadio.addSource(repository.createRadio(token, radio)) { result ->
-                        _createRadio.value = result
+                    _createRadio.addSource(repository.createRadio(token, radio)) { createRadioResult ->
+                        _createRadio.value = createRadioResult
                     }
                 }
             }
@@ -71,8 +69,8 @@ class NetworkListVM(private val repository: Repository) : ViewModel() {
         viewModelScope.launch {
             repository.getSession().collect { user ->
                 user.token.let { token ->
-                    _createMode.addSource(repository.createMode(token, mode)) { result ->
-                        _createMode.value = result
+                    _createMode.addSource(repository.createMode(token, mode)) { createModeResult ->
+                        _createMode.value = createModeResult
                     }
                 }
             }
@@ -84,20 +82,15 @@ class NetworkListVM(private val repository: Repository) : ViewModel() {
     val getPresharedKey: MutableLiveData<Results<GetPresharedKeyResponse>> = _getPresharedKey
 
     private val _createPresharedKey = MediatorLiveData<Results<CreatePresharedKeyResponse>>()
-    val createPresharedKey: MutableLiveData<Results<CreatePresharedKeyResponse>> =
-        _createPresharedKey
+    val createPresharedKey: MutableLiveData<Results<CreatePresharedKeyResponse>> = _createPresharedKey
 
     fun createPresharedKey(presharedKey: String) {
         viewModelScope.launch {
             repository.getSession().collect { user ->
                 user.token.let { token ->
                     _createPresharedKey.addSource(
-                        repository.createPresharedKey(
-                            token,
-                            presharedKey
-                        )
-                    ) { result ->
-                        _createPresharedKey.value = result
+                        repository.createPresharedKey(token, presharedKey)) { createPresharedKeyResult ->
+                        _createPresharedKey.value = createPresharedKeyResult
                     }
                 }
             }
@@ -109,20 +102,15 @@ class NetworkListVM(private val repository: Repository) : ViewModel() {
     val getChannelWidth: MutableLiveData<Results<GetChannelWidthResponse>> = _getChanelWidth
 
     private val _createChannelWidth = MediatorLiveData<Results<CreateChannelWidthResponse>>()
-    val createChannelWidth: MutableLiveData<Results<CreateChannelWidthResponse>> =
-        _createChannelWidth
+    val createChannelWidth: MutableLiveData<Results<CreateChannelWidthResponse>> = _createChannelWidth
 
     fun createChannelWidth(channelWidth: String) {
         viewModelScope.launch {
             repository.getSession().collect { user ->
                 user.token.let { token ->
                     _createChannelWidth.addSource(
-                        repository.createChannelWidth(
-                            token,
-                            channelWidth
-                        )
-                    ) { result ->
-                        _createChannelWidth.value = result
+                        repository.createChannelWidth(token, channelWidth)) { createChannelWidthResult ->
+                        _createChannelWidth.value = createChannelWidthResult
                     }
                 }
             }
@@ -134,20 +122,20 @@ class NetworkListVM(private val repository: Repository) : ViewModel() {
             repository.getSession().collect { user ->
                 user.token.let { token ->
                     //get
-                    _getBTS.addSource(repository.getBTS(token)) { result ->
-                        _getBTS.value = result
+                    _getBTS.addSource(repository.getBTS(token)) { getBTSResult ->
+                        _getBTS.value = getBTSResult
                     }
-                    _getRadio.addSource(repository.getRadio(token)) { result ->
-                        _getRadio.value = result
+                    _getRadio.addSource(repository.getRadio(token)) { getRadioResult ->
+                        _getRadio.value = getRadioResult
                     }
-                    _getMode.addSource(repository.getMode(token)) { result ->
-                        _getMode.value = result
+                    _getMode.addSource(repository.getMode(token)) { getModeResult ->
+                        _getMode.value = getModeResult
                     }
-                    _getPresharedKey.addSource(repository.getPresharedKey(token)) { result ->
-                        _getPresharedKey.value = result
+                    _getPresharedKey.addSource(repository.getPresharedKey(token)) { getPresharedKeyResult ->
+                        _getPresharedKey.value = getPresharedKeyResult
                     }
-                    _getChanelWidth.addSource(repository.getChannelWidth(token)) { result ->
-                        _getChanelWidth.value = result
+                    _getChanelWidth.addSource(repository.getChannelWidth(token)) { getChannelWidthResult ->
+                        _getChanelWidth.value = getChannelWidthResult
                     }
                 }
             }

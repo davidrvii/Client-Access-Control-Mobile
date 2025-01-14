@@ -13,15 +13,19 @@ object Data {
     fun provideCACRepository(context: Context): Repository {
         val pref = UserPreference.getInstance(context.dataStore)
 
-        val baseUrl = runBlocking { pref.getSession().first().ipAdress }
-        val username = runBlocking { pref.getSession().first().username }
-        val password = runBlocking { pref.getSession().first().password }
-        Log.d("Data", "username: $username")
-        Log.d("Data", "password: $password")
+        try {
+            val apiServiceCAC = ConfigApi.getApiServiceCAC()
 
-        val apiServiceCAC = ConfigApi.getApiServiceCAC()
-        val apiServiceMikrotik = ConfigApi.getApiServiceMikrotik(baseUrl, username, password)
+            val baseUrl = runBlocking { pref.getSession().first().ipAdress }
+            val username = runBlocking { pref.getSession().first().username }
+            val password = runBlocking { pref.getSession().first().password }
 
-        return Repository.getInstance(pref, apiServiceCAC, apiServiceMikrotik)
+            val apiServiceMikrotik = ConfigApi.getApiServiceMikrotik(baseUrl, username, password)
+
+            return Repository.getInstance(pref, apiServiceCAC, apiServiceMikrotik)
+        } catch (e: Exception) {
+            Log.e("Data", "Error in provideCACRepository", e)
+            throw e
+        }
     }
 }

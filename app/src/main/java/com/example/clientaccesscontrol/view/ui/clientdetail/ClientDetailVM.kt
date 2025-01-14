@@ -12,12 +12,44 @@ import com.example.clientaccesscontrol.data.cacresponse.GetSpeedResponse
 import com.example.clientaccesscontrol.data.cacresponse.UpdateClientDetailResponse
 import com.example.clientaccesscontrol.data.mikrotikresponse.CreateFilterRulesResponse
 import com.example.clientaccesscontrol.data.mikrotikresponse.GetFilterRulesResponseItem
-import com.example.clientaccesscontrol.data.mikrotikresponse.UpdateFilterRulesResponse
+import com.example.clientaccesscontrol.data.mikrotikresponse.GetQueueTreeResponseItem
 import com.example.clientaccesscontrol.data.preference.Repository
 import com.example.clientaccesscontrol.data.result.Results
 import kotlinx.coroutines.launch
 
 class ClientDetailVM(private val repository: Repository) : ViewModel() {
+
+    //Get Queue Tree
+    private val _getQueueTree = MediatorLiveData<Results<List<GetQueueTreeResponseItem>>>()
+    val getQueueTree: LiveData<Results<List<GetQueueTreeResponseItem>>> = _getQueueTree
+
+    fun getQueueTree() {
+        viewModelScope.launch {
+            _getQueueTree.addSource(repository.getQueueTree()) { getQueueTreeResult ->
+                _getQueueTree.value = getQueueTreeResult
+            }
+        }
+    }
+
+    //Update Queue Tree Speed
+    private val _updateQueueTreeSpeed = MediatorLiveData<Results<Unit>>()
+    val updateQueueTreeSpeed: LiveData<Results<Unit>> = _updateQueueTreeSpeed
+
+    fun updateQueueTreeSpeed(
+        numbers: String,
+        limitAt: String,
+        maxLimit: String,
+        burstTime: String,
+        burstThreshold: String,
+        burstLimit: String,
+    ) {
+        viewModelScope.launch {
+            _updateQueueTreeSpeed.addSource(
+                repository.updateQueueTree(numbers, limitAt, maxLimit, burstTime, burstThreshold, burstLimit)) { updateQueueTreeSpeedResult ->
+                _updateQueueTreeSpeed.value = updateQueueTreeSpeedResult
+            }
+        }
+    }
 
     //Create Filter Rules
     private val _createFilterRules = MediatorLiveData<Results<CreateFilterRulesResponse>>()
@@ -28,25 +60,27 @@ class ClientDetailVM(private val repository: Repository) : ViewModel() {
         chain: String,
         srcAddress: String,
         action: String,
-        disabled: String
+        disabled: String,
     ) {
         viewModelScope.launch {
-            _createFilterRules.addSource(repository.createFilterRules(comment, chain, srcAddress, action, disabled)) { createFilterRulesResult ->
+            _createFilterRules.addSource(
+                repository.createFilterRules(comment, chain, srcAddress, action, disabled)) { createFilterRulesResult ->
                 _createFilterRules.value = createFilterRulesResult
             }
         }
     }
 
     //Update Filter Rules
-    private val _updateFilterRules = MediatorLiveData<Results<UpdateFilterRulesResponse>>()
-    val updateFilterRules: LiveData<Results<UpdateFilterRulesResponse>> = _updateFilterRules
+    private val _updateFilterRules = MediatorLiveData<Results<Unit>>()
+    val updateFilterRules: LiveData<Results<Unit>> = _updateFilterRules
 
     fun updateFilterRules(
         id: String,
-        disabled: String
+        disabled: String,
     ) {
         viewModelScope.launch {
-            _updateFilterRules.addSource(repository.updatedFilterRules(id, disabled)) { updateFilterRulesResult ->
+            _updateFilterRules.addSource(
+                repository.updatedFilterRules(id, disabled)) { updateFilterRulesResult ->
                 _updateFilterRules.value = updateFilterRulesResult
             }
         }
@@ -82,34 +116,47 @@ class ClientDetailVM(private val repository: Repository) : ViewModel() {
         }
     }
 
-    //Update Client Access & Speed
-    private val _updateClient = MediatorLiveData<Results<UpdateClientDetailResponse>>()
-    val updateClient: MutableLiveData<Results<UpdateClientDetailResponse>> = _updateClient
+    //Update Client Access
+    private val _updateAccess = MediatorLiveData<Results<UpdateClientDetailResponse>>()
+    val updateAccess: MutableLiveData<Results<UpdateClientDetailResponse>> = _updateAccess
 
-    fun updateClient(id: Int, access: Int, speed: Int) {
+    fun updateAccess(id: Int, access: Int) {
         viewModelScope.launch {
-            _updateClient.value = Results.Loading
+            _updateAccess.value = Results.Loading
             try {
                 repository.getSession().collect { user ->
                     user.token.let { token ->
-                        val bearerToken = "Bearer $token"
-                        val response = repository.updateClient(bearerToken, id, access, speed)
-                        _updateClient.value = Results.Success(response)
+                        val response = repository.updateAccess(token, id, access)
+                        _updateAccess.value = Results.Success(response)
                     }
                 }
             } catch (e: Exception) {
-                _updateClient.value = Results.Error(e.message.toString())
+                _updateAccess.value = Results.Error(e.message.toString())
+            }
+        }
+    }
+
+    //Update Client Speed
+    private val _updateSpeed = MediatorLiveData<Results<UpdateClientDetailResponse>>()
+    val updateSpeed: MutableLiveData<Results<UpdateClientDetailResponse>> = _updateSpeed
+
+    fun updateSpeed(id: Int, speed: Int) {
+        viewModelScope.launch {
+            _updateSpeed.value = Results.Loading
+            try {
+                repository.getSession().collect { user ->
+                    user.token.let { token ->
+                        val response = repository.updateSpeed(token, id, speed)
+                        _updateSpeed.value = Results.Success(response)
+                    }
+                }
+            } catch (e: Exception) {
+                _updateSpeed.value = Results.Error(e.message.toString())
             }
         }
     }
 
     //Get Client Detail
-    private val _getAccess = MediatorLiveData<Results<GetAccessResponse>>()
-    val getAccess: MutableLiveData<Results<GetAccessResponse>> = _getAccess
-
-    private val _getSpeed = MediatorLiveData<Results<GetSpeedResponse>>()
-    val getSpeed: MutableLiveData<Results<GetSpeedResponse>> = _getSpeed
-
     private val _getClientDetail = MediatorLiveData<Results<GetClientDetailResponse>>()
     val getClientDetail: MutableLiveData<Results<GetClientDetailResponse>> = _getClientDetail
 
@@ -125,6 +172,13 @@ class ClientDetailVM(private val repository: Repository) : ViewModel() {
             }
         }
     }
+
+    //Setup Spinner
+    private val _getAccess = MediatorLiveData<Results<GetAccessResponse>>()
+    val getAccess: MutableLiveData<Results<GetAccessResponse>> = _getAccess
+
+    private val _getSpeed = MediatorLiveData<Results<GetSpeedResponse>>()
+    val getSpeed: MutableLiveData<Results<GetSpeedResponse>> = _getSpeed
 
     init {
         viewModelScope.launch {

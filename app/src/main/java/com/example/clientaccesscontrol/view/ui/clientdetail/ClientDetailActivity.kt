@@ -44,6 +44,12 @@ class ClientDetailActivity : AppCompatActivity() {
     private var comment: String = ""
     private var srcAddress: String = ""
 
+    private var limitAt: String = ""
+    private var maxLimit: String = ""
+    private var burstTime: String = ""
+    private var burstThreshold: String = ""
+    private var burstLimit: String = ""
+
     private var filterRules: List<GetFilterRulesResponseItem>? = null
 
     private val clientDetailViewModel by viewModels<ClientDetailVM> {
@@ -61,7 +67,6 @@ class ClientDetailActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
         clientId = intent.getIntExtra(CLIENT_ID, 0)
         setupClientDetail()
         setupActionButton()
@@ -104,10 +109,12 @@ class ClientDetailActivity : AppCompatActivity() {
                     }
                     setupActionSpinner()
                 }
+
                 is Results.Error -> {
                     Log.e("ClientDetailActivity", "Error Get Client Detail: ${result.error}")
                     showLoading(false)
                 }
+
                 is Results.Loading -> {
                     showLoading(true)
                 }
@@ -138,10 +145,15 @@ class ClientDetailActivity : AppCompatActivity() {
 
                     binding.spInternetAccess.onItemSelectedListener =
                         object : AdapterView.OnItemSelectedListener {
-                            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long ) {
-                                accessSelectedId = position+1
+                            override fun onItemSelected(
+                                parent: AdapterView<*>?,
+                                view: View?,
+                                position: Int,
+                                id: Long
+                            ) {
+                                accessSelectedId = position + 1
                                 if (accessSelectedId != previousAccessSelectedId) {
-                                    updateClient()
+                                    updateAccess()
                                     previousAccessSelectedId = accessSelectedId
                                 } else {
                                     Log.d("ClientDetailActivity", "Access Selected ID Doesn't Change")
@@ -152,11 +164,13 @@ class ClientDetailActivity : AppCompatActivity() {
                             }
                         }
                 }
+
                 is Results.Error -> {
                     showLoading(false)
                     Log.e("ClientDetailActivity", "Error Get Access: ${result.error}")
                     Toast.makeText(this, "Error: ${result.error}", Toast.LENGTH_SHORT).show()
                 }
+
                 is Results.Loading -> {
                     showLoading(true)
                 }
@@ -185,10 +199,16 @@ class ClientDetailActivity : AppCompatActivity() {
 
                     binding.spInternetSpeed.onItemSelectedListener =
                         object : AdapterView.OnItemSelectedListener {
-                            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long ) {
-                                speedSelectedId = position+1
+                            override fun onItemSelected(
+                                parent: AdapterView<*>?,
+                                view: View?,
+                                position: Int,
+                                id: Long
+                            ) {
+                                speedSelectedId = position + 1
                                 if (speedSelectedId != previousSpeedSelectedId) {
-                                    updateClient()
+                                    clientSpeed(speedSelectedId)
+                                    updateSpeed()
                                     previousSpeedSelectedId = speedSelectedId
                                 } else {
                                     Log.d("ClientDetailActivity", "Speed Selected ID Doesn't Change")
@@ -199,11 +219,13 @@ class ClientDetailActivity : AppCompatActivity() {
                             }
                         }
                 }
+
                 is Results.Error -> {
                     showLoading(false)
                     Log.e("ClientDetailActivity", "Error Get Speed: ${result.error}")
                     Toast.makeText(this, "Error: ${result.error}", Toast.LENGTH_SHORT).show()
                 }
+
                 is Results.Loading -> {
                     showLoading(true)
                 }
@@ -211,29 +233,38 @@ class ClientDetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateClient() {
-        if (accessSelectedId in 1..2 && speedSelectedId in 1..6) {
+    private fun updateAccess() {
+        Log.d("ClientDetailActivity", "Update Access Called")
+        if (accessSelectedId in 1..2) {
+            Log.d("ClientDetailActivity", "Update Access Called with Access ID: $accessSelectedId")
             UPDATE_CLIENT = "TRUE"
 
-            clientDetailViewModel.updateClient(clientId, accessSelectedId, speedSelectedId)
-            clientDetailViewModel.updateClient.removeObservers(this)
-            clientDetailViewModel.updateClient.observe(this) { result ->
-                when (result) {
+            //Update Access
+            clientDetailViewModel.updateAccess(clientId, accessSelectedId)
+
+            //Update Access Observer
+            clientDetailViewModel.updateAccess.removeObservers(this)
+            clientDetailViewModel.updateAccess.observe(this) { updateAccessResult ->
+                when (updateAccessResult) {
                     is Results.Success -> {
+                        //Get Filter Rules
                         clientDetailViewModel.getFilterRules()
                         showLoading(false)
                     }
+
                     is Results.Error -> {
                         showLoading(false)
-                        Log.e("ClientDetailActivity", "Error Update Client: ${result.error}")
-                        Toast.makeText(this, "Error: ${result.error}", Toast.LENGTH_SHORT).show()
+                        Log.e("ClientDetailActivity", "Error Update Access: ${updateAccessResult.error}")
+                        Toast.makeText(this, "Error: ${updateAccessResult.error}", Toast.LENGTH_SHORT).show()
                     }
+
                     is Results.Loading -> {
                         showLoading(true)
                     }
                 }
             }
 
+            //Get Filter Rules Observer
             clientDetailViewModel.getFilterRules.removeObservers(this)
             clientDetailViewModel.getFilterRules.observe(this) { rulesResult ->
                 when (rulesResult) {
@@ -244,7 +275,7 @@ class ClientDetailActivity : AppCompatActivity() {
                         //Take Filter Rules That Match With Client by Comment
                         val matchedFilterRules = filterRules!!.filter { it.comment?.trim() == comment.trim() }
                         val filterRulesComment = matchedFilterRules.map { it.comment?.trim() }
-                        val filterRulesId = matchedFilterRules.firstOrNull()?.id?.replace("[", "")?.replace("]", "")
+                        val filterRulesId =matchedFilterRules.firstOrNull()?.id?.replace("[", "")?.replace("]", "")
 
                         //If Client Doesn't Have Rules, Make New Rules
                         if (comment.trim() !in filterRulesComment) {
@@ -255,23 +286,25 @@ class ClientDetailActivity : AppCompatActivity() {
                                 else -> Log.d("ClientDetailActivity", "Selected Access Doesn't Counted")
                             }
 
-                        //If Client Already Have Rules, Update the Disabled
+                            //If Client Already Have Rules, Update the Disabled
                         } else if (comment.trim() in filterRulesComment) {
                             Log.d("ClientDetailActivity", "Updating Rules with ID: $filterRulesId to Access: $accessSelectedId")
                             when (accessSelectedId) {
-                                1 -> { clientDetailViewModel.updateFilterRules(filterRulesId.toString(), "false") }
-                                2 -> { clientDetailViewModel.updateFilterRules(filterRulesId.toString(), "true") }
+                                1 ->  clientDetailViewModel.updateFilterRules(filterRulesId.toString(), "false")
+                                2 ->  clientDetailViewModel.updateFilterRules(filterRulesId.toString(), "true")
                                 else -> Log.d("ClientDetailActivity", "Selected Access Doesn't Counted")
                             }
                         } else {
                             Log.d("ClientDetailActivity", "Comment Not Found in Filter Rules")
                         }
                     }
+
                     is Results.Error -> {
                         showLoading(false)
                         Log.e("ClientDetailActivity", "Error Get Filter Rules: ${rulesResult.error}")
                         Toast.makeText(this, "Error: ${rulesResult.error}", Toast.LENGTH_SHORT).show()
                     }
+
                     is Results.Loading -> {
                         showLoading(true)
                     }
@@ -281,8 +314,90 @@ class ClientDetailActivity : AppCompatActivity() {
             Toast.makeText(this, "Can Not Choose Selection", Toast.LENGTH_SHORT).show()
             Log.d("ClientDetailActivity", "Selected Access Doesn't Counted")
         }
+        createFilterRulesObserver()
+        updateFilterRulesObserver()
+    }
 
-        filterRulesObserver()
+    private fun updateSpeed() {
+        if (speedSelectedId in 1..6) {
+            UPDATE_CLIENT = "TRUE"
+
+            //Update Speed
+            clientDetailViewModel.updateSpeed(clientId, speedSelectedId)
+            Log.d("ClientDetailActivity", "Update Speed Called with Speed ID: $speedSelectedId")
+
+            //Update Speed Observer
+            clientDetailViewModel.updateSpeed.removeObservers(this)
+            clientDetailViewModel.updateSpeed.observe(this) { updateSpeedResult ->
+                when (updateSpeedResult) {
+                    is Results.Success -> {
+                        //Get Queue Tree
+                        clientDetailViewModel.getQueueTree()
+                        showLoading(false)
+                    }
+
+                    is Results.Error -> {
+                        showLoading(false)
+                        Log.e("ClientDetailActivity", "Error Update Speed: ${updateSpeedResult.error}")
+                        Toast.makeText(this, "Error: ${updateSpeedResult.error}", Toast.LENGTH_SHORT).show()
+                    }
+
+                    is Results.Loading -> {
+                        showLoading(true)
+                    }
+                }
+            }
+
+            //Get Queue Tree Observer
+            clientDetailViewModel.getQueueTree.removeObservers(this)
+            clientDetailViewModel.getQueueTree.observe(this) { getQueueTreeResult ->
+                when (getQueueTreeResult) {
+                    is Results.Success -> {
+                        val clientQueueTrees = getQueueTreeResult.data.filter { it.comment?.trim() == comment.trim() }
+                        Log.d("ClientDetailActivity", "Client Queue Trees: $clientQueueTrees")
+
+                        if (clientQueueTrees.isNotEmpty()) {
+                            clientQueueTrees.forEach { queueTree ->
+                                //Update Queue Tree Speed
+                                clientDetailViewModel.updateQueueTreeSpeed(queueTree.id.toString(), limitAt, maxLimit, burstTime, burstThreshold, burstLimit)
+                            }
+                        } else {
+                            Log.d("ClientDetailActivity", "Queue Tree Not Found")
+                            Toast.makeText(this, "Queue Tree Not Found", Toast.LENGTH_SHORT).show()
+                        }
+                        showLoading(false)
+                    }
+                    is Results.Error -> {
+                        showLoading(false)
+                        Log.e("ClientDetailActivity", "Error Get Queue Tree: ${getQueueTreeResult.error}")
+                        Toast.makeText(this, "Error: ${getQueueTreeResult.error}", Toast.LENGTH_SHORT).show()
+                    }
+                    is Results.Loading -> {
+                        showLoading(true)
+                    }
+                }
+            }
+
+            //Update Speed Observer
+            clientDetailViewModel.updateQueueTreeSpeed.removeObservers(this)
+            clientDetailViewModel.updateQueueTreeSpeed.observe(this) { updateQueueTreeSpeedResult ->
+                when (updateQueueTreeSpeedResult) {
+                    is Results.Success -> {
+                        showLoading(false)
+                    }
+
+                    is Results.Error -> {
+                        showLoading(false)
+                        Log.e("ClientDetailActivity", "Error Update Speed: ${updateQueueTreeSpeedResult.error}")
+                        Toast.makeText(this, "Error: ${updateQueueTreeSpeedResult.error}", Toast.LENGTH_SHORT).show()
+                    }
+
+                    is Results.Loading -> {
+                        showLoading(true)
+                    }
+                }
+            }
+        }
     }
 
     private fun deleteObserver() {
@@ -305,7 +420,27 @@ class ClientDetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun filterRulesObserver() {
+    private fun createFilterRulesObserver() {
+        clientDetailViewModel.createFilterRules.removeObservers(this)
+        clientDetailViewModel.createFilterRules.observe(this) { createRulesResult ->
+            when (createRulesResult) {
+                is Results.Success -> {
+                    showLoading(false)
+                    Log.d("ClientDetailActivity", "Filter Rules Created")
+                }
+                is Results.Error -> {
+                    showLoading(false)
+                    Log.e("ClientDetailActivity", "Error Create Filter Rules: ${createRulesResult.error}")
+                    Toast.makeText(this, "Error: ${createRulesResult.error}", Toast.LENGTH_SHORT).show()
+                }
+                is Results.Loading -> {
+                    showLoading(true)
+                }
+            }
+        }
+    }
+
+    private fun updateFilterRulesObserver() {
         clientDetailViewModel.updateFilterRules.removeObservers(this)
         clientDetailViewModel.updateFilterRules.observe(this) { updateRulesResult ->
             when (updateRulesResult) {
@@ -323,22 +458,51 @@ class ClientDetailActivity : AppCompatActivity() {
                 }
             }
         }
+    }
 
-        clientDetailViewModel.createFilterRules.removeObservers(this)
-        clientDetailViewModel.createFilterRules.observe(this) { createRulesResult ->
-            when (createRulesResult) {
-                is Results.Success -> {
-                    showLoading(false)
-                    Log.d("ClientDetailActivity", "Filter Rules Created")
-                }
-                is Results.Error -> {
-                    showLoading(false)
-                    Log.e("ClientDetailActivity", "Error Create Filter Rules: ${createRulesResult.error}")
-                    Toast.makeText(this, "Error: ${createRulesResult.error}", Toast.LENGTH_SHORT).show()
-                }
-                is Results.Loading -> {
-                    showLoading(true)
-                }
+    private fun clientSpeed(speedId: Int) {
+        when (speedId) {
+            1 -> {
+                limitAt = "0M"
+                maxLimit = "0M"
+                burstTime = "0"
+                burstThreshold = "0M"
+                burstLimit = "0M"
+            }
+            2 -> {
+                limitAt = "5M"
+                maxLimit = "10M"
+                burstTime = "10"
+                burstThreshold = "7M"
+                burstLimit = "15M"
+            }
+            3 -> {
+                limitAt = "10M"
+                maxLimit = "20M"
+                burstTime = "10"
+                burstThreshold = "15M"
+                burstLimit = "30M"
+            }
+            4 -> {
+                limitAt = "15M"
+                maxLimit = "30M"
+                burstTime = "10"
+                burstThreshold = "22M"
+                burstLimit = "40M"
+            }
+            5 -> {
+                limitAt = "25M"
+                maxLimit = "50M"
+                burstTime = "10"
+                burstThreshold = "37M"
+                burstLimit = "65M"
+            }
+            6 -> {
+                limitAt = "50M"
+                maxLimit = "100M"
+                burstTime = "10"
+                burstThreshold = "75M"
+                burstLimit = "120M"
             }
         }
     }

@@ -45,12 +45,14 @@ object ConfigApi {
                     authType: String,
                 ) {
                 }
+
                 @SuppressLint("TrustAllX509TrustManager")
                 override fun checkServerTrusted(
                     chain: Array<X509Certificate>,
                     authType: String,
                 ) {
                 }
+
                 override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
             })
 
@@ -76,53 +78,56 @@ object ConfigApi {
         username: String,
         password: String,
     ): ServiceApiMikrotik {
-        Log.d("getApiServiceMikrotik", "Base URL: $baseUrl")
-        val loggingInterceptor = if (BuildConfig.DEBUG) {
-            HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
-        } else {
-            HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.NONE)
-        }
+        Log.d("getApiServiceMikrotik", "Base URL: $baseUrl, Username: $username, Password: $password")
 
-        Log.d("getApiServiceMikrotik", "Logging Interceptor: $loggingInterceptor")
-
-        val credentials = "$username:$password"
-        Log.d("getApiServiceMikrotik", "Credentials: $credentials")
-        val auth = "Basic " + Base64.encodeToString(
-            credentials.toByteArray(Charsets.UTF_8),
-            Base64.NO_WRAP
-        ).replace("\n", "")
-        Log.d("getApiServiceMikrotik", "Authorization Header: $auth")
-        val basicAuth = Interceptor { chain ->
-            val request = chain.request().newBuilder().addHeader("Authorization", auth).build()
-            Log.d("BasicAuthInterceptor", "Request URL: ${request.url}")
-            Log.d("BasicAuthInterceptor", "Request Headers: ${request.headers}")
-
-            val response: Response
-            try {
-                response = chain.proceed(request)
-                Log.d("BasicAuthInterceptor", "Response Code: ${response.code}")
-                if (response.code != 200) {
-                    Log.e("BasicAuthInterceptor", "Error: ${response.message}")
-                }
-            } catch (e: Exception) {
-                Log.e("BasicAuthInterceptor", "Request failed: ${e.message}")
-                throw e
+        try {
+            val loggingInterceptor = if (BuildConfig.DEBUG) {
+                HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
+            } else {
+                HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.NONE)
             }
-            response
+
+            Log.d("getApiServiceMikrotik", "Logging Interceptor: $loggingInterceptor")
+
+            val credentials = "$username:$password"
+            Log.d("getApiServiceMikrotik", "Credentials: $credentials")
+            val auth = "Basic " + Base64.encodeToString(credentials.toByteArray(Charsets.UTF_8), Base64.NO_WRAP).replace("\n", "")
+            Log.d("getApiServiceMikrotik", "Authorization Header: $auth")
+            val basicAuth = Interceptor { chain ->
+                val request = chain.request().newBuilder().addHeader("Authorization", auth).build()
+                Log.d("BasicAuthInterceptor", "Request URL: ${request.url}")
+                Log.d("BasicAuthInterceptor", "Request Headers: ${request.headers}")
+
+                val response: Response
+                try {
+                    response = chain.proceed(request)
+                    Log.d("BasicAuthInterceptor", "Response Code: ${response.code}")
+                    if (response.code != 200) {
+                        Log.e("BasicAuthInterceptor", "Error: ${response.message}")
+                    }
+                } catch (e: Exception) {
+                    Log.e("BasicAuthInterceptor", "Request failed: ${e.message}")
+                    throw e
+                }
+                response
+            }
+            Log.d("getApiServiceMikrotik", "Basic Auth Interceptor: $basicAuth")
+
+            val client = getUnsafeOkHttpClient()
+                .addInterceptor(basicAuth)
+                .addInterceptor(loggingInterceptor)
+                .build()
+
+            val retrofit = Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(client)
+                .build()
+
+            return retrofit.create(ServiceApiMikrotik::class.java)
+        } catch (e: Exception) {
+            Log.e("ConfigApi", "Error in getApiServiceMikrotik: ${e.message}")
+            throw e
         }
-        Log.d("getApiServiceMikrotik", "Basic Auth Interceptor: $basicAuth")
-
-        val client = getUnsafeOkHttpClient()
-            .addInterceptor(basicAuth)
-            .addInterceptor(loggingInterceptor)
-            .build()
-
-        val retrofit = Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(client)
-            .build()
-
-        return retrofit.create(ServiceApiMikrotik::class.java)
     }
 }
