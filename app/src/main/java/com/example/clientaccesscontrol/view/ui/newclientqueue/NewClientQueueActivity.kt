@@ -36,18 +36,18 @@ class NewClientQueueActivity : AppCompatActivity() {
         textFieldWatcher()
 
         binding.btNext.setOnClickListener {
-            val nameUpload = binding.etNameUpload.text.toString()
-            val nameDownload = binding.etNameDownload.text.toString()
+            val nameUpload = binding.etNameUpload.text.toString().trim()
+            val nameDownload = binding.etNameDownload.text.toString().trim()
 
-            val clientName = intent.getStringExtra(CLIENT_NAME).toString()
-            val phone = intent.getStringExtra(PHONE_NUMBER).toString()
-            val address = intent.getStringExtra(ADDRESS).toString()
-            val comment = intent.getStringExtra(COMMENT).toString()
+            val clientName = intent.getStringExtra(CLIENT_NAME).toString().trim()
+            val phone = intent.getStringExtra(PHONE_NUMBER).toString().trim()
+            val address = intent.getStringExtra(ADDRESS).toString().trim()
+            val comment = intent.getStringExtra(COMMENT).toString().trim()
             val accessId = intent.getIntExtra(ACCESSID, 0)
             val speedId = intent.getIntExtra(SPEEDID, 0)
 
-            val newUploadPacketMark = intent.getStringExtra(NEWUPLOADPACKETMARTK).toString()
-            val newDownloadPacketMark = intent.getStringExtra(NEWDOWNLOADPACKETMARTK).toString()
+            val newUploadPacketMark = intent.getStringExtra(NEWUPLOADPACKETMARTK).toString().trim()
+            val newDownloadPacketMark = intent.getStringExtra(NEWDOWNLOADPACKETMARTK).toString().trim()
 
             val intent = Intent(this, NewClientRouterActivity::class.java).apply {
                 putExtra(NewClientRouterActivity.NAMEUPLOAD, nameUpload)

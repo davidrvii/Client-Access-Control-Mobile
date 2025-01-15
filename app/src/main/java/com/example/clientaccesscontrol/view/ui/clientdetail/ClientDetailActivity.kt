@@ -275,7 +275,7 @@ class ClientDetailActivity : AppCompatActivity() {
                         //Take Filter Rules That Match With Client by Comment
                         val matchedFilterRules = filterRules!!.filter { it.comment?.trim() == comment.trim() }
                         val filterRulesComment = matchedFilterRules.map { it.comment?.trim() }
-                        val filterRulesId =matchedFilterRules.firstOrNull()?.id?.replace("[", "")?.replace("]", "")
+                        val filterRulesId = matchedFilterRules.firstOrNull()?.id?.replace("[", "")?.replace("]", "")
 
                         //If Client Doesn't Have Rules, Make New Rules
                         if (comment.trim() !in filterRulesComment) {
@@ -385,13 +385,11 @@ class ClientDetailActivity : AppCompatActivity() {
                     is Results.Success -> {
                         showLoading(false)
                     }
-
                     is Results.Error -> {
                         showLoading(false)
                         Log.e("ClientDetailActivity", "Error Update Speed: ${updateQueueTreeSpeedResult.error}")
                         Toast.makeText(this, "Error: ${updateQueueTreeSpeedResult.error}", Toast.LENGTH_SHORT).show()
                     }
-
                     is Results.Loading -> {
                         showLoading(true)
                     }
@@ -400,21 +398,176 @@ class ClientDetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun deleteObserver() {
-        clientDetailViewModel.deleteClient.observe(this) { result ->
-            when (result) {
+    private fun deleteClient() {
+        //Get Queue Tree
+        clientDetailViewModel.getQueueTree()
+        clientDetailViewModel.getQueueTree.removeObservers(this)
+        clientDetailViewModel.getQueueTree.observe(this) { getQueueTreeResult ->
+            when (getQueueTreeResult) {
                 is Results.Success -> {
-                    UPDATE_CLIENT = "TRUE"
+                    val queueTrees = getQueueTreeResult.data.filter { it.comment?.trim() == comment.trim() }
+                    val queueTreesId = queueTrees.map { it.id }
+
+                    if (queueTreesId.isNotEmpty()) {
+                        //Delete Queue Tree
+                        queueTreesId.forEach { queueTreeId ->
+                            clientDetailViewModel.deleteQueueTree(queueTreeId?.replace("[", "")?.replace("]", "").toString())
+                        }
+                        clientDetailViewModel.getMangle()
+                    } else {
+                        //Get Mangle
+                        clientDetailViewModel.getMangle()
+                    }
+                    Log.d("ClientDetailActivity", "Client Queue Trees: $queueTrees")
                     showLoading(false)
-                    Toast.makeText(this, result.data.message, Toast.LENGTH_SHORT).show()
                 }
                 is Results.Error -> {
                     showLoading(false)
-                    Log.e("ClientDetailActivity", "Error deleting client: ${result.error}")
-                    Toast.makeText(this, "Error deleting client: ${result.error}", Toast.LENGTH_SHORT).show()
+                    Log.e("ClientDetailActivity", "Error Get Queue Tree: ${getQueueTreeResult.error}")
+                    Toast.makeText(this, "Error: ${getQueueTreeResult.error}", Toast.LENGTH_SHORT).show()
                 }
                 is Results.Loading -> {
                     showLoading(true)
+                }
+            }
+        }
+
+        //Delete Queue Tree Observer
+        clientDetailViewModel.deleteQueueTree.removeObservers(this)
+        clientDetailViewModel.deleteQueueTree.observe(this) { deleteQueueTreeResult ->
+            when (deleteQueueTreeResult) {
+                is Results.Success -> {
+                    showLoading(false)
+                }
+                is Results.Error -> {
+                    showLoading(false)
+                    Log.e("ClientDetailActivity", "Error Delete Queue Tree: ${deleteQueueTreeResult.error}")
+                    Toast.makeText(this, "Error: ${deleteQueueTreeResult.error}", Toast.LENGTH_SHORT).show()
+                }
+                is Results.Loading -> {
+                    showLoading(true)
+                }
+            }
+        }
+
+        //Get Mangle Observer
+        clientDetailViewModel.getMangle.removeObservers(this)
+        clientDetailViewModel.getMangle.observe(this) { getMangleResult ->
+            when (getMangleResult) {
+                is Results.Success -> {
+                    val mangles = getMangleResult.data.filter { it.comment?.trim() == comment.trim() }
+                    val manglesId = mangles.map { it.id }
+
+                    if (manglesId.isNotEmpty()) {
+                        manglesId.forEach { mangleId ->
+                            //Delete Mangle
+                            clientDetailViewModel.deleteMangle(mangleId?.replace("[", "")?.replace("]", "").toString())
+                        }
+                        clientDetailViewModel.getFilterRules()
+                    } else {
+                        clientDetailViewModel.getFilterRules()
+                    }
+                    Log.d("ClientDetailActivity", "Client Mangles: $mangles")
+                    showLoading(false)
+                }
+                is Results.Error -> {
+                    showLoading(false)
+                    Log.e("ClientDetailActivity", "Error Get Mangle: ${getMangleResult.error}")
+                    Toast.makeText(this, "Error: ${getMangleResult.error}", Toast.LENGTH_SHORT).show()
+                    }
+                is Results.Loading -> {
+                    showLoading(true)
+                }
+            }
+        }
+
+        //Delete Mangle Observer
+        clientDetailViewModel.deleteMangle.removeObservers(this)
+        clientDetailViewModel.deleteMangle.observe(this) { deleteMangleResult ->
+            when (deleteMangleResult) {
+                is Results.Success -> {
+                    showLoading(false)
+                }
+                is Results.Error -> {
+                    showLoading(false)
+                    Log.e("ClientDetailActivity", "Error Delete Mangle: ${deleteMangleResult.error}")
+                    Toast.makeText(this, "Error: ${deleteMangleResult.error}", Toast.LENGTH_SHORT).show()
+                }
+                is Results.Loading -> {
+                    showLoading(true)
+                }
+            }
+        }
+
+        //Get Filter Rules
+        clientDetailViewModel.getFilterRules.removeObservers(this)
+        clientDetailViewModel.getFilterRules.observe(this) { getFilterRulesResult ->
+            when (getFilterRulesResult) {
+                is Results.Success -> {
+                    val rules = getFilterRulesResult.data.filter { it.comment?.trim() == comment.trim() }
+                    val rulesId = rules.map { it.id }
+
+                    if (rulesId.isNotEmpty()) {
+                        rulesId.forEach { ruleId ->
+                            //Delete Filter Rules
+                            clientDetailViewModel.deleteFilterRules(ruleId?.replace("[", "")?.replace("]", "").toString())
+                        }
+                    }else {
+                        clientDetailViewModel.deleteClient(clientId)
+                    }
+                    Log.d("ClientDetailActivity", "Client Filter Rules: $rules")
+                    showLoading(false)
+                }
+                is Results.Error -> {
+                    showLoading(false)
+                    Log.e("ClientDetailActivity", "Error Get Filter Rules: ${getFilterRulesResult.error}")
+                    Toast.makeText(this, "Error: ${getFilterRulesResult.error}", Toast.LENGTH_SHORT).show()
+                }
+                is Results.Loading -> {
+                    showLoading(true)
+                }
+            }
+        }
+
+        //Delete Filter Rules Observer
+        clientDetailViewModel.deleteFilterRules.removeObservers(this)
+        clientDetailViewModel.deleteFilterRules.observe(this) { deleteFilterRulesResult ->
+            when (deleteFilterRulesResult) {
+                is Results.Success -> {
+                    showLoading(false)
+                    //Delete Client
+                    clientDetailViewModel.deleteClient(clientId)
+                }
+                is Results.Error -> {
+                    showLoading(false)
+                    Log.e("ClientDetailActivity", "Error Delete Filter Rules: ${deleteFilterRulesResult.error}")
+                    Toast.makeText(this, "Error: ${deleteFilterRulesResult.error}", Toast.LENGTH_SHORT).show()
+                }
+                is Results.Loading -> {
+                    showLoading(true)
+                }
+            }
+        }
+
+        //Delete Client Observer
+        clientDetailViewModel.deleteClient.removeObservers(this)
+        clientDetailViewModel.deleteClient.observe(this) { deleteClientResult ->
+            when (deleteClientResult) {
+                is Results.Success -> {
+                    showLoading(false)
+                    UPDATE_CLIENT = "TRUE"
+                    //Finish Activity
+                    Toast.makeText(this, deleteClientResult.data.message, Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+                is Results.Error -> {
+                    showLoading(false)
+                    Log.e("ClientDetailActivity", "Error deleting client: ${deleteClientResult.error}")
+                    Toast.makeText(this, "Error deleting client: ${deleteClientResult.error}", Toast.LENGTH_SHORT).show()
+                }
+                is Results.Loading -> {
+                    showLoading(true)
+                    Log.d("ClientDetailActivity", "Loading deleting client")
                 }
             }
         }
@@ -549,10 +702,9 @@ class ClientDetailActivity : AppCompatActivity() {
         cardView.layoutParams = layoutParams
 
         bindingDialog.btYesDelete.setOnClickListener {
-            clientDetailViewModel.deleteClient(clientId)
-            deleteObserver()
+            UPDATE_CLIENT = "TRUE"
+            deleteClient()
             dialog.dismiss()
-            finish()
         }
         bindingDialog.btCancelDelete.setOnClickListener {
             dialog.dismiss()

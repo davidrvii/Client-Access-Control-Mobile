@@ -66,8 +66,15 @@ class NewClientProfileActivity : AppCompatActivity() {
                         id: Long,
                     ) {
                         accessId = position+1
+                        if (accessId == 3) {
+                            Toast.makeText(this@NewClientProfileActivity, "Can't choose the selection", Toast.LENGTH_SHORT).show()
+                            binding.spInternetAccess.setSelection(2)
+                            accessId = 2
+                        }
                     }
-                    override fun onNothingSelected(p0: AdapterView<*>?) {}
+                    override fun onNothingSelected(p0: AdapterView<*>?) {
+                        accessId
+                    }
                 }
         }
 
@@ -92,7 +99,9 @@ class NewClientProfileActivity : AppCompatActivity() {
                     ) {
                         speedId = position+1
                     }
-                    override fun onNothingSelected(p0: AdapterView<*>?) {}
+                    override fun onNothingSelected(p0: AdapterView<*>?) {
+                        speedId
+                    }
                 }
         }
     }
@@ -101,15 +110,15 @@ class NewClientProfileActivity : AppCompatActivity() {
         textFieldWatcher()
 
         binding.btNext.setOnClickListener {
-            val clientName = binding.etClientName.text.toString()
-            val phone = binding.etPhoneNumber.text.toString()
-            val address = binding.etAddress.text.toString()
-            val comment = binding.etComment.text.toString()
+            val clientName = binding.etClientName.text.toString().trim()
+            val phone = binding.etPhoneNumber.text.toString().trim()
+            val address = binding.etAddress.text.toString().trim()
+            val comment = binding.etComment.text.toString().trim()
             val accessId = accessId
             val speedId = speedId
 
-            val newUploadPacketMark = binding.etUploadPacketMark.text.toString()
-            val newDownloadPacketMark = binding.etDownloadPacketMark.text.toString()
+            val newUploadPacketMark = binding.etUploadPacketMark.text.toString().trim()
+            val newDownloadPacketMark = binding.etDownloadPacketMark.text.toString().trim()
 
             val intent = Intent(this, NewClientQueueActivity::class.java).apply {
                 putExtra(NewClientQueueActivity.CLIENT_NAME, clientName)
@@ -182,8 +191,8 @@ class NewClientProfileActivity : AppCompatActivity() {
                     comment.isNotEmpty() &&
                     newUploadPacketMark.isNotEmpty() &&
                     newDownloadPacketMark.isNotEmpty() &&
-                    accessId != 0 &&
-                    speedId != 0
+                    accessId in 1..2 &&
+                    speedId in 1..6
 
         if (isFieldFilled) {
             binding.btNext.isEnabled = true

@@ -65,18 +65,24 @@ class NewClientRouterActivity : AppCompatActivity() {
     }
 
     private fun setupActionSpinner() {
+        //BTS
         newClientRouterViewModel.getBTS.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
+                    showLoading(false)
                     val btsList = result.data.bts?.mapNotNull { it?.bts } ?: emptyList()
                     val btsAdapter = ArrayAdapter(this, R.layout.spinner_dropdown_item, btsList)
                     btsAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
                     binding.spBTS.adapter = btsAdapter
                 }
                 is Results.Error -> {
+                    showLoading(false)
                     Toast.makeText(this, "Error: ${result.error}", Toast.LENGTH_SHORT).show()
+                    Log.e("NewClientRouterActivity", "Error Getting BTS: ${result.error}")
                 }
-                is Results.Loading -> {}
+                is Results.Loading -> {
+                    showLoading(true)
+                }
             }
             binding.spBTS.onItemSelectedListener =
                 object : AdapterView.OnItemSelectedListener {
@@ -94,9 +100,11 @@ class NewClientRouterActivity : AppCompatActivity() {
                 }
         }
 
+        //Mode
         newClientRouterViewModel.getMode.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
+                    showLoading(false)
                     val modeList = result.data.modes?.mapNotNull { it?.mode } ?: emptyList()
                     val modeAdapter = ArrayAdapter(this, R.layout.spinner_dropdown_item, modeList)
                     modeAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
@@ -104,10 +112,14 @@ class NewClientRouterActivity : AppCompatActivity() {
                 }
 
                 is Results.Error -> {
+                    showLoading(false)
                     Toast.makeText(this, "Error: ${result.error}", Toast.LENGTH_SHORT).show()
+                    Log.e("NewClientRouterActivity", "Error Getting Mode: ${result.error}")
                 }
 
-                is Results.Loading -> {}
+                is Results.Loading -> {
+                    showLoading(true)
+                }
             }
             binding.spMode.onItemSelectedListener =
                 object : AdapterView.OnItemSelectedListener {
@@ -119,13 +131,17 @@ class NewClientRouterActivity : AppCompatActivity() {
                     ) {
                         modeSelectedId = position + 1
                     }
-                    override fun onNothingSelected(p0: AdapterView<*>?) {}
+                    override fun onNothingSelected(p0: AdapterView<*>?) {
+                        modeSelectedId
+                    }
                 }
         }
 
+        //Radio
         newClientRouterViewModel.getRadio.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
+                    showLoading(false)
                     val radioList = result.data.radios?.mapNotNull { it?.type } ?: emptyList()
                     val radioAdapter = ArrayAdapter(this, R.layout.spinner_dropdown_item, radioList)
                     radioAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
@@ -133,10 +149,14 @@ class NewClientRouterActivity : AppCompatActivity() {
                 }
 
                 is Results.Error -> {
+                    showLoading(false)
                     Toast.makeText(this, "Error: ${result.error}", Toast.LENGTH_SHORT).show()
+                    Log.e("NewClientRouterActivity", "Error Getting Radio: ${result.error}")
                 }
 
-                is Results.Loading -> {}
+                is Results.Loading -> {
+                    showLoading(true)
+                }
             }
             binding.spRadio.onItemSelectedListener =
                 object : AdapterView.OnItemSelectedListener {
@@ -148,22 +168,30 @@ class NewClientRouterActivity : AppCompatActivity() {
                     ) {
                         radioSelectedId = position + 1
                     }
-                    override fun onNothingSelected(p0: AdapterView<*>?) {}
+                    override fun onNothingSelected(p0: AdapterView<*>?) {
+                        radioSelectedId
+                    }
                 }
         }
 
+        //Channel Width
         newClientRouterViewModel.getChannelWidth.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
+                    showLoading(false)
                     val channelWidthList = result.data.channelWidths?.mapNotNull { it?.channelWidth } ?: emptyList()
                     val channelWidthAdapter = ArrayAdapter(this, R.layout.spinner_dropdown_item, channelWidthList)
                     channelWidthAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
                     binding.spChannelWidth.adapter = channelWidthAdapter
                 }
                 is Results.Error -> {
+                    showLoading(false)
                     Toast.makeText(this, "Error: ${result.error}", Toast.LENGTH_SHORT).show()
+                    Log.e("NewClientRouterActivity", "Error Getting Channel Width: ${result.error}")
                 }
-                is Results.Loading -> {}
+                is Results.Loading -> {
+                    showLoading(true)
+                }
             }
             binding.spChannelWidth.onItemSelectedListener =
                 object : AdapterView.OnItemSelectedListener {
@@ -176,22 +204,30 @@ class NewClientRouterActivity : AppCompatActivity() {
                         channelWidthSelectedId = position + 1
                     }
 
-                    override fun onNothingSelected(p0: AdapterView<*>?) {}
+                    override fun onNothingSelected(p0: AdapterView<*>?) {
+                        channelWidthSelectedId
+                    }
                 }
         }
 
+        //Preshared Key
         newClientRouterViewModel.getPresharedKey.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
+                    showLoading(false)
                     val presharedKeyList = result.data.presharedKeys?.mapNotNull { it?.presharedKey } ?: emptyList()
                     val presharedKeyAdapter = ArrayAdapter(this, R.layout.spinner_dropdown_item, presharedKeyList)
                     presharedKeyAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
                     binding.spPresharedKey.adapter = presharedKeyAdapter
                 }
                 is Results.Error -> {
+                    showLoading(false)
                     Toast.makeText(this, "Error: ${result.error}", Toast.LENGTH_SHORT).show()
+                    Log.e("NewClientRouterActivity", "Error Getting Preshared Key: ${result.error}")
                 }
-                is Results.Loading -> {}
+                is Results.Loading -> {
+                    showLoading(true)
+                }
             }
             binding.spPresharedKey.onItemSelectedListener =
                 object : AdapterView.OnItemSelectedListener {
@@ -203,7 +239,9 @@ class NewClientRouterActivity : AppCompatActivity() {
                     ) {
                         presharedKeySelectedId = position + 1
                     }
-                    override fun onNothingSelected(p0: AdapterView<*>?) {}
+                    override fun onNothingSelected(p0: AdapterView<*>?) {
+                        presharedKeySelectedId
+                    }
                 }
         }
     }
@@ -217,11 +255,11 @@ class NewClientRouterActivity : AppCompatActivity() {
     }
 
     private fun createMangle() {
-        val comment = intent.getStringExtra(COMMENT).toString()
-        val ipAddress = binding.etIPInternet.text.toString()
+        val comment = intent.getStringExtra(COMMENT).toString().trim()
+        val ipAddress = binding.etIPInternet.text.toString().trim()
 
-        val newUploadPacketMark = intent.getStringExtra(NEWUPLOADPACKETMARTK).toString()
-        val newDownloadPacketMark = intent.getStringExtra(NEWDOWNLOADPACKETMARTK).toString()
+        val newUploadPacketMark = intent.getStringExtra(NEWUPLOADPACKETMARTK).toString().trim()
+        val newDownloadPacketMark = intent.getStringExtra(NEWDOWNLOADPACKETMARTK).toString().trim()
 
         //Create Mangle Upload
         newClientRouterViewModel.createMangleUpload(comment, "forwad", ipAddress, "bridge1", "mark-packet", newUploadPacketMark)
@@ -231,14 +269,18 @@ class NewClientRouterActivity : AppCompatActivity() {
         newClientRouterViewModel.createMangleUpload.observe(this) { newMangleUploadResult ->
             when (newMangleUploadResult) {
                 is Results.Success -> {
+                    showCustomDialogLoading(false)
                     //Create Mangle Download
                     newClientRouterViewModel.createMangleDownload(comment, "output", ipAddress, "bridge1", "mark-packet", newDownloadPacketMark)
                 }
                 is Results.Error -> {
+                    showCustomDialogLoading(false)
                     Toast.makeText(this, "Create Mangle Error: ${newMangleUploadResult.error}", Toast.LENGTH_SHORT).show()
                     Log.d("NewClientRouterActivity", "Create Mangle Error: ${newMangleUploadResult.error}")
                 }
-                is Results.Loading -> {}
+                is Results.Loading -> {
+                    showCustomDialogLoading(true)
+                }
             }
         }
 
@@ -247,14 +289,18 @@ class NewClientRouterActivity : AppCompatActivity() {
         newClientRouterViewModel.createMangleDownload.observe(this) { newMangleDownloadResult ->
             when (newMangleDownloadResult) {
                 is Results.Success -> {
+                    showCustomDialogLoading(false)
                     //Create Mangle LAN
                     newClientRouterViewModel.createMangleLAN(comment, "forwad", ipAddress, "!LAN", "mark-packet", newDownloadPacketMark)
                 }
                 is Results.Error -> {
+                    showCustomDialogLoading(false)
                     Toast.makeText(this, "Create Mangle Error: ${newMangleDownloadResult.error}", Toast.LENGTH_SHORT).show()
                     Log.d("NewClientRouterActivity", "Create Mangle Error: ${newMangleDownloadResult.error}")
                 }
-                is Results.Loading -> {}
+                is Results.Loading -> {
+                    showCustomDialogLoading(true)
+                }
             }
         }
 
@@ -263,61 +309,103 @@ class NewClientRouterActivity : AppCompatActivity() {
         newClientRouterViewModel.createMangleLAN.observe(this) { newMangleLANResult ->
             when (newMangleLANResult) {
                 is Results.Success -> {
+                    showCustomDialogLoading(false)
                     createQueueTree()
                 }
                 is Results.Error -> {
+                    showCustomDialogLoading(false)
                     Toast.makeText(this, "Create Mangle Error: ${newMangleLANResult.error}", Toast.LENGTH_SHORT).show()
                     Log.d("NewClientRouterActivity", "Create Mangle Error: ${newMangleLANResult.error}")
                 }
-                is Results.Loading -> {}
+                is Results.Loading -> {
+                    showCustomDialogLoading(true)
+                }
             }
 
         }
     }
 
     private fun createQueueTree() {
-        val nameUpload = intent.getStringExtra(NAMEUPLOAD).toString()
-        val nameDownload = intent.getStringExtra(NAMEDOWNLOAD).toString()
+        val nameUpload = intent.getStringExtra(NAMEUPLOAD).toString().trim()
+        val nameDownload = intent.getStringExtra(NAMEDOWNLOAD).toString().trim()
 
-        val newUploadPacketMark = intent.getStringExtra(NEWUPLOADPACKETMARTK).toString()
-        val newDownloadPacketMark = intent.getStringExtra(NEWDOWNLOADPACKETMARTK).toString()
+        val newUploadPacketMark = intent.getStringExtra(NEWUPLOADPACKETMARTK).toString().trim()
+        val newDownloadPacketMark = intent.getStringExtra(NEWDOWNLOADPACKETMARTK).toString().trim()
 
         val speedId = intent.getIntExtra(SPEEDID, 0)
         clientSpeed(speedId)
 
-        val comment = intent.getStringExtra(COMMENT).toString()
+        val comment = intent.getStringExtra(COMMENT).toString().trim()
 
         //Create Queue Tree Upload
-        newClientRouterViewModel.createQueueTree(nameUpload, "Total Upload", comment, newUploadPacketMark, limitAt, maxLimit, burstTime, burstThreshold, burstLimit)
+        newClientRouterViewModel.createQueueTreeUpload(nameUpload, "Total Upload", comment, newUploadPacketMark, limitAt, maxLimit, burstTime, burstThreshold, burstLimit)
 
         //Queue Tree Upload Observer
-        newClientRouterViewModel.createQueueTree.removeObservers(this)
-        newClientRouterViewModel.createQueueTree.observe(this) { newQueueTreeResult ->
+        newClientRouterViewModel.createQueueTreeUpload.removeObservers(this)
+        newClientRouterViewModel.createQueueTreeUpload.observe(this) { newQueueTreeResult ->
             when (newQueueTreeResult) {
                 is Results.Success -> {
+                    showCustomDialogLoading(false)
                     //Create Queue Tree Download
-                    newClientRouterViewModel.createQueueTree(nameDownload, "Total Download", comment, newDownloadPacketMark, limitAt, maxLimit, burstTime, burstThreshold, burstLimit)
+                    newClientRouterViewModel.createQueueTreeDownload(nameDownload, "Total Download", comment, newDownloadPacketMark, limitAt, maxLimit, burstTime, burstThreshold, burstLimit)
                 }
                 is Results.Error -> {
+                    showCustomDialogLoading(false)
                     Toast.makeText(this, "Create Queue Tree Error: ${newQueueTreeResult.error}", Toast.LENGTH_SHORT).show()
                     Log.d("NewClientRouterActivity", "Create Queue Tree Error: ${newQueueTreeResult.error}")
                 }
-                is Results.Loading -> {}
+                is Results.Loading -> {
+                    showCustomDialogLoading(true)
+                }
             }
         }
 
         //Queue Tree Download Observer
-        newClientRouterViewModel.createQueueTree.removeObservers(this)
-        newClientRouterViewModel.createQueueTree.observe(this) { newQueueTreeResult ->
+        newClientRouterViewModel.createQueueTreeDownload.removeObservers(this)
+        newClientRouterViewModel.createQueueTreeDownload.observe(this) { newQueueTreeResult ->
             when (newQueueTreeResult) {
                 is Results.Success -> {
-                    createNewClient()
+                    showCustomDialogLoading(false)
+                    createFilterRules()
                 }
                 is Results.Error -> {
+                    showCustomDialogLoading(false)
                     Toast.makeText(this, "Create Queue Tree Error: ${newQueueTreeResult.error}", Toast.LENGTH_SHORT).show()
                     Log.d("NewClientRouterActivity", "Create Queue Tree Error: ${newQueueTreeResult.error}")
                 }
-                is Results.Loading -> {}
+                is Results.Loading -> {
+                    showCustomDialogLoading(true)
+                }
+            }
+        }
+    }
+
+    private fun createFilterRules() {
+        val comment = intent.getStringExtra(COMMENT).toString().trim()
+        val ipAddress = binding.etIPInternet.text.toString().trim()
+        val accessId = intent.getIntExtra(ACCESSID, 0)
+
+        when (accessId) {
+            1 -> newClientRouterViewModel.createFilterRules(comment, "forward", ipAddress, "drop", "false")
+            2 -> newClientRouterViewModel.createFilterRules(comment, "forward", ipAddress, "drop", "true")
+            else -> Log.d("ClientDetailActivity", "Selected Access Doesn't Counted")
+        }
+
+        newClientRouterViewModel.createFilterRules.removeObservers(this)
+        newClientRouterViewModel.createFilterRules.observe(this) { createFilterRulesResult ->
+            when (createFilterRulesResult) {
+                is Results.Success -> {
+                    showCustomDialogLoading(false)
+                    createNewClient()
+                }
+                is Results.Error -> {
+                    showCustomDialogLoading(false)
+                    Toast.makeText(this, "Create Filter Rules Error: ${createFilterRulesResult.error}", Toast.LENGTH_SHORT).show()
+                    Log.d("NewClientRouterActivity", "Create Filter Rules Error: ${createFilterRulesResult.error}")
+                }
+                is Results.Loading -> {
+                    showCustomDialogLoading(true)
+                }
             }
         }
     }
@@ -353,6 +441,7 @@ class NewClientRouterActivity : AppCompatActivity() {
         newClientRouterViewModel.createNewClient.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
+                    showCustomDialogLoading(false)
                     val clientId = result.data.newClient?.clientId!!.toInt()
                     newClientRouterViewModel.updateNetwork(
                         clientId,
@@ -374,12 +463,12 @@ class NewClientRouterActivity : AppCompatActivity() {
                     )
                 }
                 is Results.Error -> {
-                    hideCustomDialogLoading()
+                    showCustomDialogLoading(false)
                     Toast.makeText(this, "Create New Client Error: ${result.error}", Toast.LENGTH_SHORT).show()
                     Log.d("NewClientRouterActivity", "Create New Client Error: ${result.error}")
                 }
                 is Results.Loading -> {
-                    showCustomDialogLoading()
+                    showCustomDialogLoading(true)
                 }
             }
         }
@@ -389,20 +478,20 @@ class NewClientRouterActivity : AppCompatActivity() {
         newClientRouterViewModel.updateNetwork.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
-                    hideCustomDialogLoading()
+                    showCustomDialogLoading(false)
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
                     finish()
                 }
 
                 is Results.Error -> {
-                    hideCustomDialogLoading()
+                    showCustomDialogLoading(false)
                     Toast.makeText(this, "Update New Client Failed", Toast.LENGTH_SHORT).show()
                     Log.d("NewClientRouterActivity", "Update New Client Error: ${result.error}")
                 }
 
                 is Results.Loading -> {
-                    showCustomDialogLoading()
+                    showCustomDialogLoading(true)
                 }
             }
         }
@@ -455,31 +544,38 @@ class NewClientRouterActivity : AppCompatActivity() {
         }
     }
 
-    private fun showCustomDialogLoading() {
-        if (loadingDialog == null) {
-            loadingDialog = Dialog(this).apply {
-                requestWindowFeature(Window.FEATURE_NO_TITLE)
-                bindingDialog = CustomLoadingDialogBinding.inflate(layoutInflater)
-                setContentView(bindingDialog.root)
-                setCancelable(false)
-                window?.setLayout(
-                    WindowManager.LayoutParams.MATCH_PARENT,
-                    WindowManager.LayoutParams.WRAP_CONTENT
-                )
-                window?.setBackgroundDrawableResource(android.R.color.transparent)
+    private fun showCustomDialogLoading(status: Boolean) {
+        when (status) {
+            true -> {
+                if (loadingDialog == null) {
+                    loadingDialog = Dialog(this).apply {
+                        requestWindowFeature(Window.FEATURE_NO_TITLE)
+                        bindingDialog = CustomLoadingDialogBinding.inflate(layoutInflater)
+                        setContentView(bindingDialog.root)
+                        setCancelable(false)
+                        window?.setLayout(
+                            WindowManager.LayoutParams.MATCH_PARENT,
+                            WindowManager.LayoutParams.WRAP_CONTENT
+                        )
+                        window?.setBackgroundDrawableResource(android.R.color.transparent)
+                    }
+                    val cardView = bindingDialog.root.findViewById<CardView>(R.id.LoadingCard)
+                    val layoutParams = cardView.layoutParams as ViewGroup.MarginLayoutParams
+                    val margin = (40 * resources.displayMetrics.density).toInt()
+                    layoutParams.setMargins(margin, 0, margin, 0)
+                    cardView.layoutParams = layoutParams
+                }
+                loadingDialog?.show()
             }
-            val cardView = bindingDialog.root.findViewById<CardView>(R.id.LoadingCard)
-            val layoutParams = cardView.layoutParams as ViewGroup.MarginLayoutParams
-            val margin = (40 * resources.displayMetrics.density).toInt()
-            layoutParams.setMargins(margin, 0, margin, 0)
-            cardView.layoutParams = layoutParams
+            false -> {
+                loadingDialog?.dismiss()
+                loadingDialog = null
+            }
         }
-        loadingDialog?.show()
     }
 
-    private fun hideCustomDialogLoading() {
-        loadingDialog?.dismiss()
-        loadingDialog = null
+    private fun showLoading(isLoading: Boolean) {
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
     private fun textFieldWatcher() {

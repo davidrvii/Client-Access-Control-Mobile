@@ -158,11 +158,11 @@ class NewClientRouterVM(private val repository: Repository) : ViewModel() {
         }
     }
 
-    //Create Queue Tree
-    private val _createQueueTree = MediatorLiveData<Results<CreateQueueTreeResponse>>()
-    val createQueueTree: MutableLiveData<Results<CreateQueueTreeResponse>> = _createQueueTree
+    //Create Queue Tree Upload
+    private val _createQueueTreeUpload = MediatorLiveData<Results<CreateQueueTreeResponse>>()
+    val createQueueTreeUpload: MutableLiveData<Results<CreateQueueTreeResponse>> = _createQueueTreeUpload
 
-    fun createQueueTree(
+    fun createQueueTreeUpload(
         name: String,
         parent: String,
         comment: String,
@@ -174,8 +174,30 @@ class NewClientRouterVM(private val repository: Repository) : ViewModel() {
         burstLimit: String,
     ) {
         viewModelScope.launch {
-            _createQueueTree.addSource(repository.createQueueTree(name, parent, comment, packetMark, limitAt, maxLimit, burstTime, burstThreshold, burstLimit)) { createQueueTreeRules ->
-                _createQueueTree.value = createQueueTreeRules
+            _createQueueTreeUpload.addSource(repository.createQueueTreeUpload(name, parent, comment, packetMark, limitAt, maxLimit, burstTime, burstThreshold, burstLimit)) { createQueueTreeUploadResult ->
+                _createQueueTreeUpload.value = createQueueTreeUploadResult
+            }
+        }
+    }
+
+    //Create Queue Tree Download
+    private val _createQueueTreeDownload = MediatorLiveData<Results<CreateQueueTreeResponse>>()
+    val createQueueTreeDownload: MutableLiveData<Results<CreateQueueTreeResponse>> = _createQueueTreeDownload
+
+    fun createQueueTreeDownload(
+        name: String,
+        parent: String,
+        comment: String,
+        packetMark: String,
+        limitAt: String,
+        maxLimit: String,
+        burstTime: String,
+        burstThreshold: String,
+        burstLimit: String,
+    ) {
+        viewModelScope.launch {
+            _createQueueTreeDownload.addSource(repository.createQueueTreeDownload(name, parent, comment, packetMark, limitAt, maxLimit, burstTime, burstThreshold, burstLimit)) { createQueueTreeDownloadResult ->
+                _createQueueTreeDownload.value = createQueueTreeDownloadResult
             }
         }
     }

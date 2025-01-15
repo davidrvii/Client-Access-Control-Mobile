@@ -6,12 +6,15 @@ import com.example.clientaccesscontrol.data.mikrotikresponse.CreateMangleLANResp
 import com.example.clientaccesscontrol.data.mikrotikresponse.CreateMangleUploadResponse
 import com.example.clientaccesscontrol.data.mikrotikresponse.CreateQueueTreeResponse
 import com.example.clientaccesscontrol.data.mikrotikresponse.GetFilterRulesResponseItem
+import com.example.clientaccesscontrol.data.mikrotikresponse.GetMangleResponseItem
 import com.example.clientaccesscontrol.data.mikrotikresponse.GetQueueTreeResponseItem
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface ServiceApiMikrotik {
 
@@ -20,17 +23,33 @@ interface ServiceApiMikrotik {
 
     @Headers("Content-Type: application/json")
     @POST("queue/tree/add")
-    suspend fun createQueueTree(
+    suspend fun createQueueTreeUpload(
         @Body requestBody: Map<String, String>
     ): CreateQueueTreeResponse
 
+    @Headers("Content-Type: application/json")
+    @POST("queue/tree/add")
+    suspend fun createQueueTreeDownload(
+        @Body requestBody: Map<String, String>
+    ): CreateQueueTreeResponse
+
+    @Headers("Content-Type: application/json")
     @POST("queue/tree/set")
     suspend fun updateQueueTree(
         @Body requestBody: Map<String, String>
     ): Response<Unit>
 
     @Headers("Content-Type: application/json")
-    @POST("/ip/firewall/mangle/add")
+    @DELETE("queue/tree/{id}")
+    suspend fun deleteQueueTree(
+        @Path("id") id: String
+    ): Response<Unit>
+
+    @GET("ip/firewall/mangle")
+    suspend fun getMangle(): List<GetMangleResponseItem>
+
+    @Headers("Content-Type: application/json")
+    @POST("ip/firewall/mangle/add")
     suspend fun createMangleUpload(
         @Body requestBody: Map<String, String>
     ): CreateMangleUploadResponse
@@ -47,6 +66,12 @@ interface ServiceApiMikrotik {
         @Body requestBody: Map<String, String>
     ): CreateMangleLANResponse
 
+    @Headers("Content-Type: application/json")
+    @DELETE("ip/firewall/mangle/{id}")
+    suspend fun deleteMangle(
+        @Path("id") id: String
+    ): Response<Unit>
+
     @GET("ip/firewall/filter")
     suspend fun getFilterRules(): List<GetFilterRulesResponseItem>
 
@@ -60,5 +85,11 @@ interface ServiceApiMikrotik {
     @POST("ip/firewall/filter/set")
     suspend fun updatedFilterRules(
         @Body body: Map<String, String>
+    ): Response<Unit>
+
+    @Headers("Content-Type: application/json")
+    @DELETE("ip/firewall/filter/{id}")
+    suspend fun deleteFilterRules(
+        @Path("id") id: String
     ): Response<Unit>
 }

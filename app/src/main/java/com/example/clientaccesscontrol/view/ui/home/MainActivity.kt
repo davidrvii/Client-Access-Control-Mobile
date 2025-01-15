@@ -427,7 +427,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showLoading(isLoading: Boolean) {
-        Log.d("MainActivity", "showLoading: $isLoading")
         binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 

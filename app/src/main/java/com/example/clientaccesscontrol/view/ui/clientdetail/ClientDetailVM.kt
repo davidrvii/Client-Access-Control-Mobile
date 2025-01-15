@@ -12,6 +12,7 @@ import com.example.clientaccesscontrol.data.cacresponse.GetSpeedResponse
 import com.example.clientaccesscontrol.data.cacresponse.UpdateClientDetailResponse
 import com.example.clientaccesscontrol.data.mikrotikresponse.CreateFilterRulesResponse
 import com.example.clientaccesscontrol.data.mikrotikresponse.GetFilterRulesResponseItem
+import com.example.clientaccesscontrol.data.mikrotikresponse.GetMangleResponseItem
 import com.example.clientaccesscontrol.data.mikrotikresponse.GetQueueTreeResponseItem
 import com.example.clientaccesscontrol.data.preference.Repository
 import com.example.clientaccesscontrol.data.result.Results
@@ -47,6 +48,19 @@ class ClientDetailVM(private val repository: Repository) : ViewModel() {
             _updateQueueTreeSpeed.addSource(
                 repository.updateQueueTree(numbers, limitAt, maxLimit, burstTime, burstThreshold, burstLimit)) { updateQueueTreeSpeedResult ->
                 _updateQueueTreeSpeed.value = updateQueueTreeSpeedResult
+            }
+        }
+    }
+
+    //Delete Queue Tree
+    private val _deleteQueueTree = MediatorLiveData<Results<Unit>>()
+    val deleteQueueTree: LiveData<Results<Unit>> = _deleteQueueTree
+
+    fun deleteQueueTree(id: String) {
+        viewModelScope.launch {
+            _deleteQueueTree.addSource(
+                repository.deleteQueueTree(id)) { deleteQueueTreeResult ->
+                _deleteQueueTree.value = deleteQueueTreeResult
             }
         }
     }
@@ -98,6 +112,44 @@ class ClientDetailVM(private val repository: Repository) : ViewModel() {
         }
     }
 
+    //Delete Filter Rules
+    private val _deleteFilterRules = MediatorLiveData<Results<Unit>>()
+    val deleteFilterRules: LiveData<Results<Unit>> = _deleteFilterRules
+
+    fun deleteFilterRules(id: String) {
+        viewModelScope.launch {
+            _deleteFilterRules.addSource(
+                repository.deleteFilterRules(id)) { deleteFilterRulesResult ->
+                _deleteFilterRules.value = deleteFilterRulesResult
+            }
+        }
+    }
+
+    //Get Mangle
+    private val _getMangle = MediatorLiveData<Results<List<GetMangleResponseItem>>>()
+    val getMangle: LiveData<Results<List<GetMangleResponseItem>>> = _getMangle
+
+    fun getMangle() {
+        viewModelScope.launch {
+            _getMangle.addSource(repository.getMangle()) { getMangleResult ->
+                _getMangle.value = getMangleResult
+            }
+        }
+    }
+
+    //Delete Mangle
+    private val _deleteMangle = MediatorLiveData<Results<Unit>>()
+    val deleteMangle: LiveData<Results<Unit>> = _deleteMangle
+
+    fun deleteMangle(id: String) {
+        viewModelScope.launch {
+            _deleteMangle.addSource(
+                repository.deleteMangle(id)) { deleteMangleResult ->
+                _deleteMangle.value = deleteMangleResult
+            }
+        }
+    }
+
     //Delete Client
     private val _deleteClient = MediatorLiveData<Results<DeleteClientResponse>>()
     val deleteClient: LiveData<Results<DeleteClientResponse>> = _deleteClient
@@ -107,9 +159,9 @@ class ClientDetailVM(private val repository: Repository) : ViewModel() {
             repository.getSession().collect { user ->
                 user.token.let { token ->
                     val source = repository.deleteClient(token, id)
+                    _deleteClient.removeSource(source)
                     _deleteClient.addSource(source) { deleteClientResult ->
                         _deleteClient.value = deleteClientResult
-                        _deleteClient.removeSource(source)
                     }
                 }
             }

@@ -33,6 +33,7 @@ import com.example.clientaccesscontrol.data.mikrotikresponse.CreateMangleLANResp
 import com.example.clientaccesscontrol.data.mikrotikresponse.CreateMangleUploadResponse
 import com.example.clientaccesscontrol.data.mikrotikresponse.CreateQueueTreeResponse
 import com.example.clientaccesscontrol.data.mikrotikresponse.GetFilterRulesResponseItem
+import com.example.clientaccesscontrol.data.mikrotikresponse.GetMangleResponseItem
 import com.example.clientaccesscontrol.data.mikrotikresponse.GetQueueTreeResponseItem
 import com.example.clientaccesscontrol.data.result.Results
 import com.example.clientaccesscontrol.data.retrofit.ServiceApiCAC
@@ -457,7 +458,7 @@ class Repository private constructor(
 
     //MIKROTIK API
 
-    suspend fun createQueueTree(
+    suspend fun createQueueTreeUpload(
         name: String,
         parent: String,
         comment: String,
@@ -481,11 +482,44 @@ class Repository private constructor(
                 "burst-threshold" to burstThreshold,
                 "burst-limit" to burstLimit
             )
-            val response = apiServiceMikrotik.createQueueTree(createQueueTreeBody)
-            Log.d("Repository", "Create Queue Tree Response: $response")
+            val response = apiServiceMikrotik.createQueueTreeUpload(createQueueTreeBody)
+            Log.d("Repository", "Create Queue Tree Upload Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {
-            Log.e("Repository", "Error Create Queue Tree: ${e.localizedMessage}", e)
+            Log.e("Repository", "Error Create Queue Tree Upload: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun createQueueTreeDownload(
+        name: String,
+        parent: String,
+        comment: String,
+        packetMark: String,
+        limitAt: String,
+        maxLimit: String,
+        burstTime: String,
+        burstThreshold: String,
+        burstLimit: String,
+    ): LiveData<Results<CreateQueueTreeResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val createQueueTreeBody = mapOf(
+                "name" to name,
+                "parent" to parent,
+                "comment" to comment,
+                "packet-mark" to packetMark,
+                "limit-at" to limitAt,
+                "max-limit" to maxLimit,
+                "burst-time" to burstTime,
+                "burst-threshold" to burstThreshold,
+                "burst-limit" to burstLimit
+            )
+            val response = apiServiceMikrotik.createQueueTreeDownload(createQueueTreeBody)
+            Log.d("Repository", "Create Queue Tree Download Response: $response")
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Create Queue Download Tree: ${e.localizedMessage}", e)
             emit(Results.Error(e.message ?: "Unknown error occurred"))
         }
     }
@@ -530,6 +564,20 @@ class Repository private constructor(
         }
     }
 
+    suspend fun deleteQueueTree(
+        id: String,
+    ): LiveData<Results<Unit>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceMikrotik.deleteQueueTree(id)
+            Log.d("Repository", "Delete Queue Tree Response: $response")
+            emit(Results.Success(response.body() ?: Unit))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Delete Queue Tree: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
     suspend fun createMangleUpload(
         comment: String,
         chain: String,
@@ -543,10 +591,10 @@ class Repository private constructor(
             val createMangleUploadBody = mapOf(
                 "comment" to comment,
                 "chain" to chain,
-                "srcAddress" to srcAddress,
-                "inInterface" to inInterface,
+                "src-address" to srcAddress,
+                "in-interface" to inInterface,
                 "action" to action,
-                "newPacketMark" to newPacketMark
+                "new-packet-mark" to newPacketMark
             )
             val response = apiServiceMikrotik.createMangleUpload(createMangleUploadBody)
             Log.d("Repository", "Create Mangle Upload Response: $response")
@@ -570,10 +618,10 @@ class Repository private constructor(
             val createMangleDownloadBody = mapOf(
                 "comment" to comment,
                 "chain" to chain,
-                "dstAddress" to dstAddress,
-                "outInterface" to outInterface,
+                "dst-address" to dstAddress,
+                "out-interface" to outInterface,
                 "action" to action,
-                "newPacketMark" to newPacketMark
+                "new-packet-mark" to newPacketMark
             )
             val response = apiServiceMikrotik.createMangleDownload(createMangleDownloadBody)
             Log.d("Repository", "Create Mangle Download Response: $response")
@@ -597,16 +645,43 @@ class Repository private constructor(
             val createMangleLANBody = mapOf(
                 "comment" to comment,
                 "chain" to chain,
-                "dstAddress" to dstAddress,
-                "srcAddressList" to srcAddressList,
+                "dst-address" to dstAddress,
+                "src-address-list" to srcAddressList,
                 "action" to action,
-                "newPacketMark" to newPacketMark
+                "new-packet-mark" to newPacketMark
             )
             val response = apiServiceMikrotik.createMangleLAN(createMangleLANBody)
             Log.d("Repository", "Create Mangle LAN Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {
             Log.e("Repository", "Error Create Mangle LAN: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun getMangle(): LiveData<Results<List<GetMangleResponseItem>>> = liveData {
+        emit(Results.Loading)
+        Log.d("Repository", "Getting Queue Tree Loading")
+        try {
+            val response = apiServiceMikrotik.getMangle()
+            Log.d("Repository", "Get Queue Tree Response: $response")
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Get Queue Tree: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun deleteMangle(
+        id: String,
+    ): LiveData<Results<Unit>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceMikrotik.deleteMangle(id)
+            Log.d("Repository", "Delete Mangle Response: $response")
+            emit(Results.Success(response.body() ?: Unit))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Delete Mangle: ${e.localizedMessage}", e)
             emit(Results.Error(e.message ?: "Unknown error occurred"))
         }
     }
@@ -663,6 +738,20 @@ class Repository private constructor(
             emit(Results.Success(response))
         } catch (e: Exception) {
             Log.e("Repository", "Error Get Filter Rules: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun deleteFilterRules(
+        id: String,
+    ): LiveData<Results<Unit>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceMikrotik.deleteFilterRules(id)
+            Log.d("Repository", "Delete Filter Rules Response: $response")
+            emit(Results.Success(response.body() ?: Unit))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Delete Filter Rules: ${e.localizedMessage}", e)
             emit(Results.Error(e.message ?: "Unknown error occurred"))
         }
     }
