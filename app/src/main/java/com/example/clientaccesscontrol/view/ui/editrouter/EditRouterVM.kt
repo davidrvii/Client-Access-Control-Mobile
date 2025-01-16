@@ -11,11 +11,37 @@ import com.example.clientaccesscontrol.data.cacresponse.GetClientDetailResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetModeResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetPresharedKeyResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetRadioResponse
+import com.example.clientaccesscontrol.data.cacresponse.UpdateClientDetailResponse
 import com.example.clientaccesscontrol.data.cacresponse.UpdateNetworkResponse
 import com.example.clientaccesscontrol.data.result.Results
 import kotlinx.coroutines.launch
 
 class EditRouterVM(private val repository: Repository) : ViewModel() {
+
+    //Patch Client
+    private val _updateClient = MediatorLiveData<Results<UpdateClientDetailResponse>>()
+    val updateClient: MutableLiveData<Results<UpdateClientDetailResponse>> = _updateClient
+
+    fun updateClient(
+        id: Int,
+        name: String,
+        phone: String,
+        address: String
+    ) {
+        viewModelScope.launch {
+            _updateClient.value = Results.Loading
+            try {
+                repository.getSession().collect { user ->
+                    user.token.let { token ->
+                        val response = repository.updateClient(token, id, name, phone, address)
+                        _updateClient.value = Results.Success(response)
+                    }
+                }
+            } catch (e: Exception) {
+                _updateClient.value = Results.Error(e.message.toString())
+            }
+        }
+    }
 
     //Patch Network
     private val _updateNetwork = MediatorLiveData<Results<UpdateNetworkResponse>>()

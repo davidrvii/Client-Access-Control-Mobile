@@ -135,6 +135,16 @@ interface ServiceApiCAC {
         @Field("fk_access_id") access: Int,
     ): UpdateClientDetailResponse
 
+    @FormUrlEncoded
+    @PATCH("client/{id}")
+    suspend fun updateClient(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int,
+        @Field("name") name: String,
+        @Field("phone") phone: String,
+        @Field("address") address: String,
+    ): UpdateClientDetailResponse
+
     @GET("bts/")
     suspend fun getBTS(
         @Header("Authorization") token: String,

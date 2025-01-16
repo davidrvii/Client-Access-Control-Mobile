@@ -122,6 +122,17 @@ class Repository private constructor(
         return apiServiceCAC.updateAccess("Bearer $token", id, access)
     }
 
+    suspend fun updateClient(
+        token: String,
+        id: Int,
+        name: String,
+        phone: String,
+        address: String,
+    ): UpdateClientDetailResponse {
+        Log.d("Repository", "Update Client with ID $id")
+        return apiServiceCAC.updateClient("Bearer $token", id, name, phone, address)
+    }
+
     suspend fun getAllClient(
         token: String,
     ): LiveData<Results<GetAllClientResponse>> = liveData {

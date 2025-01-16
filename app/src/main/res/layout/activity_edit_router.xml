@@ -97,15 +97,100 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <TextView
+                    android:id="@+id/tvClientName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/name"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <EditText
+                    android:id="@+id/etClientName"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/rounded_white_stroke_rectangle"
+                    android:hint="@string/client_name"
+                    android:importantForAutofill="no"
+                    android:inputType="text"
+                    android:paddingHorizontal="16dp"
+                    android:textColor="@color/black"
+                    android:textColorHint="#757575"
+                    android:textSize="16sp"
+                    app:layout_constraintStart_toStartOf="@id/tvClientName"
+                    app:layout_constraintTop_toBottomOf="@+id/tvClientName" />
+
+                <TextView
+                    android:id="@+id/tvClientPhone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/phone"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="@id/etClientName"
+                    app:layout_constraintTop_toBottomOf="@id/etClientName" />
+
+                <EditText
+                    android:id="@+id/etClientPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/rounded_white_stroke_rectangle"
+                    android:hint="@string/client_phone"
+                    android:importantForAutofill="no"
+                    android:inputType="text"
+                    android:paddingHorizontal="16dp"
+                    android:textColor="@color/black"
+                    android:textColorHint="#757575"
+                    android:textSize="16sp"
+                    app:layout_constraintStart_toStartOf="@id/tvClientPhone"
+                    app:layout_constraintTop_toBottomOf="@+id/tvClientPhone"
+                    tools:ignore="TextFields" />
+
+                <TextView
+                    android:id="@+id/tvClientAddress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/address"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="@id/etClientPhone"
+                    app:layout_constraintTop_toBottomOf="@id/etClientPhone" />
+
+                <EditText
+                    android:id="@+id/etClientAddress"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/rounded_white_stroke_rectangle"
+                    android:hint="@string/client_address"
+                    android:importantForAutofill="no"
+                    android:inputType="text"
+                    android:paddingHorizontal="16dp"
+                    android:textColor="@color/black"
+                    android:textColorHint="#757575"
+                    android:textSize="16sp"
+                    app:layout_constraintTop_toBottomOf="@id/tvClientAddress"
+                    app:layout_constraintStart_toStartOf="@id/tvClientAddress"/>
+
+                <TextView
                     android:id="@+id/tvBTS"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/BTS"
                     android:textColor="@color/black"
                     android:textSize="16sp"
+                    android:layout_marginTop="12dp"
                     android:textStyle="bold"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toBottomOf="@id/etClientAddress"
+                    app:layout_constraintStart_toStartOf="@id/etClientAddress"/>
 
                 <Spinner
                     android:id="@+id/spBTS"
@@ -497,5 +582,18 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </ScrollView>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:elevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

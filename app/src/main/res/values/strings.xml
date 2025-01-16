@@ -129,6 +129,7 @@
     <string name="new_queue_tree">New Queue Tree</string>
     <string name="queue_tree_upload">Queue Tree Upload</string>
     <string name="queue_tree_download">Queue Tree Download</string>
+    <string name="phone">Phone</string>
 
 
 </resources>

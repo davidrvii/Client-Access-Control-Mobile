@@ -3,6 +3,7 @@ package com.example.clientaccesscontrol.view.ui.editrouter
 import android.app.Dialog
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
@@ -30,7 +31,12 @@ class EditRouterActivity : AppCompatActivity() {
     private var modeSelectedId: Int = 1
     private var radioSelectedId: Int = 1
     private var channelWidthSelectedId: Int = 1
-    private var presharedKeySelectedId: Int = 1
+    private var preSharedKeySelectedId: Int = 1
+    private var bts: String = ""
+    private var mode: String = ""
+    private var radio: String = ""
+    private var channelWidth: String = ""
+    private var preSharedKey: String = ""
     private val editRouterViewModel by viewModels<EditRouterVM> {
         FactoryViewModel.getInstance(this)
     }
@@ -50,32 +56,52 @@ class EditRouterActivity : AppCompatActivity() {
         clientId = intent.getIntExtra(CLIENT_ID, 0)
         editRouterViewModel.getClientDetail(clientId)
 
-        setupActionSpinner()
+        setupClientDetail()
         setupActionButton()
-        setupEditHint()
     }
 
-    private fun setupEditHint() {
-        editRouterViewModel.getClientDetail.observe(this) { result ->
-            when (result) {
+    private fun setupClientDetail() {
+        editRouterViewModel.getClientDetail.observe(this) { getClientDetailResult ->
+            when (getClientDetailResult) {
                 is Results.Success -> {
-                    val clientDetail = result.data.clientDetail?.firstOrNull()
+                    showLoading(false)
+
+                    val clientDetail = getClientDetailResult.data.clientDetail?.firstOrNull()
                     if (clientDetail != null) {
-                        binding.etSSID.hint = clientDetail.ssid
-                        binding.etIPAddress.hint = clientDetail.ipAddress
-                        binding.etRadioName.hint = clientDetail.radioName
-                        binding.etIPRadio.hint = clientDetail.ipRadio
-                        binding.etFrequency.hint = clientDetail.frequency
-                        binding.etSignal.hint = clientDetail.radioSignal
-                        binding.etAPLocation.hint = clientDetail.apLocation
-                        binding.etWLANMacAddress.hint = clientDetail.wlanMacAddress
-                        binding.etPassword.hint = clientDetail.password
-                        binding.etComment.hint = clientDetail.comment
+                        binding.etSSID.setText(clientDetail.ssid)
+                        binding.etIPAddress.setText(clientDetail.ipAddress)
+                        binding.etRadioName.setText(clientDetail.radioName)
+                        binding.etIPRadio.setText(clientDetail.ipRadio)
+                        binding.etFrequency.setText(clientDetail.frequency)
+                        binding.etSignal.setText(clientDetail.radioSignal)
+                        binding.etAPLocation.setText(clientDetail.apLocation)
+                        binding.etWLANMacAddress.setText(clientDetail.wlanMacAddress)
+                        binding.etPassword.setText(clientDetail.password)
+                        binding.etComment.setText(clientDetail.comment)
+                        binding.etClientName.setText(clientDetail.name)
+                        binding.etClientPhone.setText(clientDetail.phone)
+                        binding.etClientAddress.setText(clientDetail.address)
+
+                        bts = clientDetail.bts.toString()
+                        mode = clientDetail.mode.toString()
+                        radio = clientDetail.type.toString()
+                        channelWidth = clientDetail.channelWidth.toString()
+                        preSharedKey = clientDetail.presharedKey.toString()
+
+
+                        setupActionSpinner()
+                    } else {
+                        Log.d("Edit Router", "Client Detail is Null")
                     }
                 }
 
-                is Results.Error -> {}
-                is Results.Loading -> {}
+                is Results.Error -> {
+                    showLoading(false)
+                    Log.e("Edit Router", "Error Getting Client Detail: ${getClientDetailResult.error}")
+                }
+                is Results.Loading -> {
+                    showLoading(true)
+                }
             }
         }
     }
@@ -84,256 +110,191 @@ class EditRouterActivity : AppCompatActivity() {
         editRouterViewModel.getBTS.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
-                    val btsList =
-                        result.data.bts?.mapNotNull { it?.bts } ?: emptyList()
+                    showLoading(false)
+                    val btsList = result.data.bts?.mapNotNull { it?.bts } ?: emptyList()
                     val btsAdapter = ArrayAdapter(this, R.layout.spinner_dropdown_item, btsList)
                     btsAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
                     binding.spBTS.adapter = btsAdapter
 
                     if (btsList.isNotEmpty()) {
-                        editRouterViewModel.getClientDetail.observe(this) { btsResult ->
-                            when (btsResult) {
-                                is Results.Success -> {
-                                    val clientDetail = btsResult.data.clientDetail?.firstOrNull()
-                                    if (clientDetail != null) {
-                                        binding.spBTS.setSelection(btsList.indexOf(clientDetail.bts))
-                                    }
-                                }
-
-                                is Results.Error -> {}
-                                is Results.Loading -> {}
-                            }
-                        }
+                        binding.spBTS.setSelection(btsList.indexOf(bts))
                     }
 
                     binding.spBTS.onItemSelectedListener =
                         object : AdapterView.OnItemSelectedListener {
                             override fun onItemSelected(
                                 parent: AdapterView<*>?,
-                                view: android.view.View?,
+                                view: View?,
                                 position: Int,
                                 id: Long,
                             ) {
-                                btsSelectedId = position+1
+                                btsSelectedId = position + 1
                             }
-
-                            override fun onNothingSelected(p0: AdapterView<*>?) {}
+                            override fun onNothingSelected(p0: AdapterView<*>?) {
+                                btsSelectedId
+                            }
                         }
                 }
-
                 is Results.Error -> {
-                    Toast.makeText(this, "Error: ${result.error}", Toast.LENGTH_SHORT).show()
+                    showLoading(false)
+                    Log.e("Edit Router", "Error Getting BTS: ${result.error}")
                 }
-                is Results.Loading -> {}
+                is Results.Loading -> {
+                    showLoading(true)
+                }
             }
         }
 
-        editRouterViewModel.getMode.observe(this) { result ->
-            when (result) {
+        editRouterViewModel.getMode.observe(this) { getModeResult ->
+            when (getModeResult) {
                 is Results.Success -> {
-                    val modeList =
-                        result.data.modes?.mapNotNull { it?.mode } ?: emptyList()
+                    showLoading(false)
+                    val modeList = getModeResult.data.modes?.mapNotNull { it?.mode } ?: emptyList()
                     val modeAdapter = ArrayAdapter(this, R.layout.spinner_dropdown_item, modeList)
                     modeAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
                     binding.spMode.adapter = modeAdapter
 
                     if (modeList.isNotEmpty()) {
-                        editRouterViewModel.getClientDetail.observe(this) { modeResult ->
-                            when (modeResult) {
-                                is Results.Success -> {
-                                    val clientDetail = modeResult.data.clientDetail?.firstOrNull()
-                                    if (clientDetail != null) {
-                                        binding.spMode.setSelection(
-                                            modeList.indexOf(
-                                                clientDetail.mode
-                                            )
-                                        )
-                                    }
-                                }
-
-                                is Results.Error -> {}
-                                is Results.Loading -> {}
-                            }
-                        }
+                        binding.spMode.setSelection(modeList.indexOf(mode))
                     }
 
                     binding.spMode.onItemSelectedListener =
                         object : AdapterView.OnItemSelectedListener {
                             override fun onItemSelected(
                                 parent: AdapterView<*>?,
-                                view: android.view.View?,
+                                view: View?,
                                 position: Int,
                                 id: Long,
                             ) {
-                                modeSelectedId = position+1
+                                modeSelectedId = position + 1
                             }
-
-                            override fun onNothingSelected(p0: AdapterView<*>?) {}
+                            override fun onNothingSelected(p0: AdapterView<*>?) {
+                                modeSelectedId
+                            }
                         }
                 }
-
                 is Results.Error -> {
-                    Toast.makeText(this, "Error: ${result.error}", Toast.LENGTH_SHORT)
-                        .show()
+                    showLoading(false)
+                    Log.e("Edit Router", "Error Getting Mode: ${getModeResult.error}")
                 }
-
-                is Results.Loading -> {}
+                is Results.Loading -> {
+                    showLoading(true)
+                }
             }
         }
 
-        editRouterViewModel.getRadio.observe(this) { result ->
-            when (result) {
+        editRouterViewModel.getRadio.observe(this) { getRadioResult ->
+            when (getRadioResult) {
                 is Results.Success -> {
-                    val radioList =
-                        result.data.radios?.mapNotNull { it?.type } ?: emptyList()
+                    showLoading(false)
+                    val radioList = getRadioResult.data.radios?.mapNotNull { it?.type } ?: emptyList()
                     val radioAdapter = ArrayAdapter(this, R.layout.spinner_dropdown_item, radioList)
                     radioAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
                     binding.spRadio.adapter = radioAdapter
 
                     if (radioList.isNotEmpty()) {
-                        editRouterViewModel.getClientDetail.observe(this) { radioResult ->
-                            when (radioResult) {
-                                is Results.Success -> {
-                                    val clientDetail = radioResult.data.clientDetail?.firstOrNull()
-                                    if (clientDetail != null) {
-                                        binding.spRadio.setSelection(
-                                            radioList.indexOf(
-                                                clientDetail.type
-                                            )
-                                        )
-                                    }
-                                }
-
-                                is Results.Error -> {}
-                                is Results.Loading -> {}
-                            }
-                        }
+                        binding.spRadio.setSelection(radioList.indexOf(radio))
                     }
 
                     binding.spRadio.onItemSelectedListener =
                         object : AdapterView.OnItemSelectedListener {
                             override fun onItemSelected(
                                 parent: AdapterView<*>?,
-                                view: android.view.View?,
+                                view: View?,
                                 position: Int,
                                 id: Long,
                             ) {
-                                radioSelectedId = position+1
+                                radioSelectedId = position + 1
                             }
-
-                            override fun onNothingSelected(p0: AdapterView<*>?) {}
+                            override fun onNothingSelected(p0: AdapterView<*>?) {
+                                radioSelectedId
+                            }
                         }
                 }
-
                 is Results.Error -> {
-                    Toast.makeText(this, "Error: ${result.error}", Toast.LENGTH_SHORT)
-                        .show()
+                    showLoading(false)
+                    Log.e("Edit Router", "Error Getting Radio: ${getRadioResult.error}")
                 }
-
-                is Results.Loading -> {}
+                is Results.Loading -> {
+                    showLoading(true)
+                }
             }
         }
 
-        editRouterViewModel.getChannelWidth.observe(this) { result ->
-            when (result) {
+        editRouterViewModel.getChannelWidth.observe(this) { getChannelWidthResult ->
+            when (getChannelWidthResult) {
                 is Results.Success -> {
-                    val channelWidthList =
-                        result.data.channelWidths?.mapNotNull { it?.channelWidth } ?: emptyList()
-                    val channelWidthAdapter =
-                        ArrayAdapter(this, R.layout.spinner_dropdown_item, channelWidthList)
+                    showLoading(false)
+                    val channelWidthList = getChannelWidthResult.data.channelWidths?.mapNotNull { it?.channelWidth } ?: emptyList()
+                    val channelWidthAdapter = ArrayAdapter(this, R.layout.spinner_dropdown_item, channelWidthList)
                     channelWidthAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
                     binding.spChannelWidth.adapter = channelWidthAdapter
 
                     if (channelWidthList.isNotEmpty()) {
-                        editRouterViewModel.getClientDetail.observe(this) { channelWidthResult ->
-                            when (channelWidthResult) {
-                                is Results.Success -> {
-                                    val clientDetail =
-                                        channelWidthResult.data.clientDetail?.firstOrNull()
-                                    if (clientDetail != null) {
-                                        binding.spChannelWidth.setSelection(
-                                            channelWidthList.indexOf(
-                                                clientDetail.channelWidth
-                                            )
-                                        )
-                                    }
-                                }
-
-                                is Results.Error -> {}
-                                is Results.Loading -> {}
-                            }
-                        }
+                        binding.spChannelWidth.setSelection(channelWidthList.indexOf(channelWidth))
                     }
 
                     binding.spChannelWidth.onItemSelectedListener =
                         object : AdapterView.OnItemSelectedListener {
                             override fun onItemSelected(
                                 parent: AdapterView<*>?,
-                                view: android.view.View?,
+                                view: View?,
                                 position: Int,
                                 id: Long,
                             ) {
-                                channelWidthSelectedId = position+1
+                                channelWidthSelectedId = position + 1
                             }
-
-                            override fun onNothingSelected(p0: AdapterView<*>?) {}
+                            override fun onNothingSelected(p0: AdapterView<*>?) {
+                                channelWidthSelectedId
+                            }
                         }
                 }
 
                 is Results.Error -> {
-                    Toast.makeText(this, "Error: ${result.error}", Toast.LENGTH_SHORT).show()
+                    showLoading(false)
+                    Log.e("Edit Router", "Error Getting Channel Width: ${getChannelWidthResult.error}")
                 }
-                is Results.Loading -> {}
+                is Results.Loading -> {
+                    showLoading(true)
+                }
             }
         }
 
-        editRouterViewModel.getPresharedKey.observe(this) { result ->
-            when (result) {
+        editRouterViewModel.getPresharedKey.observe(this) { getPreSharedKeyResult ->
+            when (getPreSharedKeyResult) {
                 is Results.Success -> {
-                    val presharedKeyList =
-                        result.data.presharedKeys?.mapNotNull { it?.presharedKey } ?: emptyList()
-                    val presharedKeyAdapter =
-                        ArrayAdapter(this, R.layout.spinner_dropdown_item, presharedKeyList)
-                    presharedKeyAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
-                    binding.spPresharedKey.adapter = presharedKeyAdapter
+                    showLoading(false)
+                    val preSharedKeyList = getPreSharedKeyResult.data.presharedKeys?.mapNotNull { it?.presharedKey } ?: emptyList()
+                    val preSharedKeyAdapter = ArrayAdapter(this, R.layout.spinner_dropdown_item, preSharedKeyList)
+                    preSharedKeyAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+                    binding.spPresharedKey.adapter = preSharedKeyAdapter
 
-                    if (presharedKeyList.isNotEmpty()) {
-                        editRouterViewModel.getClientDetail.observe(this) { presharedKeyResult ->
-                            when (presharedKeyResult) {
-                                is Results.Success -> {
-                                    val clientDetail = presharedKeyResult.data.clientDetail?.firstOrNull()
-                                    if (clientDetail != null) {
-                                        binding.spPresharedKey.setSelection(presharedKeyList.indexOf(clientDetail.presharedKey))
-                                    }
-                                }
-
-                                is Results.Error -> {}
-                                is Results.Loading -> {}
-                            }
-                        }
+                    if (preSharedKeyList.isNotEmpty()) {
+                        binding.spPresharedKey.setSelection(preSharedKeyList.indexOf(preSharedKey))
                     }
 
                     binding.spPresharedKey.onItemSelectedListener =
                         object : AdapterView.OnItemSelectedListener {
                             override fun onItemSelected(
                                 parent: AdapterView<*>?,
-                                view: android.view.View?,
+                                view: View?,
                                 position: Int,
                                 id: Long,
                             ) {
-                                presharedKeySelectedId = position+1
+                                preSharedKeySelectedId = position + 1
                             }
-
-                            override fun onNothingSelected(p0: AdapterView<*>?) {}
+                            override fun onNothingSelected(p0: AdapterView<*>?) {
+                                preSharedKeySelectedId
+                            }
                         }
                 }
-
                 is Results.Error -> {
-                    Toast.makeText(this, "Error: ${result.error}", Toast.LENGTH_SHORT)
-                        .show()
+                    showLoading(false)
+                    Toast.makeText(this, "Error Getting PreShared Key: ${getPreSharedKeyResult.error}", Toast.LENGTH_SHORT).show()
                 }
-
-                is Results.Loading -> {}
+                is Results.Loading -> {
+                    showLoading(true)
+                }
             }
         }
     }
@@ -370,7 +331,10 @@ class EditRouterActivity : AppCompatActivity() {
         cardView.layoutParams = layoutParams
 
         bindingDialog.btYesSave.setOnClickListener {
-            val bts =  btsSelectedId
+            val name = binding.etClientName.text.toString()
+            val phone = binding.etClientPhone.text.toString()
+            val address = binding.etClientAddress.text.toString()
+            val bts = btsSelectedId
             val mode = modeSelectedId
             val ssid = binding.etSSID.text.toString()
             val ipAddress = binding.etIPAddress.text.toString()
@@ -380,12 +344,13 @@ class EditRouterActivity : AppCompatActivity() {
             val frequency = binding.etFrequency.text.toString()
             val channelWidth = channelWidthSelectedId
             val radioSignal = binding.etSignal.text.toString()
-            val presharedKey = presharedKeySelectedId
+            val preSharedKey = preSharedKeySelectedId
             val apLocation = binding.etAPLocation.text.toString()
             val wlanMacAddress = binding.etWLANMacAddress.text.toString()
             val password = binding.etPassword.text.toString()
             val comment = binding.etComment.text.toString()
 
+            editRouterViewModel.updateClient(clientId, name, phone, address)
             editRouterViewModel.updateNetwork(
                 clientId,
                 radioName,
@@ -399,24 +364,51 @@ class EditRouterActivity : AppCompatActivity() {
                 radio,
                 mode,
                 channelWidth,
-                presharedKey,
+                preSharedKey,
                 comment,
                 password,
                 bts
             )
 
-            editRouterViewModel.updateNetwork.observe(this) { result ->
-                when (result) {
+            editRouterViewModel.updateClient.removeObservers(this)
+            editRouterViewModel.updateClient.observe(this) { updateClientResult ->
+                when (updateClientResult) {
                     is Results.Success -> {
+                        showLoading(false)
                         UPDATE_DETAIL_CLIENT = "TRUE"
                         finish()
                         dialog.dismiss()
                     }
                     is Results.Error -> {
+                        showLoading(false)
                         Toast.makeText(this, "Update Failed", Toast.LENGTH_SHORT).show()
-                        Log.d("Edit Router", "Update Failed: ${result.error}")
+                        Log.d("Edit Router", "Update Failed: ${updateClientResult.error}")
                     }
-                    is Results.Loading -> {}
+                    is Results.Loading -> {
+                        showLoading(true)
+                    }
+                }
+            }
+
+            editRouterViewModel.updateNetwork.removeObservers(this)
+            editRouterViewModel.updateNetwork.observe(this) { updateNetworkResult ->
+                when (updateNetworkResult) {
+                    is Results.Success -> {
+                        showLoading(false)
+                        UPDATE_DETAIL_CLIENT = "TRUE"
+                        finish()
+                        dialog.dismiss()
+                    }
+
+                    is Results.Error -> {
+                        showLoading(false)
+                        Toast.makeText(this, "Update Failed", Toast.LENGTH_SHORT).show()
+                        Log.d("Edit Router", "Update Failed: ${updateNetworkResult.error}")
+                    }
+
+                    is Results.Loading -> {
+                        showLoading(true)
+                    }
                 }
             }
         }
@@ -424,6 +416,10 @@ class EditRouterActivity : AppCompatActivity() {
             dialog.dismiss()
         }
         dialog.show()
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
     companion object {

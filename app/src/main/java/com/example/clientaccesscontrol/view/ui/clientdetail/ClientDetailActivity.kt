@@ -717,6 +717,7 @@ class ClientDetailActivity : AppCompatActivity() {
         super.onResume()
         if (EditRouterActivity.UPDATE_DETAIL_CLIENT == "TRUE") {
             EditRouterActivity.UPDATE_DETAIL_CLIENT = "FALSE"
+            UPDATE_CLIENT = "TRUE"
             clientDetailViewModel.getClientDetail(clientId)
         } else {
             Log.d("ClientDetailActivity", "There is No Client Update")
