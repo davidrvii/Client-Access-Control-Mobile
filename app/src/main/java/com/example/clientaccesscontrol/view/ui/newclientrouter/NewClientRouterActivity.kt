@@ -210,7 +210,7 @@ class NewClientRouterActivity : AppCompatActivity() {
                 }
         }
 
-        //Preshared Key
+        //Pre Shared Key
         newClientRouterViewModel.getPresharedKey.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
@@ -223,7 +223,7 @@ class NewClientRouterActivity : AppCompatActivity() {
                 is Results.Error -> {
                     showLoading(false)
                     Toast.makeText(this, "Error: ${result.error}", Toast.LENGTH_SHORT).show()
-                    Log.e("NewClientRouterActivity", "Error Getting Preshared Key: ${result.error}")
+                    Log.e("NewClientRouterActivity", "Error Getting PreShared Key: ${result.error}")
                 }
                 is Results.Loading -> {
                     showLoading(true)
@@ -258,11 +258,11 @@ class NewClientRouterActivity : AppCompatActivity() {
         val comment = intent.getStringExtra(COMMENT).toString().trim()
         val ipAddress = binding.etIPInternet.text.toString().trim()
 
-        val newUploadPacketMark = intent.getStringExtra(NEWUPLOADPACKETMARTK).toString().trim()
-        val newDownloadPacketMark = intent.getStringExtra(NEWDOWNLOADPACKETMARTK).toString().trim()
+        val newUploadPacketMark = intent.getStringExtra(NEW_UPLOAD_PACKET_MARK).toString().trim()
+        val newDownloadPacketMark = intent.getStringExtra(NEW_DOWNLOAD_PACKET_MARK).toString().trim()
 
         //Create Mangle Upload
-        newClientRouterViewModel.createMangleUpload(comment, "forwad", ipAddress, "bridge1", "mark-packet", newUploadPacketMark)
+        newClientRouterViewModel.createMangleUpload(comment, "forward", ipAddress, "bridge1", "mark-packet", newUploadPacketMark)
 
         //Mangle Upload Observer
         newClientRouterViewModel.createMangleUpload.removeObservers(this)
@@ -291,7 +291,7 @@ class NewClientRouterActivity : AppCompatActivity() {
                 is Results.Success -> {
                     showCustomDialogLoading(false)
                     //Create Mangle LAN
-                    newClientRouterViewModel.createMangleLAN(comment, "forwad", ipAddress, "!LAN", "mark-packet", newDownloadPacketMark)
+                    newClientRouterViewModel.createMangleLAN(comment, "forward", ipAddress, "!LAN", "mark-packet", newDownloadPacketMark)
                 }
                 is Results.Error -> {
                     showCustomDialogLoading(false)
@@ -326,19 +326,19 @@ class NewClientRouterActivity : AppCompatActivity() {
     }
 
     private fun createQueueTree() {
-        val nameUpload = intent.getStringExtra(NAMEUPLOAD).toString().trim()
-        val nameDownload = intent.getStringExtra(NAMEDOWNLOAD).toString().trim()
+        val newQueueTreeUpload = intent.getStringExtra(NEW_QUEUE_TREE_UPLOAD).toString().trim()
+        val newQueueTreeDownload = intent.getStringExtra(NEW_QUEUE_TREE_DOWNLOAD).toString().trim()
 
-        val newUploadPacketMark = intent.getStringExtra(NEWUPLOADPACKETMARTK).toString().trim()
-        val newDownloadPacketMark = intent.getStringExtra(NEWDOWNLOADPACKETMARTK).toString().trim()
+        val newUploadPacketMark = intent.getStringExtra(NEW_UPLOAD_PACKET_MARK).toString().trim()
+        val newDownloadPacketMark = intent.getStringExtra(NEW_DOWNLOAD_PACKET_MARK).toString().trim()
 
-        val speedId = intent.getIntExtra(SPEEDID, 0)
+        val speedId = intent.getIntExtra(SPEED_ID, 0)
         clientSpeed(speedId)
 
         val comment = intent.getStringExtra(COMMENT).toString().trim()
 
         //Create Queue Tree Upload
-        newClientRouterViewModel.createQueueTreeUpload(nameUpload, "Total Upload", comment, newUploadPacketMark, limitAt, maxLimit, burstTime, burstThreshold, burstLimit)
+        newClientRouterViewModel.createQueueTreeUpload(newQueueTreeUpload, "Total Upload", comment, newUploadPacketMark, limitAt, maxLimit, burstTime, burstThreshold, burstLimit)
 
         //Queue Tree Upload Observer
         newClientRouterViewModel.createQueueTreeUpload.removeObservers(this)
@@ -347,7 +347,7 @@ class NewClientRouterActivity : AppCompatActivity() {
                 is Results.Success -> {
                     showCustomDialogLoading(false)
                     //Create Queue Tree Download
-                    newClientRouterViewModel.createQueueTreeDownload(nameDownload, "Total Download", comment, newDownloadPacketMark, limitAt, maxLimit, burstTime, burstThreshold, burstLimit)
+                    newClientRouterViewModel.createQueueTreeDownload(newQueueTreeDownload, "Total Download", comment, newDownloadPacketMark, limitAt, maxLimit, burstTime, burstThreshold, burstLimit)
                 }
                 is Results.Error -> {
                     showCustomDialogLoading(false)
@@ -383,7 +383,7 @@ class NewClientRouterActivity : AppCompatActivity() {
     private fun createFilterRules() {
         val comment = intent.getStringExtra(COMMENT).toString().trim()
         val ipAddress = binding.etIPInternet.text.toString().trim()
-        val accessId = intent.getIntExtra(ACCESSID, 0)
+        val accessId = intent.getIntExtra(ACCESS_ID, 0)
 
         when (accessId) {
             1 -> newClientRouterViewModel.createFilterRules(comment, "forward", ipAddress, "drop", "false")
@@ -430,8 +430,8 @@ class NewClientRouterActivity : AppCompatActivity() {
         val phone = intent.getStringExtra(PHONE_NUMBER).toString()
         val address = intent.getStringExtra(ADDRESS).toString()
         val comment = intent.getStringExtra(COMMENT).toString()
-        val accessId = intent.getIntExtra(ACCESSID, 0)
-        val speedId = intent.getIntExtra(SPEEDID, 0)
+        val accessId = intent.getIntExtra(ACCESS_ID, 0)
+        val speedId = intent.getIntExtra(SPEED_ID, 0)
 
         //Crate New Client
         newClientRouterViewModel.createNewClient(clientName, phone, address, accessId, speedId)
@@ -665,13 +665,13 @@ class NewClientRouterActivity : AppCompatActivity() {
         const val PHONE_NUMBER = "phone_number"
         const val ADDRESS = "address"
         const val COMMENT = "comment"
-        const val ACCESSID = "access_id"
-        const val SPEEDID = "speed_id"
+        const val ACCESS_ID = "access_id"
+        const val SPEED_ID = "speed_id"
 
-        const val NEWUPLOADPACKETMARTK = "newuploadpacketmartk"
-        const val NEWDOWNLOADPACKETMARTK = "newdownloadpacketmartk"
+        const val NEW_UPLOAD_PACKET_MARK = "new_upload_packet_mark"
+        const val NEW_DOWNLOAD_PACKET_MARK = "new_download_packet_mark"
 
-        const val NAMEUPLOAD = "nameupload"
-        const val NAMEDOWNLOAD = "namedownload"
+        const val NEW_QUEUE_TREE_UPLOAD = "new_queue_tree_upload"
+        const val NEW_QUEUE_TREE_DOWNLOAD = "new_queue_tree_download"
     }
 }

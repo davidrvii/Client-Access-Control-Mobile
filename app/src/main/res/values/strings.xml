@@ -99,7 +99,7 @@
     <string name="download">Download</string>
     <string name="packet_mark_upload">Packet Mark Upload</string>
     <string name="packet_mark_download">Packet Mark Download</string>
-    <string name="new_packet_mark">New Packet Mark</string>
+    <string name="mikrotik">Mikrotik</string>
     <string name="bt_back_desc">Back to previous page</string>
     <string name="filter_menu">Filter</string>
     <string name="filter_by">Filter By</string>
@@ -125,6 +125,10 @@
     <string name="download_packet_mark">Download Packet Mark</string>
     <string name="loading_new_client">Creating New Client</string>
     <string name="loading_desc">Please wait…</string>
+    <string name="new_packet_mark">New Packet Mark</string>
+    <string name="new_queue_tree">New Queue Tree</string>
+    <string name="queue_tree_upload">Queue Tree Upload</string>
+    <string name="queue_tree_download">Queue Tree Download</string>
 
 
 </resources>

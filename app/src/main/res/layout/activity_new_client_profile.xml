@@ -251,7 +251,7 @@
                     android:id="@+id/tvTitleNewPacketMark"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/new_packet_mark"
+                    android:text="@string/mikrotik"
                     android:textColor="@color/white"
                     android:textSize="20sp"
                     android:textStyle="bold"
@@ -260,16 +260,28 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/tvUploadPacketMark"
+                    android:id="@+id/tvNewPacketMark"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="@string/upload"
+                    android:text="@string/new_packet_mark"
                     android:textColor="@color/white"
-                    android:textSize="16sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/tvTitleNewPacketMark" />
+
+                <TextView
+                    android:id="@+id/tvUploadPacketMark"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/upload"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textStyle="normal"
+                    app:layout_constraintStart_toStartOf="@id/tvNewPacketMark"
+                    app:layout_constraintTop_toBottomOf="@id/tvNewPacketMark" />
 
                 <EditText
                     android:id="@+id/etUploadPacketMark"
@@ -291,11 +303,11 @@
                     android:id="@+id/tvDownloadPacketMark"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="8dp"
                     android:text="@string/download"
                     android:textColor="@color/white"
                     android:textSize="16sp"
-                    android:textStyle="bold"
+                    android:textStyle="normal"
                     app:layout_constraintStart_toStartOf="@id/etUploadPacketMark"
                     app:layout_constraintTop_toBottomOf="@id/etUploadPacketMark" />
 
@@ -316,16 +328,84 @@
                     app:layout_constraintTop_toBottomOf="@+id/tvDownloadPacketMark" />
 
                 <TextView
+                    android:id="@+id/tvNewQueueTree"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/new_queue_tree"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="@id/etDownloadPacketMark"
+                    app:layout_constraintTop_toBottomOf="@id/etDownloadPacketMark" />
+
+                <TextView
+                    android:id="@+id/tvQueueTreeUpload"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/upload"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textStyle="normal"
+                    app:layout_constraintStart_toStartOf="@id/tvNewQueueTree"
+                    app:layout_constraintTop_toBottomOf="@id/tvNewQueueTree" />
+
+                <EditText
+                    android:id="@+id/etQueueTreeUpload"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/rounded_grey_stroke_rectangle"
+                    android:hint="@string/queue_tree_upload"
+                    android:importantForAutofill="no"
+                    android:inputType="text"
+                    android:padding="12dp"
+                    android:textColor="@color/white"
+                    android:textColorHint="#888888"
+                    android:textSize="16sp"
+                    app:layout_constraintStart_toStartOf="@id/tvQueueTreeUpload"
+                    app:layout_constraintTop_toBottomOf="@+id/tvQueueTreeUpload" />
+
+                <TextView
+                    android:id="@+id/tvQueueTreeDownload"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/download"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textStyle="normal"
+                    app:layout_constraintStart_toStartOf="@id/etQueueTreeUpload"
+                    app:layout_constraintTop_toBottomOf="@id/etQueueTreeUpload" />
+
+                <EditText
+                    android:id="@+id/etQueueTreeDownload"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/rounded_grey_stroke_rectangle"
+                    android:hint="@string/queue_tree_download"
+                    android:importantForAutofill="no"
+                    android:inputType="text"
+                    android:padding="12dp"
+                    android:textColor="@color/white"
+                    android:textColorHint="#888888"
+                    android:textSize="16sp"
+                    app:layout_constraintStart_toStartOf="@id/tvQueueTreeDownload"
+                    app:layout_constraintTop_toBottomOf="@+id/tvQueueTreeDownload" />
+
+                <TextView
                     android:id="@+id/tvComment"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:text="@string/comment"
                     android:textColor="@color/white"
-                    android:textSize="16sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
-                    app:layout_constraintStart_toStartOf="@id/etDownloadPacketMark"
-                    app:layout_constraintTop_toBottomOf="@id/etDownloadPacketMark" />
+                    app:layout_constraintStart_toStartOf="@id/etQueueTreeDownload"
+                    app:layout_constraintTop_toBottomOf="@id/etQueueTreeDownload" />
 
                 <EditText
                     android:id="@+id/etComment"

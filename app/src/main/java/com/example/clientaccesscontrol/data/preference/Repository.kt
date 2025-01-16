@@ -347,10 +347,10 @@ class Repository private constructor(
         emit(Results.Loading)
         try {
             val response = apiServiceCAC.createPresharedKey("Bearer $token", presharedKey)
-            Log.d("Repository", "Create Preshared Key Response: $response")
+            Log.d("Repository", "Create PreShared Key Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {
-            Log.e("Repository", "Error Create Preshared Key: ${e.localizedMessage}", e)
+            Log.e("Repository", "Error Create PreShared Key: ${e.localizedMessage}", e)
             emit(Results.Error(e.message ?: "Unknown error occurred"))
         }
     }
@@ -361,10 +361,10 @@ class Repository private constructor(
         emit(Results.Loading)
         try {
             val response = apiServiceCAC.getPresharedKey("Bearer $token")
-            Log.d("Repository", "Get Preshared Key Response: $response")
+            Log.d("Repository", "Get PreShared Key Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {
-            Log.e("Repository", "Error Get Preshared Key: ${e.localizedMessage}", e)
+            Log.e("Repository", "Error Get PreShared Key: ${e.localizedMessage}", e)
             emit(Results.Error(e.message ?: "Unknown error occurred"))
         }
     }
@@ -376,10 +376,10 @@ class Repository private constructor(
         emit(Results.Loading)
         try {
             val response = apiServiceCAC.deletePresharedKey("Bearer $token", id)
-            Log.d("Repository", "Delete Preshared Key Response: $response")
+            Log.d("Repository", "Delete PreShared Key Response: $response")
             emit(Results.Success(response))
         } catch (e: Exception) {
-            Log.e("Repository", "Error Delete Preshared Key: ${e.localizedMessage}", e)
+            Log.e("Repository", "Error Delete PreShared Key: ${e.localizedMessage}", e)
             emit(Results.Error(e.message ?: "Unknown error occurred"))
         }
     }

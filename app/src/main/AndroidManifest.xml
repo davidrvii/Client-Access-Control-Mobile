@@ -30,10 +30,6 @@
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name=".view.ui.newclientqueue.NewClientQueueActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustPan" />
-        <activity
             android:name=".view.ui.newclientrouter.NewClientRouterActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />

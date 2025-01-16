@@ -17,7 +17,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.clientaccesscontrol.R
 import com.example.clientaccesscontrol.data.result.Results
 import com.example.clientaccesscontrol.databinding.ActivityNewClientProfileBinding
-import com.example.clientaccesscontrol.view.ui.newclientqueue.NewClientQueueActivity
+import com.example.clientaccesscontrol.view.ui.newclientrouter.NewClientRouterActivity
 import com.example.clientaccesscontrol.view.utils.FactoryViewModel
 
 class NewClientProfileActivity : AppCompatActivity() {
@@ -120,16 +120,22 @@ class NewClientProfileActivity : AppCompatActivity() {
             val newUploadPacketMark = binding.etUploadPacketMark.text.toString().trim()
             val newDownloadPacketMark = binding.etDownloadPacketMark.text.toString().trim()
 
-            val intent = Intent(this, NewClientQueueActivity::class.java).apply {
-                putExtra(NewClientQueueActivity.CLIENT_NAME, clientName)
-                putExtra(NewClientQueueActivity.PHONE_NUMBER, phone)
-                putExtra(NewClientQueueActivity.ADDRESS, address)
-                putExtra(NewClientQueueActivity.COMMENT, comment)
-                putExtra(NewClientQueueActivity.ACCESSID, accessId)
-                putExtra(NewClientQueueActivity.SPEEDID, speedId)
+            val newQueueTreeUpload = binding.etQueueTreeUpload.text.toString()
+            val newQueueTreeDownload = binding.etQueueTreeDownload.text.toString()
 
-                putExtra(NewClientQueueActivity.NEWUPLOADPACKETMARTK, newUploadPacketMark)
-                putExtra(NewClientQueueActivity.NEWDOWNLOADPACKETMARTK, newDownloadPacketMark)
+            val intent = Intent(this, NewClientRouterActivity::class.java).apply {
+                putExtra(NewClientRouterActivity.CLIENT_NAME, clientName)
+                putExtra(NewClientRouterActivity.PHONE_NUMBER, phone)
+                putExtra(NewClientRouterActivity.ADDRESS, address)
+                putExtra(NewClientRouterActivity.COMMENT, comment)
+                putExtra(NewClientRouterActivity.ACCESS_ID, accessId)
+                putExtra(NewClientRouterActivity.SPEED_ID, speedId)
+
+                putExtra(NewClientRouterActivity.NEW_UPLOAD_PACKET_MARK, newUploadPacketMark)
+                putExtra(NewClientRouterActivity.NEW_DOWNLOAD_PACKET_MARK, newDownloadPacketMark)
+
+                putExtra(NewClientRouterActivity.NEW_QUEUE_TREE_UPLOAD, newQueueTreeUpload)
+                putExtra(NewClientRouterActivity.NEW_QUEUE_TREE_DOWNLOAD, newQueueTreeDownload)
             }
             startActivity(intent)
         }
@@ -146,7 +152,9 @@ class NewClientProfileActivity : AppCompatActivity() {
             binding.etAddress,
             binding.etComment,
             binding.etUploadPacketMark,
-            binding.etDownloadPacketMark
+            binding.etDownloadPacketMark,
+            binding.etQueueTreeUpload,
+            binding.etQueueTreeDownload
         )
 
         for (textField in textFields) {
@@ -184,6 +192,9 @@ class NewClientProfileActivity : AppCompatActivity() {
         val newUploadPacketMark = binding.etUploadPacketMark.text.toString()
         val newDownloadPacketMark = binding.etDownloadPacketMark.text.toString()
 
+        val newQueueTreeUpload = binding.etQueueTreeUpload.text.toString()
+        val newQueueTreeDownload = binding.etQueueTreeDownload.text.toString()
+
         val isFieldFilled =
                     clientName.isNotEmpty() &&
                     phone.isNotEmpty() &&
@@ -191,6 +202,8 @@ class NewClientProfileActivity : AppCompatActivity() {
                     comment.isNotEmpty() &&
                     newUploadPacketMark.isNotEmpty() &&
                     newDownloadPacketMark.isNotEmpty() &&
+                    newQueueTreeUpload.isNotEmpty() &&
+                    newQueueTreeDownload.isNotEmpty() &&
                     accessId in 1..2 &&
                     speedId in 1..6
 
