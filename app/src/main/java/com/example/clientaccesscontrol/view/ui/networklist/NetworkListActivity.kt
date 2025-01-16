@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
@@ -19,6 +20,7 @@ import com.example.clientaccesscontrol.R
 import com.example.clientaccesscontrol.data.result.Results
 import com.example.clientaccesscontrol.databinding.ActivityNetworkListBinding
 import com.example.clientaccesscontrol.databinding.CustomAddDialogBinding
+import com.example.clientaccesscontrol.view.ui.networkfilter.NetworkFilterActivity
 import com.example.clientaccesscontrol.view.utils.FactoryViewModel
 
 class NetworkListActivity : AppCompatActivity() {
@@ -52,6 +54,32 @@ class NetworkListActivity : AppCompatActivity() {
         setupNetworkList()
         buttonBackAction()
         buttonAddAction()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (NetworkFilterActivity.UPDATE_NETWORK_LIST == "TRUE") {
+            NetworkFilterActivity.UPDATE_NETWORK_LIST = "FALSE"
+            when (network) {
+                "BTS" -> {
+                    networkListViewModel.getBTS()
+                }
+                "Radio" -> {
+                    networkListViewModel.getRadio()
+                }
+                "Mode" -> {
+                    networkListViewModel.getMode()
+                }
+                "Channel Width" -> {
+                    networkListViewModel.getChannelWidth()
+                }
+                "Preshared Key" -> {
+                    networkListViewModel.getPresharedKey()
+                }
+            }
+        } else {
+            Log.d("NetworkListActivity", "There is No Network to Update")
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -112,87 +140,103 @@ class NetworkListActivity : AppCompatActivity() {
     }
 
     private fun addResult() {
+        networkListViewModel.createBTS.removeObservers(this)
         networkListViewModel.createBTS.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
+                    showLoading(false)
                     Toast.makeText(this, result.data.message, Toast.LENGTH_SHORT).show()
+                    networkListViewModel.getBTS()
                 }
 
                 is Results.Error -> {
-                    Toast.makeText(this, "Error creating BTS: ${result.error}", Toast.LENGTH_SHORT)
-                        .show()
+                    showLoading(false)
+                    Toast.makeText(this, "Error creating BTS: ${result.error}", Toast.LENGTH_SHORT).show()
                 }
 
-                is Results.Loading -> {}
+                is Results.Loading -> {
+                    showLoading(true)
+                }
             }
         }
 
+        networkListViewModel.createRadio.removeObservers(this)
         networkListViewModel.createRadio.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
+                    showLoading(false)
                     Toast.makeText(this, result.data.message, Toast.LENGTH_SHORT).show()
+                    networkListViewModel.getRadio()
                 }
 
                 is Results.Error -> {
-                    Toast.makeText(
-                        this,
-                        "Error creating Radio: ${result.error}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    showLoading(false)
+                    Toast.makeText(this, "Error creating Radio: ${result.error}", Toast.LENGTH_SHORT).show()
                 }
 
-                is Results.Loading -> {}
+                is Results.Loading -> {
+                    showLoading(true)
+                }
             }
         }
 
+        networkListViewModel.createMode.removeObservers(this)
         networkListViewModel.createMode.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
+                    showLoading(false)
                     Toast.makeText(this, result.data.message, Toast.LENGTH_SHORT).show()
+                    networkListViewModel.getMode()
                 }
 
                 is Results.Error -> {
-                    Toast.makeText(this, "Error creating Mode: ${result.error}", Toast.LENGTH_SHORT)
-                        .show()
+                    showLoading(false)
+                    Toast.makeText(this, "Error creating Mode: ${result.error}", Toast.LENGTH_SHORT).show()
                 }
 
-                is Results.Loading -> {}
+                is Results.Loading -> {
+                    showLoading(true)
+                }
             }
         }
 
+        networkListViewModel.createChannelWidth.removeObservers(this)
         networkListViewModel.createChannelWidth.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
+                    showLoading(false)
                     Toast.makeText(this, result.data.message, Toast.LENGTH_SHORT).show()
+                    networkListViewModel.getChannelWidth()
                 }
 
                 is Results.Error -> {
-                    Toast.makeText(
-                        this,
-                        "Error creating ChannelWidth: ${result.error}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    showLoading(false)
+                    Toast.makeText(this, "Error creating ChannelWidth: ${result.error}", Toast.LENGTH_SHORT).show()
                 }
 
-                is Results.Loading -> {}
+                is Results.Loading -> {
+                    showLoading(true)
+                }
             }
         }
 
+        networkListViewModel.createPresharedKey.removeObservers(this)
         networkListViewModel.createPresharedKey.observe(this) { result ->
             when (result) {
                 is Results.Success -> {
+                    showLoading(false)
                     Toast.makeText(this, result.data.message, Toast.LENGTH_SHORT).show()
+                    networkListViewModel.getPresharedKey()
                 }
 
                 is Results.Error -> {
-                    Toast.makeText(
-                        this,
-                        "Error creating PresharedKey: ${result.error}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    showLoading(false)
+                    Toast.makeText(this, "Error creating PresharedKey: ${result.error}", Toast.LENGTH_SHORT).show()
                 }
 
-                is Results.Loading -> {}
+                is Results.Loading -> {
+                    showLoading(true)
+                }
             }
         }
     }
@@ -202,70 +246,105 @@ class NetworkListActivity : AppCompatActivity() {
 
         when (network) {
             "BTS" -> {
+                networkListViewModel.getBTS()
+                networkListViewModel.getBTS.removeObservers(this)
                 networkListViewModel.getBTS.observe(this) { result ->
                     when (result) {
-                        is Results.Success -> btsAdapter.updateData(
-                            result.data.bts?.filterNotNull() ?: emptyList()
-                        )
-
-                        is Results.Error -> Log.d("NetworkListActivity", "Error: ${result.error}")
-                        is Results.Loading -> {}
+                        is Results.Success -> {
+                            showLoading(false)
+                            btsAdapter.updateData(result.data.bts?.filterNotNull() ?: emptyList())
+                        }
+                        is Results.Error -> {
+                            showLoading(false)
+                            Log.d("NetworkListActivity", "Error: ${result.error}")
+                        }
+                        is Results.Loading -> {
+                            showLoading(true)
+                        }
                     }
                 }
                 setupBTSRecyclerView()
             }
 
             "Radio" -> {
+                networkListViewModel.getRadio()
+                networkListViewModel.getRadio.removeObservers(this)
                 networkListViewModel.getRadio.observe(this) { result ->
                     when (result) {
-                        is Results.Success -> radioAdapter.updateData(
-                            result.data.radios?.filterNotNull() ?: emptyList()
-                        )
-
-                        is Results.Error -> Log.d("NetworkListActivity", "Error: ${result.error}")
-                        is Results.Loading -> {}
+                        is Results.Success -> {
+                            showLoading(false)
+                            radioAdapter.updateData(result.data.radios?.filterNotNull() ?: emptyList())
+                        }
+                        is Results.Error -> {
+                            showLoading(false)
+                            Log.d("NetworkListActivity", "Error: ${result.error}")
+                        }
+                        is Results.Loading -> {
+                            showLoading(true)
+                        }
                     }
                 }
                 setupRadioRecyclerView()
             }
 
             "Mode" -> {
+                networkListViewModel.getMode()
+                networkListViewModel.getMode.removeObservers(this)
                 networkListViewModel.getMode.observe(this) { result ->
                     when (result) {
-                        is Results.Success -> modeAdapter.updateData(
-                            result.data.modes?.filterNotNull() ?: emptyList()
-                        )
-
-                        is Results.Error -> Log.d("NetworkListActivity", "Error: ${result.error}")
-                        is Results.Loading -> {}
+                        is Results.Success -> {
+                            showLoading(false)
+                            modeAdapter.updateData(result.data.modes?.filterNotNull() ?: emptyList())
+                        }
+                        is Results.Error -> {
+                            showLoading(false)
+                            Log.d("NetworkListActivity", "Error: ${result.error}")
+                        }
+                        is Results.Loading -> {
+                            showLoading(true)
+                        }
                     }
                 }
                 setupModeRecyclerView()
             }
 
             "Channel Width" -> {
+                networkListViewModel.getChannelWidth()
+                networkListViewModel.getChannelWidth.removeObservers(this)
                 networkListViewModel.getChannelWidth.observe(this) { result ->
                     when (result) {
-                        is Results.Success -> channelWidthAdapter.updateData(
-                            result.data.channelWidths?.filterNotNull() ?: emptyList()
-                        )
-
-                        is Results.Error -> Log.d("NetworkListActivity", "Error: ${result.error}")
-                        is Results.Loading -> {}
+                        is Results.Success -> {
+                            showLoading(false)
+                            channelWidthAdapter.updateData(result.data.channelWidths?.filterNotNull() ?: emptyList())
+                        }
+                        is Results.Error -> {
+                            showLoading(false)
+                            Log.d("NetworkListActivity", "Error: ${result.error}")
+                        }
+                        is Results.Loading -> {
+                            showLoading(true)
+                        }
                     }
                 }
                 setupChannelWidthRecyclerView()
             }
 
             "Preshared Key" -> {
+                networkListViewModel.getPresharedKey()
+                networkListViewModel.getPresharedKey.removeObservers(this)
                 networkListViewModel.getPresharedKey.observe(this) { result ->
                     when (result) {
-                        is Results.Success -> presharedKeyAdapter.updateData(
-                            result.data.presharedKeys?.filterNotNull() ?: emptyList()
-                        )
-
-                        is Results.Error -> Log.d("NetworkListActivity", "Error: ${result.error}")
-                        is Results.Loading -> {}
+                        is Results.Success -> {
+                            showLoading(false)
+                            presharedKeyAdapter.updateData(result.data.presharedKeys?.filterNotNull() ?: emptyList())
+                        }
+                        is Results.Error -> {
+                            showLoading(false)
+                            Log.d("NetworkListActivity", "Error: ${result.error}")
+                        }
+                        is Results.Loading -> {
+                            showLoading(true)
+                        }
                     }
                 }
                 setupPresharedKeyRecyclerView()
@@ -311,5 +390,9 @@ class NetworkListActivity : AppCompatActivity() {
             adapter = presharedKeyAdapter
             layoutManager = LinearLayoutManager(context)
         }
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 }

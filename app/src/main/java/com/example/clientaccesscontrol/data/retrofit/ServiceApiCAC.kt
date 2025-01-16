@@ -17,6 +17,7 @@ import com.example.clientaccesscontrol.data.cacresponse.GetAllClientResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetBTSResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetChannelWidthResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetClientDetailResponse
+import com.example.clientaccesscontrol.data.cacresponse.GetFilteredClientResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetModeResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetPresharedKeyResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetRadioResponse
@@ -33,6 +34,7 @@ import retrofit2.http.Header
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface ServiceApiCAC {
     @FormUrlEncoded
@@ -184,6 +186,16 @@ interface ServiceApiCAC {
     suspend fun getAllClient(
         @Header("Authorization") token: String,
     ): GetAllClientResponse
+
+    @GET("client/filter")
+    suspend fun getFilteredClient(
+        @Header("Authorization") token: String,
+        @Query("fk_bts_id") btsId: Int,
+        @Query("fk_radio_id") radioId: Int,
+        @Query("fk_mode_id") modeId: Int,
+        @Query("fk_channel_width_id") channelWidthId: Int,
+        @Query("fk_preShared_key_id") preSharedKeyId: Int,
+    ): GetFilteredClientResponse
 
     @GET("client/{id}")
     suspend fun getClientDetail(

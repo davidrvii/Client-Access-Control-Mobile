@@ -20,6 +20,7 @@ import com.example.clientaccesscontrol.data.cacresponse.GetAllClientResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetBTSResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetChannelWidthResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetClientDetailResponse
+import com.example.clientaccesscontrol.data.cacresponse.GetFilteredClientResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetModeResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetPresharedKeyResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetRadioResponse
@@ -143,6 +144,25 @@ class Repository private constructor(
             emit(Results.Success(response))
         } catch (e: Exception) {
             Log.e("Repository", "Error Get All Client: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun getFilteredClient(
+        token: String,
+        btsId: Int,
+        radioId: Int,
+        modeId: Int,
+        channelWidthId: Int,
+        preSharedKeyId: Int
+    ): LiveData<Results<GetFilteredClientResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceCAC.getFilteredClient("Bearer $token", btsId, radioId, modeId, channelWidthId, preSharedKeyId)
+            Log.d("Repository", "Get Client Detail Response: $response")
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Get Client Detail: ${e.localizedMessage}", e)
             emit(Results.Error(e.message ?: "Unknown error occurred"))
         }
     }

@@ -24,6 +24,18 @@ class NetworkListVM(private val repository: Repository) : ViewModel() {
     private val _getBTS = MediatorLiveData<Results<GetBTSResponse>>()
     val getBTS: MutableLiveData<Results<GetBTSResponse>> = _getBTS
 
+    fun getBTS() {
+        viewModelScope.launch {
+            repository.getSession().collect { user ->
+                user.token.let { token ->
+                    _getBTS.addSource(repository.getBTS(token)) { getBTSResult ->
+                        _getBTS.value = getBTSResult
+                    }
+                }
+            }
+        }
+    }
+
     private val _createBTS = MediatorLiveData<Results<CreateBTSResponse>>()
     val createBTS: MutableLiveData<Results<CreateBTSResponse>> = _createBTS
 
@@ -42,6 +54,18 @@ class NetworkListVM(private val repository: Repository) : ViewModel() {
     //Radio
     private val _getRadio = MediatorLiveData<Results<GetRadioResponse>>()
     val getRadio: MutableLiveData<Results<GetRadioResponse>> = _getRadio
+
+    fun getRadio() {
+        viewModelScope.launch {
+            repository.getSession().collect { user ->
+                user.token.let { token ->
+                    _getRadio.addSource(repository.getRadio(token)) { getRadioResult ->
+                        _getRadio.value = getRadioResult
+                    }
+                }
+            }
+        }
+    }
 
     private val _createRadio = MediatorLiveData<Results<CreateRadioResponse>>()
     val createRadio: MutableLiveData<Results<CreateRadioResponse>> = _createRadio
@@ -62,6 +86,18 @@ class NetworkListVM(private val repository: Repository) : ViewModel() {
     private val _getMode = MediatorLiveData<Results<GetModeResponse>>()
     val getMode: MutableLiveData<Results<GetModeResponse>> = _getMode
 
+    fun getMode() {
+        viewModelScope.launch {
+            repository.getSession().collect { user ->
+                user.token.let { token ->
+                    _getMode.addSource(repository.getMode(token)) { getModeResult ->
+                        _getMode.value = getModeResult
+                    }
+                }
+            }
+        }
+    }
+
     private val _createMode = MediatorLiveData<Results<CreateModeResponse>>()
     val createMode: MutableLiveData<Results<CreateModeResponse>> = _createMode
 
@@ -80,6 +116,18 @@ class NetworkListVM(private val repository: Repository) : ViewModel() {
     //Preshared Key
     private val _getPresharedKey = MediatorLiveData<Results<GetPresharedKeyResponse>>()
     val getPresharedKey: MutableLiveData<Results<GetPresharedKeyResponse>> = _getPresharedKey
+
+    fun getPresharedKey() {
+        viewModelScope.launch {
+            repository.getSession().collect { user ->
+                user.token.let { token ->
+                    _getPresharedKey.addSource(repository.getPresharedKey(token)) { getPresharedKeyResult ->
+                        _getPresharedKey.value = getPresharedKeyResult
+                    }
+                }
+            }
+        }
+    }
 
     private val _createPresharedKey = MediatorLiveData<Results<CreatePresharedKeyResponse>>()
     val createPresharedKey: MutableLiveData<Results<CreatePresharedKeyResponse>> = _createPresharedKey
@@ -101,6 +149,18 @@ class NetworkListVM(private val repository: Repository) : ViewModel() {
     private val _getChanelWidth = MediatorLiveData<Results<GetChannelWidthResponse>>()
     val getChannelWidth: MutableLiveData<Results<GetChannelWidthResponse>> = _getChanelWidth
 
+    fun getChannelWidth() {
+        viewModelScope.launch {
+            repository.getSession().collect { user ->
+                user.token.let { token ->
+                    _getChanelWidth.addSource(repository.getChannelWidth(token)) { getChannelWidthResult ->
+                        _getChanelWidth.value = getChannelWidthResult
+                    }
+                }
+            }
+        }
+    }
+
     private val _createChannelWidth = MediatorLiveData<Results<CreateChannelWidthResponse>>()
     val createChannelWidth: MutableLiveData<Results<CreateChannelWidthResponse>> = _createChannelWidth
 
@@ -111,31 +171,6 @@ class NetworkListVM(private val repository: Repository) : ViewModel() {
                     _createChannelWidth.addSource(
                         repository.createChannelWidth(token, channelWidth)) { createChannelWidthResult ->
                         _createChannelWidth.value = createChannelWidthResult
-                    }
-                }
-            }
-        }
-    }
-
-    init {
-        viewModelScope.launch {
-            repository.getSession().collect { user ->
-                user.token.let { token ->
-                    //get
-                    _getBTS.addSource(repository.getBTS(token)) { getBTSResult ->
-                        _getBTS.value = getBTSResult
-                    }
-                    _getRadio.addSource(repository.getRadio(token)) { getRadioResult ->
-                        _getRadio.value = getRadioResult
-                    }
-                    _getMode.addSource(repository.getMode(token)) { getModeResult ->
-                        _getMode.value = getModeResult
-                    }
-                    _getPresharedKey.addSource(repository.getPresharedKey(token)) { getPresharedKeyResult ->
-                        _getPresharedKey.value = getPresharedKeyResult
-                    }
-                    _getChanelWidth.addSource(repository.getChannelWidth(token)) { getChannelWidthResult ->
-                        _getChanelWidth.value = getChannelWidthResult
                     }
                 }
             }
