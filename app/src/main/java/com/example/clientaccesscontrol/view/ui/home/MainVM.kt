@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.clientaccesscontrol.data.cacresponse.CreateNewClientResponse
-import com.example.clientaccesscontrol.data.cacresponse.GetAllClientResponse
+import com.example.clientaccesscontrol.data.cacresponse.GetSearchedClientResponse
 import com.example.clientaccesscontrol.data.cacresponse.UpdateClientDetailResponse
 import com.example.clientaccesscontrol.data.cacresponse.UpdateNetworkResponse
 import com.example.clientaccesscontrol.data.mikrotikresponse.GetFilterRulesResponseItem
@@ -22,6 +22,24 @@ class MainVM(private val repository: Repository) : ViewModel() {
     //Check Login Session
     fun getSession(): LiveData<UserModel> {
         return repository.getSession().asLiveData()
+    }
+
+    //Get Searched Client
+    private val _getSearchedClient = MediatorLiveData<Results<GetSearchedClientResponse>>()
+    val getSearchedClient: LiveData<Results<GetSearchedClientResponse>> = _getSearchedClient
+
+    fun getSearchedClient(
+        name: String,
+    ) {
+        viewModelScope.launch {
+            repository.getSession().collect { user ->
+                user.token.let { token ->
+                    _getSearchedClient.addSource(repository.getSearchedClient(token, name)) { getSearchedClientResult ->
+                        _getSearchedClient.value = getSearchedClientResult
+                    }
+                }
+            }
+        }
     }
 
     //Get Filter Rules
@@ -122,22 +140,6 @@ class MainVM(private val repository: Repository) : ViewModel() {
         viewModelScope.launch {
             _getQueueTree.addSource(repository.getQueueTree()) { getQueueTreeResult ->
                 _getQueueTree.value = getQueueTreeResult
-            }
-        }
-    }
-
-    //Get All Client
-    private val _getAllClient = MediatorLiveData<Results<GetAllClientResponse>>()
-    val getAllClient: LiveData<Results<GetAllClientResponse>> = _getAllClient
-
-    fun getAllClient() {
-        viewModelScope.launch {
-            repository.getSession().collect { user ->
-                user.token.let { token ->
-                    _getAllClient.addSource(repository.getAllClient(token)) { getAllClientResult ->
-                        _getAllClient.value = getAllClientResult
-                    }
-                }
             }
         }
     }

@@ -13,7 +13,6 @@ import com.example.clientaccesscontrol.data.cacresponse.DeleteModeResponse
 import com.example.clientaccesscontrol.data.cacresponse.DeletePresharedKeyResponse
 import com.example.clientaccesscontrol.data.cacresponse.DeleteRadioResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetAccessResponse
-import com.example.clientaccesscontrol.data.cacresponse.GetAllClientResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetBTSResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetChannelWidthResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetClientDetailResponse
@@ -21,6 +20,7 @@ import com.example.clientaccesscontrol.data.cacresponse.GetFilteredClientRespons
 import com.example.clientaccesscontrol.data.cacresponse.GetModeResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetPresharedKeyResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetRadioResponse
+import com.example.clientaccesscontrol.data.cacresponse.GetSearchedClientResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetSpeedResponse
 import com.example.clientaccesscontrol.data.cacresponse.LoginResponse
 import com.example.clientaccesscontrol.data.cacresponse.RegisterResponse
@@ -182,10 +182,11 @@ interface ServiceApiCAC {
         @Header("Authorization") token: String,
     ): GetSpeedResponse
 
-    @GET("client/byUser")
-    suspend fun getAllClient(
+    @GET("client/search")
+    suspend fun getSearchedClient(
         @Header("Authorization") token: String,
-    ): GetAllClientResponse
+        @Query("query") name: String,
+    ): GetSearchedClientResponse
 
     @GET("client/filter")
     suspend fun getFilteredClient(

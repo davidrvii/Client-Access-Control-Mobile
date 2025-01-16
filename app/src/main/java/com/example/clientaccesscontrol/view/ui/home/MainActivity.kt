@@ -19,7 +19,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.clientaccesscontrol.R
-import com.example.clientaccesscontrol.data.cacresponse.ClientsItem
+import com.example.clientaccesscontrol.data.cacresponse.SearchedClientItem
 import com.example.clientaccesscontrol.data.mikrotikresponse.GetFilterRulesResponseItem
 import com.example.clientaccesscontrol.data.mikrotikresponse.GetQueueTreeResponseItem
 import com.example.clientaccesscontrol.data.result.Results
@@ -27,7 +27,6 @@ import com.example.clientaccesscontrol.databinding.ActivityMainBinding
 import com.example.clientaccesscontrol.databinding.CustomLogoutDialogBinding
 import com.example.clientaccesscontrol.view.ui.clientdetail.ClientDetailActivity
 import com.example.clientaccesscontrol.view.ui.connect.ConnectActivity
-import com.example.clientaccesscontrol.view.ui.filter.FilterBottomSheet
 import com.example.clientaccesscontrol.view.ui.network.NetworkActivity
 import com.example.clientaccesscontrol.view.ui.newclientprofile.NewClientProfileActivity
 import com.example.clientaccesscontrol.view.utils.FactoryViewModel
@@ -38,7 +37,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var bindingDialog: CustomLogoutDialogBinding
     private lateinit var clientAdapter: ClientAdapter
     private var queueTrees: List<GetQueueTreeResponseItem>? = null
-    private var clients: List<ClientsItem?>? = null
+    private var clients: List<SearchedClientItem?>? = null
     private var filterRules: List<GetFilterRulesResponseItem>? = null
     private var clicked = false
     private val mainViewModel by viewModels<MainVM> {
@@ -73,27 +72,27 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         if (ClientDetailActivity.UPDATE_CLIENT == "TRUE") {
             ClientDetailActivity.UPDATE_CLIENT = "FALSE"
-            mainViewModel.getAllClient()
+            mainViewModel.getSearchedClient("")
         }  else {
             Log.d("MainActivity", "There is No Client to Update")
         }
     }
 
     private fun setupClientList() {
-        mainViewModel.getAllClient()
-        mainViewModel.getAllClient.removeObservers(this)
-        mainViewModel.getAllClient.observe(this) { result ->
-            when (result) {
+        mainViewModel.getSearchedClient("")
+        mainViewModel.getSearchedClient.removeObservers(this)
+        mainViewModel.getSearchedClient.observe(this) { getSearchedClientResult ->
+            when (getSearchedClientResult) {
                 is Results.Success -> {
-                    clients = result.data.clients
+                    clients = getSearchedClientResult.data.searchedClient
                     showLoading(false)
-                    Log.d("MainActivity", "Received Client Data: ${result.data.clients}")
-                    clientAdapter.updateData(result.data.clients?.filterNotNull() ?: emptyList())
+                    Log.d("MainActivity", "Received Client Data: ${getSearchedClientResult.data.searchedClient}")
+                    clientAdapter.updateData(getSearchedClientResult.data.searchedClient?.filterNotNull() ?: emptyList())
                     mainViewModel.getQueueTree()
                 }
                 is Results.Error -> {
                     showLoading(false)
-                    Log.e("MainActivity", "Error Getting Client: ${result.error}")
+                    Log.e("MainActivity", "Error Getting Client: ${getSearchedClientResult.error}")
                     mainViewModel.logout()
                     val intent = Intent(this, ConnectActivity::class.java)
                     startActivity(intent)
@@ -222,7 +221,7 @@ class MainActivity : AppCompatActivity() {
             when (result) {
                 is Results.Success -> {
                     showLoading(false)
-                    mainViewModel.getAllClient()
+                    mainViewModel.getSearchedClient("")
                     Log.d("MainActivity", "Client updated: ${result.data.updatedClient?.clientId}")
                 }
                 is Results.Error -> {
@@ -237,14 +236,14 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        mainViewModel.getAllClient.removeObservers(this)
-        mainViewModel.getAllClient.observe(this) { clientResult ->
+        mainViewModel.getSearchedClient.removeObservers(this)
+        mainViewModel.getSearchedClient.observe(this) { clientResult ->
             when (clientResult) {
                 is Results.Success -> {
-                    clients = clientResult.data.clients
+                    clients = clientResult.data.searchedClient
                     // Update data pada adapter
                     clientAdapter.updateData(clients?.filterNotNull() ?: emptyList())
-                    Log.d("MainActivity", "Client updated UI: ${clientResult.data.clients}")
+                    Log.d("MainActivity", "Client updated UI: ${clientResult.data.searchedClient}")
                 }
                 is Results.Error -> {
                     Log.e("MainActivity", "Error Getting Clients UI: ${clientResult.error}")
@@ -283,7 +282,7 @@ class MainActivity : AppCompatActivity() {
                         "",
                         1
                     )
-                    mainViewModel.getAllClient()
+                    mainViewModel.getSearchedClient("")
                 }
                 is Results.Error -> {
                     showLoading(false)
@@ -408,41 +407,35 @@ class MainActivity : AppCompatActivity() {
             searchView.setupWithSearchBar(searchBar)
             searchView
                 .editText
-                .setOnEditorActionListener { _, _, _ ->
+                .setOnEditorActionListener { textView, _, _ ->
                     searchBar.setText(searchView.text)
                     searchView.hide()
+                    if (textView.text.toString().isNotEmpty()) {
+                        mainViewModel.getSearchedClient(textView.text.toString())
+                    } else {
+                        Log.d("MainActivity", "Search Bar is Empty")
+                    }
                     false
                 }
+        }
 
-            binding.searchBar.setOnMenuItemClickListener { menuItem ->
-                when (menuItem.itemId) {
-                    R.id.filter -> {
-                        filterBottomSheet()
-                    }
+        mainViewModel.getSearchedClient.removeObservers(this)
+        mainViewModel.getSearchedClient.observe(this) { getSearchedClientResult ->
+            when (getSearchedClientResult) {
+                is Results.Success -> {
+                    clientAdapter.updateData(getSearchedClientResult.data.searchedClient?.filterNotNull() ?: emptyList())
                 }
-                true
+                is Results.Error -> {
+                    Log.e("MainActivity", "Error Getting Searched Client: ${getSearchedClientResult.error}")
+                }
+                is Results.Loading -> {
+                    Log.d("MainActivity", "Loading Searched Client")
+                }
             }
-
         }
     }
 
     private fun showLoading(isLoading: Boolean) {
         binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-    }
-
-    private fun filterBottomSheet() {
-//        val filterDialog = BottomSheetDialog(this)
-//        val filterBinding = BottomSheetFilterBinding.inflate(layoutInflater)
-//        filterDialog.apply {
-//            setContentView(filterBinding.root)
-//            setCancelable(true)
-//            show()
-//        }
-
-        // Buat instance dari FilterBottomSheet
-        val filterBottomSheet = FilterBottomSheet()
-
-        // Tampilkan BottomSheetFragment
-        filterBottomSheet.show(supportFragmentManager, filterBottomSheet.tag)
     }
 }

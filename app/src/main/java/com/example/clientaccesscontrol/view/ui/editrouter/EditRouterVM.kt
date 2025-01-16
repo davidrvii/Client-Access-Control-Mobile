@@ -1,5 +1,6 @@
 package com.example.clientaccesscontrol.view.ui.editrouter
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,10 +14,94 @@ import com.example.clientaccesscontrol.data.cacresponse.GetPresharedKeyResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetRadioResponse
 import com.example.clientaccesscontrol.data.cacresponse.UpdateClientDetailResponse
 import com.example.clientaccesscontrol.data.cacresponse.UpdateNetworkResponse
+import com.example.clientaccesscontrol.data.mikrotikresponse.GetFilterRulesResponseItem
+import com.example.clientaccesscontrol.data.mikrotikresponse.GetMangleResponseItem
+import com.example.clientaccesscontrol.data.mikrotikresponse.GetQueueTreeResponseItem
 import com.example.clientaccesscontrol.data.result.Results
 import kotlinx.coroutines.launch
 
 class EditRouterVM(private val repository: Repository) : ViewModel() {
+
+    //Update Queue Tree Comment
+    private val _updateQueueTreeComment = MediatorLiveData<Results<Unit>>()
+    val updateQueueTreeComment: MutableLiveData<Results<Unit>> = _updateQueueTreeComment
+
+    fun updateQueueTreeComment(
+        id: String,
+        comment: String
+    ) {
+        viewModelScope.launch {
+            _updateQueueTreeComment.addSource(repository.updateQueueTreeComment(id, comment)) { updateQueueTreeCommentResult ->
+                _updateQueueTreeComment.value = updateQueueTreeCommentResult
+            }
+        }
+    }
+
+    //Update Mangle Comment
+    private val _updateMangleComment = MediatorLiveData<Results<Unit>>()
+    val updateMangleComment: MutableLiveData<Results<Unit>> = _updateMangleComment
+
+    fun updateMangleComment(
+        id: String,
+        comment: String
+    ) {
+        viewModelScope.launch {
+            _updateMangleComment.addSource(repository.updateMangleComment(id, comment)) { updateMangleCommentResult ->
+                _updateMangleComment.value = updateMangleCommentResult
+            }
+        }
+    }
+
+    //Update Filter Rules Comment
+    private val _updateFilterRulesComment = MediatorLiveData<Results<Unit>>()
+    val updateFilterRulesComment: MutableLiveData<Results<Unit>> = _updateFilterRulesComment
+
+    fun updateFilterRulesComment(
+        id: String,
+        comment: String
+    ) {
+        viewModelScope.launch {
+            _updateFilterRulesComment.addSource(repository.updateFilterRulesComment(id, comment)) { updateFilterRulesCommentResult ->
+                _updateFilterRulesComment.value = updateFilterRulesCommentResult
+            }
+        }
+    }
+
+    //Get Queue Tree
+    private val _getQueueTree = MediatorLiveData<Results<List<GetQueueTreeResponseItem>>>()
+    val getQueueTree: LiveData<Results<List<GetQueueTreeResponseItem>>> = _getQueueTree
+
+    fun getQueueTree() {
+        viewModelScope.launch {
+            _getQueueTree.addSource(repository.getQueueTree()) { getQueueTreeResult ->
+                _getQueueTree.value = getQueueTreeResult
+            }
+        }
+    }
+
+    //Get Filter Rules
+    private val _getFilterRules = MediatorLiveData<Results<List<GetFilterRulesResponseItem>>>()
+    val getFilterRules: LiveData<Results<List<GetFilterRulesResponseItem>>> = _getFilterRules
+
+    fun getFilterRules() {
+        viewModelScope.launch {
+            _getFilterRules.addSource(repository.getFilterRules()) { getFilterRulesResult ->
+                _getFilterRules.value = getFilterRulesResult
+            }
+        }
+    }
+
+    //Get Mangle
+    private val _getMangle = MediatorLiveData<Results<List<GetMangleResponseItem>>>()
+    val getMangle: LiveData<Results<List<GetMangleResponseItem>>> = _getMangle
+
+    fun getMangle() {
+        viewModelScope.launch {
+            _getMangle.addSource(repository.getMangle()) { getMangleResult ->
+                _getMangle.value = getMangleResult
+            }
+        }
+    }
 
     //Patch Client
     private val _updateClient = MediatorLiveData<Results<UpdateClientDetailResponse>>()

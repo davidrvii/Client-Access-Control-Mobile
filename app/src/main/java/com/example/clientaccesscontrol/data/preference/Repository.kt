@@ -16,7 +16,6 @@ import com.example.clientaccesscontrol.data.cacresponse.DeleteModeResponse
 import com.example.clientaccesscontrol.data.cacresponse.DeletePresharedKeyResponse
 import com.example.clientaccesscontrol.data.cacresponse.DeleteRadioResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetAccessResponse
-import com.example.clientaccesscontrol.data.cacresponse.GetAllClientResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetBTSResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetChannelWidthResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetClientDetailResponse
@@ -24,6 +23,7 @@ import com.example.clientaccesscontrol.data.cacresponse.GetFilteredClientRespons
 import com.example.clientaccesscontrol.data.cacresponse.GetModeResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetPresharedKeyResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetRadioResponse
+import com.example.clientaccesscontrol.data.cacresponse.GetSearchedClientResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetSpeedResponse
 import com.example.clientaccesscontrol.data.cacresponse.RegisterResponse
 import com.example.clientaccesscontrol.data.cacresponse.UpdateClientDetailResponse
@@ -134,20 +134,6 @@ class Repository private constructor(
         return apiServiceCAC.updateClient("Bearer $token", id, name, phone, address)
     }
 
-    suspend fun getAllClient(
-        token: String,
-    ): LiveData<Results<GetAllClientResponse>> = liveData {
-        emit(Results.Loading)
-        try {
-            val response = apiServiceCAC.getAllClient("Bearer $token")
-            Log.d("Repository", "Get All Client Response: $response")
-            emit(Results.Success(response))
-        } catch (e: Exception) {
-            Log.e("Repository", "Error Get All Client: ${e.localizedMessage}", e)
-            emit(Results.Error(e.message ?: "Unknown error occurred"))
-        }
-    }
-
     suspend fun getFilteredClient(
         token: String,
         btsId: Int,
@@ -163,6 +149,21 @@ class Repository private constructor(
             emit(Results.Success(response))
         } catch (e: Exception) {
             Log.e("Repository", "Error Get Client Detail: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun getSearchedClient(
+        token: String,
+        query: String,
+    ): LiveData<Results<GetSearchedClientResponse>> = liveData {
+        emit(Results.Loading)
+        try {
+            val response = apiServiceCAC.getSearchedClient("Bearer $token", query)
+            Log.d("Repository", "Get Searched Client Response: $response")
+            emit(Results.Success(response))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Get Searched Client: ${e.localizedMessage}", e)
             emit(Results.Error(e.message ?: "Unknown error occurred"))
         }
     }
@@ -582,6 +583,25 @@ class Repository private constructor(
         }
     }
 
+    suspend fun updateQueueTreeComment(
+        numbers: String,
+        comment: String
+    ): LiveData<Results<Unit>> = liveData {
+        emit(Results.Loading)
+        try {
+            val updateQueueTreeBody = mapOf(
+                "numbers" to numbers,
+                "comment" to comment
+            )
+            val response = apiServiceMikrotik.updateQueueTreeComment(updateQueueTreeBody)
+            Log.d("Repository", "Update Queue Tree Comment Response: $response")
+            emit(Results.Success(response.body() ?: Unit))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Update Queue Tree Comment: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
     suspend fun getQueueTree(): LiveData<Results<List<GetQueueTreeResponseItem>>> = liveData {
         emit(Results.Loading)
         Log.d("Repository", "Getting Queue Tree Loading")
@@ -690,6 +710,25 @@ class Repository private constructor(
         }
     }
 
+    suspend fun updateMangleComment(
+        numbers: String,
+        comment: String
+    ): LiveData<Results<Unit>> = liveData {
+        emit(Results.Loading)
+        try {
+            val updateMangleCommentBody = mapOf(
+                "numbers" to numbers,
+                "comment" to comment
+            )
+            val response = apiServiceMikrotik.updatedMangleComment(updateMangleCommentBody)
+            Log.d("Repository", "Update Mangle Comment Response: $response")
+            emit(Results.Success(response.body() ?: Unit))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Update Mangle Comment: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
     suspend fun getMangle(): LiveData<Results<List<GetMangleResponseItem>>> = liveData {
         emit(Results.Loading)
         Log.d("Repository", "Getting Queue Tree Loading")
@@ -752,11 +791,30 @@ class Repository private constructor(
                 "numbers" to id,
                 "disabled" to disabled
             )
-            val response = apiServiceMikrotik.updatedFilterRules(updateFilterRulesBody)
+            val response = apiServiceMikrotik.updateFilterRules(updateFilterRulesBody)
             Log.d("Repository", "Updated Filter Rules Response: $response")
             emit(Results.Success(response.body() ?: Unit))
         } catch (e: Exception) {
             Log.e("Repository", "Error Update Filter Rules: ${e.localizedMessage}", e)
+            emit(Results.Error(e.message ?: "Unknown error occurred"))
+        }
+    }
+
+    suspend fun updateFilterRulesComment(
+        numbers: String,
+        comment: String
+    ): LiveData<Results<Unit>> = liveData {
+        emit(Results.Loading)
+        try {
+            val updateFilterRulesBody = mapOf(
+                "numbers" to numbers,
+                "comment" to comment
+            )
+            val response = apiServiceMikrotik.updateFilterRulesComment(updateFilterRulesBody)
+            Log.d("Repository", "Updated Filter Rules Comment Response: $response")
+            emit(Results.Success(response.body() ?: Unit))
+        } catch (e: Exception) {
+            Log.e("Repository", "Error Update Filter Rules Comment: ${e.localizedMessage}", e)
             emit(Results.Error(e.message ?: "Unknown error occurred"))
         }
     }

@@ -37,6 +37,8 @@ class EditRouterActivity : AppCompatActivity() {
     private var radio: String = ""
     private var channelWidth: String = ""
     private var preSharedKey: String = ""
+    private var comment: String = ""
+
     private val editRouterViewModel by viewModels<EditRouterVM> {
         FactoryViewModel.getInstance(this)
     }
@@ -87,7 +89,7 @@ class EditRouterActivity : AppCompatActivity() {
                         radio = clientDetail.type.toString()
                         channelWidth = clientDetail.channelWidth.toString()
                         preSharedKey = clientDetail.presharedKey.toString()
-
+                        comment = clientDetail.comment.toString()
 
                         setupActionSpinner()
                     } else {
@@ -331,91 +333,243 @@ class EditRouterActivity : AppCompatActivity() {
         cardView.layoutParams = layoutParams
 
         bindingDialog.btYesSave.setOnClickListener {
-            val name = binding.etClientName.text.toString()
-            val phone = binding.etClientPhone.text.toString()
-            val address = binding.etClientAddress.text.toString()
-            val bts = btsSelectedId
-            val mode = modeSelectedId
-            val ssid = binding.etSSID.text.toString()
-            val ipAddress = binding.etIPAddress.text.toString()
-            val radio = radioSelectedId
-            val radioName = binding.etRadioName.text.toString()
-            val ipRadio = binding.etIPRadio.text.toString()
-            val frequency = binding.etFrequency.text.toString()
-            val channelWidth = channelWidthSelectedId
-            val radioSignal = binding.etSignal.text.toString()
-            val preSharedKey = preSharedKeySelectedId
-            val apLocation = binding.etAPLocation.text.toString()
-            val wlanMacAddress = binding.etWLANMacAddress.text.toString()
-            val password = binding.etPassword.text.toString()
-            val comment = binding.etComment.text.toString()
+            val newComment = binding.etComment.text.toString()
 
-            editRouterViewModel.updateClient(clientId, name, phone, address)
-            editRouterViewModel.updateNetwork(
-                clientId,
-                radioName,
-                frequency,
-                ipRadio,
-                ipAddress,
-                wlanMacAddress,
-                ssid,
-                radioSignal,
-                apLocation,
-                radio,
-                mode,
-                channelWidth,
-                preSharedKey,
-                comment,
-                password,
-                bts
-            )
-
-            editRouterViewModel.updateClient.removeObservers(this)
-            editRouterViewModel.updateClient.observe(this) { updateClientResult ->
-                when (updateClientResult) {
-                    is Results.Success -> {
-                        showLoading(false)
-                        UPDATE_DETAIL_CLIENT = "TRUE"
-                        finish()
-                        dialog.dismiss()
-                    }
-                    is Results.Error -> {
-                        showLoading(false)
-                        Toast.makeText(this, "Update Failed", Toast.LENGTH_SHORT).show()
-                        Log.d("Edit Router", "Update Failed: ${updateClientResult.error}")
-                    }
-                    is Results.Loading -> {
-                        showLoading(true)
-                    }
-                }
+            if (comment != newComment) {
+                updateMikrotikComment(newComment)
+            } else {
+                updateClientNetwork()
             }
 
-            editRouterViewModel.updateNetwork.removeObservers(this)
-            editRouterViewModel.updateNetwork.observe(this) { updateNetworkResult ->
-                when (updateNetworkResult) {
-                    is Results.Success -> {
-                        showLoading(false)
-                        UPDATE_DETAIL_CLIENT = "TRUE"
-                        finish()
-                        dialog.dismiss()
-                    }
-
-                    is Results.Error -> {
-                        showLoading(false)
-                        Toast.makeText(this, "Update Failed", Toast.LENGTH_SHORT).show()
-                        Log.d("Edit Router", "Update Failed: ${updateNetworkResult.error}")
-                    }
-
-                    is Results.Loading -> {
-                        showLoading(true)
-                    }
-                }
-            }
+            dialog.dismiss()
         }
+
         bindingDialog.btCancelSave.setOnClickListener {
             dialog.dismiss()
         }
         dialog.show()
+    }
+
+    private fun updateMikrotikComment(newComment: String) {
+        editRouterViewModel.getQueueTree()
+        editRouterViewModel.getQueueTree.removeObservers(this)
+        editRouterViewModel.getQueueTree.observe(this) { getQueueTreeResult ->
+            when (getQueueTreeResult) {
+                is Results.Success -> {
+                    val queueTrees = getQueueTreeResult.data.filter { it.comment?.trim() == comment.trim() }
+                    val queueTreesId = queueTrees.map { it.id }
+
+                    if (queueTreesId.isNotEmpty()) {
+                        queueTreesId.forEach { queueTreeId ->
+                            val id = queueTreeId?.replace("[", "")?.replace("]", "").toString()
+                            editRouterViewModel.updateQueueTreeComment(id, newComment)
+                        }
+                        editRouterViewModel.getMangle()
+                    } else {
+                        editRouterViewModel.getMangle()
+                    }
+                    showLoading(false)
+                }
+                is Results.Error -> {
+                    showLoading(false)
+                    Log.e("Edit Router", "Error Getting Queue Tree: ${getQueueTreeResult.error}")
+                    Toast.makeText(this, "Error Getting Queue Tree: ${getQueueTreeResult.error}", Toast.LENGTH_SHORT).show()
+                }
+                is Results.Loading -> {
+                    showLoading(true)
+                }
+            }
+        }
+
+        editRouterViewModel.updateQueueTreeComment.removeObservers(this)
+        editRouterViewModel.updateQueueTreeComment.observe(this) { updateQueueTreeCommentResult ->
+            when (updateQueueTreeCommentResult) {
+                is Results.Success -> {
+                    showLoading(false)
+                }
+                is Results.Error -> {
+                    showLoading(false)
+                    Log.e("Edit Router", "Error Updating Queue Tree Comment: ${updateQueueTreeCommentResult.error}")
+                    Toast.makeText(this, "Error Updating Queue Tree Comment: ${updateQueueTreeCommentResult.error}", Toast.LENGTH_SHORT).show()
+                }
+                is Results.Loading -> {
+                    showLoading(true)
+                }
+            }
+        }
+
+        editRouterViewModel.getMangle()
+        editRouterViewModel.getMangle.removeObservers(this)
+        editRouterViewModel.getMangle.observe(this) { getMangleResult ->
+            when (getMangleResult) {
+                is Results.Success -> {
+                    showLoading(false)
+                    val mangles = getMangleResult.data.filter { it.comment?.trim() == comment.trim() }
+                    val manglesId = mangles.map { it.id }
+
+                    if (manglesId.isNotEmpty()) {
+                        manglesId.forEach { mangleId ->
+                            val id = mangleId?.replace("[", "")?.replace("]", "").toString()
+                            editRouterViewModel.updateMangleComment(id, newComment)
+                        }
+                        editRouterViewModel.getFilterRules()
+                    } else {
+                        editRouterViewModel.getFilterRules()
+                    }
+                }
+                is Results.Error -> {
+                    Log.e("Edit Router", "Error Getting Mangle: ${getMangleResult.error}")
+                    showLoading(false)
+                }
+                is Results.Loading -> {
+                    showLoading(true)
+                }
+            }
+        }
+
+        editRouterViewModel.updateMangleComment.removeObservers(this)
+        editRouterViewModel.updateMangleComment.observe(this) { updateMangleCommentResult ->
+            when (updateMangleCommentResult) {
+                is Results.Success -> {
+                    showLoading(false)
+                }
+                is Results.Error -> {
+                    showLoading(false)
+                    Log.e("Edit Router", "Error Updating Mangle Comment: ${updateMangleCommentResult.error}")
+                    Toast.makeText(this, "Error Updating Mangle Comment: ${updateMangleCommentResult.error}", Toast.LENGTH_SHORT).show()
+                }
+                is Results.Loading -> {
+                    showLoading(true)
+                }
+            }
+        }
+
+        editRouterViewModel.getFilterRules()
+        editRouterViewModel.getFilterRules.removeObservers(this)
+        editRouterViewModel.getFilterRules.observe(this) { getFilterRulesResult ->
+            when (getFilterRulesResult) {
+                is Results.Success -> {
+                    showLoading(false)
+                    val filterRules = getFilterRulesResult.data.filter { it.comment?.trim() == comment.trim() }
+                    val filterRulesId = filterRules.map { it.id }
+
+                    if (filterRulesId.isNotEmpty()) {
+                        filterRulesId.forEach { filterRuleId ->
+                            val id = filterRuleId?.replace("[", "")?.replace("]", "").toString()
+                            editRouterViewModel.updateFilterRulesComment(id, newComment)
+                        }
+                    } else {
+                        updateClientNetwork()
+                    }
+                }
+                is Results.Error -> {
+                    Log.e("Edit Router", "Error Getting Filter Rules: ${getFilterRulesResult.error}")
+                    showLoading(false)
+                }
+                is Results.Loading -> {
+                    showLoading(true)
+                }
+            }
+        }
+
+        editRouterViewModel.updateFilterRulesComment.removeObservers(this)
+        editRouterViewModel.updateFilterRulesComment.observe(this) { updateFilterRulesCommentResult ->
+            when (updateFilterRulesCommentResult) {
+                is Results.Success -> {
+                    showLoading(false)
+                    updateClientNetwork()
+                }
+                is Results.Error -> {
+                    showLoading(false)
+                    Log.e("Edit Router", "Error Updating Filter Rules Comment: ${updateFilterRulesCommentResult.error}")
+                    Toast.makeText(this, "Error Updating Filter Rules Comment: ${updateFilterRulesCommentResult.error}", Toast.LENGTH_SHORT).show()
+                }
+                is Results.Loading -> {
+                    showLoading(true)
+                }
+            }
+        }
+    }
+
+    private fun updateClientNetwork() {
+        val name = binding.etClientName.text.toString()
+        val phone = binding.etClientPhone.text.toString()
+        val address = binding.etClientAddress.text.toString()
+        val bts = btsSelectedId
+        val mode = modeSelectedId
+        val ssid = binding.etSSID.text.toString()
+        val ipAddress = binding.etIPAddress.text.toString()
+        val radio = radioSelectedId
+        val radioName = binding.etRadioName.text.toString()
+        val ipRadio = binding.etIPRadio.text.toString()
+        val frequency = binding.etFrequency.text.toString()
+        val channelWidth = channelWidthSelectedId
+        val radioSignal = binding.etSignal.text.toString()
+        val preSharedKey = preSharedKeySelectedId
+        val apLocation = binding.etAPLocation.text.toString()
+        val wlanMacAddress = binding.etWLANMacAddress.text.toString()
+        val password = binding.etPassword.text.toString()
+        val newComment = binding.etComment.text.toString()
+
+        editRouterViewModel.updateClient(clientId, name, phone, address)
+        editRouterViewModel.updateNetwork(
+            clientId,
+            radioName,
+            frequency,
+            ipRadio,
+            ipAddress,
+            wlanMacAddress,
+            ssid,
+            radioSignal,
+            apLocation,
+            radio,
+            mode,
+            channelWidth,
+            preSharedKey,
+            newComment,
+            password,
+            bts
+        )
+
+        editRouterViewModel.updateClient.removeObservers(this)
+        editRouterViewModel.updateClient.observe(this) { updateClientResult ->
+            when (updateClientResult) {
+                is Results.Success -> {
+                    showLoading(false)
+                    UPDATE_DETAIL_CLIENT = "TRUE"
+                    finish()
+                }
+                is Results.Error -> {
+                    showLoading(false)
+                    Toast.makeText(this, "Update Failed", Toast.LENGTH_SHORT).show()
+                    Log.d("Edit Router", "Update Failed: ${updateClientResult.error}")
+                }
+                is Results.Loading -> {
+                    showLoading(true)
+                }
+            }
+        }
+
+        editRouterViewModel.updateNetwork.removeObservers(this)
+        editRouterViewModel.updateNetwork.observe(this) { updateNetworkResult ->
+            when (updateNetworkResult) {
+                is Results.Success -> {
+                    showLoading(false)
+                    UPDATE_DETAIL_CLIENT = "TRUE"
+                    finish()
+                }
+
+                is Results.Error -> {
+                    showLoading(false)
+                    Toast.makeText(this, "Update Failed", Toast.LENGTH_SHORT).show()
+                    Log.d("Edit Router", "Update Failed: ${updateNetworkResult.error}")
+                }
+
+                is Results.Loading -> {
+                    showLoading(true)
+                }
+            }
+        }
     }
 
     private fun showLoading(isLoading: Boolean) {

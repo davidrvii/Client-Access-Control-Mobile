@@ -7,19 +7,19 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.clientaccesscontrol.data.cacresponse.ClientsItem
+import com.example.clientaccesscontrol.data.cacresponse.SearchedClientItem
 import com.example.clientaccesscontrol.databinding.ClientListBinding
 import com.example.clientaccesscontrol.view.ui.clientdetail.ClientDetailActivity
 
 class ClientAdapter(
-    private var listClient: List<ClientsItem>,
+    private var listClient: List<SearchedClientItem>,
 ) :
     RecyclerView.Adapter<ClientAdapter.ViewHolder>() {
 
     class ViewHolder(private val binding: ClientListBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: ClientsItem) {
+        fun bind(item: SearchedClientItem) {
             binding.tvClientName.text = item.name
             binding.tvClientIPAddress.text = item.ipAddress
             binding.ivCLientAccessIndicator.setColorFilter(
@@ -53,7 +53,7 @@ class ClientAdapter(
     override fun getItemCount(): Int = listClient.size
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateData(newList: List<ClientsItem>) {
+    fun updateData(newList: List<SearchedClientItem>) {
         Log.d("ClientAdapter", "Updating data: ${newList.size} items")
         listClient = newList
         notifyDataSetChanged()

@@ -40,6 +40,12 @@ interface ServiceApiMikrotik {
     ): Response<Unit>
 
     @Headers("Content-Type: application/json")
+    @POST("queue/tree/set")
+    suspend fun updateQueueTreeComment(
+        @Body requestBody: Map<String, String>
+    ): Response<Unit>
+
+    @Headers("Content-Type: application/json")
     @DELETE("queue/tree/{id}")
     suspend fun deleteQueueTree(
         @Path("id") id: String
@@ -67,6 +73,12 @@ interface ServiceApiMikrotik {
     ): CreateMangleLANResponse
 
     @Headers("Content-Type: application/json")
+    @POST("ip/firewall/mangle/set")
+    suspend fun updatedMangleComment(
+        @Body body: Map<String, String>
+    ): Response<Unit>
+
+    @Headers("Content-Type: application/json")
     @DELETE("ip/firewall/mangle/{id}")
     suspend fun deleteMangle(
         @Path("id") id: String
@@ -83,7 +95,13 @@ interface ServiceApiMikrotik {
 
     @Headers("Content-Type: application/json")
     @POST("ip/firewall/filter/set")
-    suspend fun updatedFilterRules(
+    suspend fun updateFilterRules(
+        @Body body: Map<String, String>
+    ): Response<Unit>
+
+    @Headers("Content-Type: application/json")
+    @POST("ip/firewall/filter/set")
+    suspend fun updateFilterRulesComment(
         @Body body: Map<String, String>
     ): Response<Unit>
 

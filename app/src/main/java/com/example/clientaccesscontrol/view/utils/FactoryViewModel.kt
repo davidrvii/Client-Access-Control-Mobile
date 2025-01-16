@@ -8,7 +8,6 @@ import com.example.clientaccesscontrol.injection.Data
 import com.example.clientaccesscontrol.view.ui.clientdetail.ClientDetailVM
 import com.example.clientaccesscontrol.view.ui.connect.ConnectVM
 import com.example.clientaccesscontrol.view.ui.editrouter.EditRouterVM
-import com.example.clientaccesscontrol.view.ui.filter.FilterBottomSheetVM
 import com.example.clientaccesscontrol.view.ui.home.MainVM
 import com.example.clientaccesscontrol.view.ui.networkfilter.NetworkFilterVM
 import com.example.clientaccesscontrol.view.ui.networklist.NetworkListVM
@@ -44,11 +43,6 @@ class FactoryViewModel(
 
             modelClass.isAssignableFrom(NewClientRouterVM::class.java) -> {
                 NewClientRouterVM(repository) as T
-            }
-
-            modelClass.isAssignableFrom(FilterBottomSheetVM::class.java) -> {
-                FilterBottomSheetVM(repository) as T
-
             }
 
             modelClass.isAssignableFrom(NetworkListVM::class.java) -> {
