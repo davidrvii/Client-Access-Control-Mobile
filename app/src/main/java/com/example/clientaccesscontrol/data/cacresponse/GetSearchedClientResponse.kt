@@ -4,8 +4,8 @@ import com.google.gson.annotations.SerializedName
 
 data class GetSearchedClientResponse(
 
-	@field:SerializedName("searchedClient")
-	val searchedClient: List<SearchedClientItem?>? = null,
+	@field:SerializedName("clients")
+	val clients: List<SearchedClientItem?>? = null,
 
 	@field:SerializedName("message")
 	val message: String? = null,

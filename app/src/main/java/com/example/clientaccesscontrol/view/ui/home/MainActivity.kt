@@ -84,11 +84,16 @@ class MainActivity : AppCompatActivity() {
         mainViewModel.getSearchedClient.observe(this) { getSearchedClientResult ->
             when (getSearchedClientResult) {
                 is Results.Success -> {
-                    clients = getSearchedClientResult.data.searchedClient
+                    clients = getSearchedClientResult.data.clients
                     showLoading(false)
-                    Log.d("MainActivity", "Received Client Data: ${getSearchedClientResult.data.searchedClient}")
-                    clientAdapter.updateData(getSearchedClientResult.data.searchedClient?.filterNotNull() ?: emptyList())
-                    mainViewModel.getQueueTree()
+                    Log.d("MainActivity", "Received Client Data: ${getSearchedClientResult.data.clients}")
+                    if (clients != null) {
+                        clientAdapter.updateData(getSearchedClientResult.data.clients?.filterNotNull() ?: emptyList())
+                        mainViewModel.getQueueTree()
+                    } else {
+                        Toast.makeText(this, "No Client Found", Toast.LENGTH_SHORT).show()
+                        Log.e("MainActivity", "Client Null")
+                    }
                 }
                 is Results.Error -> {
                     showLoading(false)
@@ -97,7 +102,7 @@ class MainActivity : AppCompatActivity() {
                     val intent = Intent(this, ConnectActivity::class.java)
                     startActivity(intent)
                     finish()
-                    Toast.makeText(this, "Gagal Terhubung Ke Router", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Failed to Connect to Router", Toast.LENGTH_SHORT).show()
                 }
                 is Results.Loading -> {
                     showLoading(true)
@@ -122,7 +127,7 @@ class MainActivity : AppCompatActivity() {
                     val intent = Intent(this, ConnectActivity::class.java)
                     startActivity(intent)
                     finish()
-                    Toast.makeText(this, "Gagal Terhubung Ke Router", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Failed to Connect to Router", Toast.LENGTH_SHORT).show()
                 }
                 is Results.Loading -> {
                     showLoading(true)
@@ -182,7 +187,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            //Client Access Change to Actived/Non-Actived If There is a Filter Rules On/Off
+            //Client Access Change to Activated/Non-Activated If There is a Filter Rules On/Off
             val commentInFilterRulesAndClient = filterRulesComment.intersect(clientComments)
             commentInFilterRulesAndClient.forEach { comment ->
                 val client = clients!!.find { it?.comment == comment }
@@ -240,10 +245,10 @@ class MainActivity : AppCompatActivity() {
         mainViewModel.getSearchedClient.observe(this) { clientResult ->
             when (clientResult) {
                 is Results.Success -> {
-                    clients = clientResult.data.searchedClient
-                    // Update data pada adapter
+                    clients = clientResult.data.clients
+                    // Update data on adapter
                     clientAdapter.updateData(clients?.filterNotNull() ?: emptyList())
-                    Log.d("MainActivity", "Client updated UI: ${clientResult.data.searchedClient}")
+                    Log.d("MainActivity", "Client updated UI: ${clientResult.data.clients}")
                 }
                 is Results.Error -> {
                     Log.e("MainActivity", "Error Getting Clients UI: ${clientResult.error}")
@@ -410,11 +415,7 @@ class MainActivity : AppCompatActivity() {
                 .setOnEditorActionListener { textView, _, _ ->
                     searchBar.setText(searchView.text)
                     searchView.hide()
-                    if (textView.text.toString().isNotEmpty()) {
-                        mainViewModel.getSearchedClient(textView.text.toString())
-                    } else {
-                        Log.d("MainActivity", "Search Bar is Empty")
-                    }
+                    mainViewModel.getSearchedClient(textView.text.trim().toString())
                     false
                 }
         }
@@ -423,7 +424,7 @@ class MainActivity : AppCompatActivity() {
         mainViewModel.getSearchedClient.observe(this) { getSearchedClientResult ->
             when (getSearchedClientResult) {
                 is Results.Success -> {
-                    clientAdapter.updateData(getSearchedClientResult.data.searchedClient?.filterNotNull() ?: emptyList())
+                    clientAdapter.updateData(getSearchedClientResult.data.clients?.filterNotNull() ?: emptyList())
                 }
                 is Results.Error -> {
                     Log.e("MainActivity", "Error Getting Searched Client: ${getSearchedClientResult.error}")
