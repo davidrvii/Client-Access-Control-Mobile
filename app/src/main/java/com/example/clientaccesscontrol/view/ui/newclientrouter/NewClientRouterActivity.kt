@@ -502,44 +502,51 @@ class NewClientRouterActivity : AppCompatActivity() {
             1 -> {
                 limitAt = "0M"
                 maxLimit = "0M"
-                burstTime = "0"
-                burstThreshold = "0M"
                 burstLimit = "0M"
+                burstThreshold = "0M"
+                burstTime = "16"
             }
             2 -> {
-                limitAt = "5M"
-                maxLimit = "10M"
-                burstTime = "10"
-                burstThreshold = "7M"
-                burstLimit = "15M"
+                limitAt = "4M"
+                maxLimit = "6M"
+                burstLimit = "12M"
+                burstThreshold = "10M"
+                burstTime = "16"
             }
             3 -> {
-                limitAt = "10M"
-                maxLimit = "20M"
-                burstTime = "10"
-                burstThreshold = "15M"
-                burstLimit = "30M"
+                limitAt = "6M"
+                maxLimit = "8M"
+                burstLimit = "16M"
+                burstThreshold = "12M"
+                burstTime = "16"
             }
             4 -> {
-                limitAt = "15M"
-                maxLimit = "30M"
-                burstTime = "10"
-                burstThreshold = "22M"
-                burstLimit = "40M"
+                limitAt = "8M"
+                maxLimit = "12M"
+                burstLimit = "22M"
+                burstThreshold = "15M"
+                burstTime = "16"
             }
             5 -> {
-                limitAt = "25M"
-                maxLimit = "50M"
-                burstTime = "10"
-                burstThreshold = "37M"
-                burstLimit = "65M"
+                limitAt = "10M"
+                maxLimit = "15M"
+                burstLimit = "32M"
+                burstThreshold = "20M"
+                burstTime = "16"
             }
             6 -> {
-                limitAt = "50M"
-                maxLimit = "100M"
-                burstTime = "10"
-                burstThreshold = "75M"
-                burstLimit = "120M"
+                limitAt = "25M"
+                maxLimit = "35M"
+                burstLimit = "55M"
+                burstThreshold = "45M"
+                burstTime = "16"
+            }
+            7 -> {
+                limitAt = "45M"
+                maxLimit = "65M"
+                burstLimit = "105M"
+                burstThreshold = "85M"
+                burstTime = "16"
             }
         }
     }
