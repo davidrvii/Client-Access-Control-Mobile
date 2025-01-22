@@ -28,7 +28,7 @@ object ConfigApi {
             .addInterceptor(loggingInterceptor)
             .build()
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://clientaccesscontrol.up.railway.app/")
+            .baseUrl("http://192.168.203.164:3000/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .build()
