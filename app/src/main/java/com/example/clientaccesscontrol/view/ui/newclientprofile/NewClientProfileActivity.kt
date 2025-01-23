@@ -67,8 +67,8 @@ class NewClientProfileActivity : AppCompatActivity() {
                     ) {
                         accessId = position+1
                         if (accessId == 3) {
-                            Toast.makeText(this@NewClientProfileActivity, "Can't choose the selection", Toast.LENGTH_SHORT).show()
-                            binding.spInternetAccess.setSelection(2)
+                            Toast.makeText(this@NewClientProfileActivity, "Can't Choose The Selection", Toast.LENGTH_SHORT).show()
+                            binding.spInternetAccess.setSelection(1)
                             accessId = 2
                         }
                     }

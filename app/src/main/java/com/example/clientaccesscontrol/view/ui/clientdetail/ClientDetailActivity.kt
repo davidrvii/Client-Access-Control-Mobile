@@ -152,9 +152,12 @@ class ClientDetailActivity : AppCompatActivity() {
                                 id: Long
                             ) {
                                 accessSelectedId = position + 1
-                                if (accessSelectedId != previousAccessSelectedId) {
+                                if (accessSelectedId != previousAccessSelectedId && accessSelectedId != 3) {
                                     updateAccess()
                                     previousAccessSelectedId = accessSelectedId
+                                } else if (accessSelectedId == 3){
+                                    Toast.makeText(this@ClientDetailActivity, "Can't Choose The Selection", Toast.LENGTH_SHORT).show()
+                                    binding.spInternetAccess.setSelection(previousAccessSelectedId - 1)
                                 } else {
                                     Log.d("ClientDetailActivity", "Access Selected ID Doesn't Change")
                                 }
