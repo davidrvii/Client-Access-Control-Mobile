@@ -54,7 +54,7 @@ interface ServiceApiCAC {
     ): LoginResponse
 
     @FormUrlEncoded
-    @POST("client/add")
+    @POST("client/new")
     suspend fun createNewClient(
         @Header("Authorization") token: String,
         @Field("name") name: String,

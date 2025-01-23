@@ -277,6 +277,7 @@ class NewClientRouterActivity : AppCompatActivity() {
                     showCustomDialogLoading(false)
                     Toast.makeText(this, "Create Mangle Error: ${newMangleUploadResult.error}", Toast.LENGTH_SHORT).show()
                     Log.d("NewClientRouterActivity", "Create Mangle Error: ${newMangleUploadResult.error}")
+                    intentToMainActivity()
                 }
                 is Results.Loading -> {
                     showCustomDialogLoading(true)
@@ -297,6 +298,7 @@ class NewClientRouterActivity : AppCompatActivity() {
                     showCustomDialogLoading(false)
                     Toast.makeText(this, "Create Mangle Error: ${newMangleDownloadResult.error}", Toast.LENGTH_SHORT).show()
                     Log.d("NewClientRouterActivity", "Create Mangle Error: ${newMangleDownloadResult.error}")
+                    intentToMainActivity()
                 }
                 is Results.Loading -> {
                     showCustomDialogLoading(true)
@@ -316,6 +318,7 @@ class NewClientRouterActivity : AppCompatActivity() {
                     showCustomDialogLoading(false)
                     Toast.makeText(this, "Create Mangle Error: ${newMangleLANResult.error}", Toast.LENGTH_SHORT).show()
                     Log.d("NewClientRouterActivity", "Create Mangle Error: ${newMangleLANResult.error}")
+                    intentToMainActivity()
                 }
                 is Results.Loading -> {
                     showCustomDialogLoading(true)
@@ -353,6 +356,7 @@ class NewClientRouterActivity : AppCompatActivity() {
                     showCustomDialogLoading(false)
                     Toast.makeText(this, "Create Queue Tree Error: ${newQueueTreeResult.error}", Toast.LENGTH_SHORT).show()
                     Log.d("NewClientRouterActivity", "Create Queue Tree Error: ${newQueueTreeResult.error}")
+                    intentToMainActivity()
                 }
                 is Results.Loading -> {
                     showCustomDialogLoading(true)
@@ -372,6 +376,7 @@ class NewClientRouterActivity : AppCompatActivity() {
                     showCustomDialogLoading(false)
                     Toast.makeText(this, "Create Queue Tree Error: ${newQueueTreeResult.error}", Toast.LENGTH_SHORT).show()
                     Log.d("NewClientRouterActivity", "Create Queue Tree Error: ${newQueueTreeResult.error}")
+                    intentToMainActivity()
                 }
                 is Results.Loading -> {
                     showCustomDialogLoading(true)
@@ -402,6 +407,7 @@ class NewClientRouterActivity : AppCompatActivity() {
                     showCustomDialogLoading(false)
                     Toast.makeText(this, "Create Filter Rules Error: ${createFilterRulesResult.error}", Toast.LENGTH_SHORT).show()
                     Log.d("NewClientRouterActivity", "Create Filter Rules Error: ${createFilterRulesResult.error}")
+                    intentToMainActivity()
                 }
                 is Results.Loading -> {
                     showCustomDialogLoading(true)
@@ -466,6 +472,7 @@ class NewClientRouterActivity : AppCompatActivity() {
                     showCustomDialogLoading(false)
                     Toast.makeText(this, "Create New Client Error: ${result.error}", Toast.LENGTH_SHORT).show()
                     Log.d("NewClientRouterActivity", "Create New Client Error: ${result.error}")
+                    intentToMainActivity()
                 }
                 is Results.Loading -> {
                     showCustomDialogLoading(true)
@@ -479,15 +486,14 @@ class NewClientRouterActivity : AppCompatActivity() {
             when (result) {
                 is Results.Success -> {
                     showCustomDialogLoading(false)
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
-                    finish()
+                    intentToMainActivity()
                 }
 
                 is Results.Error -> {
                     showCustomDialogLoading(false)
                     Toast.makeText(this, "Update New Client Failed", Toast.LENGTH_SHORT).show()
                     Log.d("NewClientRouterActivity", "Update New Client Error: ${result.error}")
+                    intentToMainActivity()
                 }
 
                 is Results.Loading -> {
@@ -495,6 +501,12 @@ class NewClientRouterActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun intentToMainActivity() {
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
     private fun clientSpeed(speedId: Int) {

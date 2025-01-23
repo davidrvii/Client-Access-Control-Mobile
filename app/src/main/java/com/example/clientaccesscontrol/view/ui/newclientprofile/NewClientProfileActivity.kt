@@ -138,6 +138,7 @@ class NewClientProfileActivity : AppCompatActivity() {
                 putExtra(NewClientRouterActivity.NEW_QUEUE_TREE_DOWNLOAD, newQueueTreeDownload)
             }
             startActivity(intent)
+            finish()
         }
 
         binding.btBack.setOnClickListener {
