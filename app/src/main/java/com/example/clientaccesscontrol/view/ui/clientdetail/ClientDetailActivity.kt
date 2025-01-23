@@ -158,8 +158,6 @@ class ClientDetailActivity : AppCompatActivity() {
                                 } else if (accessSelectedId == 3){
                                     Toast.makeText(this@ClientDetailActivity, "Can't Choose The Selection", Toast.LENGTH_SHORT).show()
                                     binding.spInternetAccess.setSelection(previousAccessSelectedId - 1)
-                                } else {
-                                    Log.d("ClientDetailActivity", "Access Selected ID Doesn't Change")
                                 }
                             }
                             override fun onNothingSelected(p0: AdapterView<*>?) {
