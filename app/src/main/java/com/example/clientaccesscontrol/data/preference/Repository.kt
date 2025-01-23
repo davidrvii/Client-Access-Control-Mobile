@@ -25,6 +25,7 @@ import com.example.clientaccesscontrol.data.cacresponse.GetPresharedKeyResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetRadioResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetSearchedClientResponse
 import com.example.clientaccesscontrol.data.cacresponse.GetSpeedResponse
+import com.example.clientaccesscontrol.data.cacresponse.LoginResponse
 import com.example.clientaccesscontrol.data.cacresponse.RegisterResponse
 import com.example.clientaccesscontrol.data.cacresponse.UpdateClientDetailResponse
 import com.example.clientaccesscontrol.data.cacresponse.UpdateNetworkResponse
@@ -40,6 +41,8 @@ import com.example.clientaccesscontrol.data.result.Results
 import com.example.clientaccesscontrol.data.retrofit.ServiceApiCAC
 import com.example.clientaccesscontrol.data.retrofit.ServiceApiMikrotik
 import kotlinx.coroutines.flow.Flow
+import retrofit2.HttpException
+import java.io.IOException
 
 class Repository private constructor(
     private val userPreference: UserPreference,
@@ -63,20 +66,25 @@ class Repository private constructor(
         ipAddress: String,
         username: String,
         password: String,
-    ) {
-        val loginResponse = apiServiceCAC.login(ipAddress, username, password)
+    ): LoginResponse {
+        return try {
+            val loginResponse = apiServiceCAC.login(ipAddress, username, password)
+            loginResponse.loginResult.let {
+                userPreference.saveToken(it?.token)
 
-        loginResponse.loginResult?.token?.let {
-            userPreference.saveToken(it)
-            Log.d("Repository", "Saved Token in Session: $it")
-        }
-        loginResponse.loginResult?.ipAddress?.let {
-            userPreference.saveBaseUrl(it)
-            Log.d("Repository", "Saved Base URL in Session: $it")
-        }
-        loginResponse.loginResult?.let {
-            userPreference.saveMikrotikLogin(it.username.toString(), it.password.toString())
-            Log.d("Repository", "Saved Username & Password for Mikrotik Login : $username & $password")
+                Log.d("Repository", "Saved Token in Session: ${it?.token}")
+            }
+            Log.d("Repository", "Login Success for IP: $ipAddress")
+            loginResponse
+        } catch (e: HttpException) {
+            Log.e("Repository", "HTTP Exception: ${e.message()}")
+            throw Exception("Login failed due to server error: ${e.message()}")
+        } catch (e: IOException) {
+            Log.e("Repository", "Network Error: ${e.message}")
+            throw Exception("Network error, please check your connection.")
+        } catch (e: Exception) {
+            Log.e("Repository", "Unexpected Error: ${e.message}")
+            throw Exception("Unexpected error occurred: ${e.message}")
         }
     }
 

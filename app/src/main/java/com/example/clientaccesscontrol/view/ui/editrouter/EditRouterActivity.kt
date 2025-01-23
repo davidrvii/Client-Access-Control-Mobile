@@ -542,7 +542,7 @@ class EditRouterActivity : AppCompatActivity() {
                 is Results.Error -> {
                     showLoading(false)
                     Toast.makeText(this, "Update Failed", Toast.LENGTH_SHORT).show()
-                    Log.d("Edit Router", "Update Failed: ${updateClientResult.error}")
+                    Log.e("Edit Router", "Update Failed: ${updateClientResult.error}")
                 }
                 is Results.Loading -> {
                     showLoading(true)
@@ -562,7 +562,7 @@ class EditRouterActivity : AppCompatActivity() {
                 is Results.Error -> {
                     showLoading(false)
                     Toast.makeText(this, "Update Failed", Toast.LENGTH_SHORT).show()
-                    Log.d("Edit Router", "Update Failed: ${updateNetworkResult.error}")
+                    Log.e("Edit Router", "Update Failed: ${updateNetworkResult.error}")
                 }
 
                 is Results.Loading -> {

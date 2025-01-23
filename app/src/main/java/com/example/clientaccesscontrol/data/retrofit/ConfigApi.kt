@@ -1,9 +1,14 @@
 package com.example.clientaccesscontrol.data.retrofit
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.util.Base64
 import android.util.Log
 import com.example.clientaccesscontrol.BuildConfig
+import com.example.clientaccesscontrol.data.preference.UserPreference
+import com.example.clientaccesscontrol.data.preference.dataStore
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -74,30 +79,42 @@ object ConfigApi {
     }
 
     fun getApiServiceMikrotik(
-        baseUrl: String,
-        username: String,
-        password: String,
+        context: Context
     ): ServiceApiMikrotik {
-        Log.d("getApiServiceMikrotik", "Base URL: $baseUrl, Username: $username, Password: $password")
-
         try {
             val loggingInterceptor = if (BuildConfig.DEBUG) {
                 HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
             } else {
                 HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.NONE)
             }
+            //Getting Base URL from DataStore
+            val pref = UserPreference.getInstance(context.dataStore)
+            val baseUrl = runBlocking { pref.getSession().first().ipAdress }
 
-            Log.d("getApiServiceMikrotik", "Logging Interceptor: $loggingInterceptor")
-
-            val credentials = "$username:$password"
-            Log.d("getApiServiceMikrotik", "Credentials: $credentials")
-            val auth = "Basic " + Base64.encodeToString(credentials.toByteArray(Charsets.UTF_8), Base64.NO_WRAP).replace("\n", "")
-            Log.d("getApiServiceMikrotik", "Authorization Header: $auth")
             val basicAuth = Interceptor { chain ->
+                //Getting Base URL and Logging Interceptor Log
+                Log.d("getApiServiceMikrotik", "Base URL: $baseUrl")
+                Log.d("getApiServiceMikrotik", "Logging Interceptor: $loggingInterceptor")
+
+                //Getting Username, and Password from DataStore
+                val username = runBlocking { pref.getSession().first().username }
+                val password = runBlocking { pref.getSession().first().password }
+                Log.d("getApiServiceMikrotik", "Username: $username, Password: $password")
+
+                //Creating Credential
+                val credentials = "$username:$password"
+                Log.d("getApiServiceMikrotik", "Credentials: $credentials")
+
+                //Creating Authorization Header
+                val auth = "Basic " + Base64.encodeToString(credentials.toByteArray(Charsets.UTF_8), Base64.NO_WRAP).replace("\n", "")
+                Log.d("getApiServiceMikrotik", "Authorization Header: $auth")
+
+                //Adding Authorization Header to Request
                 val request = chain.request().newBuilder().addHeader("Authorization", auth).build()
                 Log.d("BasicAuthInterceptor", "Request URL: ${request.url}")
                 Log.d("BasicAuthInterceptor", "Request Headers: ${request.headers}")
 
+                //Sending Request and Getting Response
                 val response: Response
                 try {
                     response = chain.proceed(request)

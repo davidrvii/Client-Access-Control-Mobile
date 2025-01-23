@@ -239,8 +239,10 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+        updateClientListClientObserver()
+    }
 
-
+    private fun updateClientListClientObserver() {
         mainViewModel.getSearchedClient.removeObservers(this)
         mainViewModel.getSearchedClient.observe(this) { clientResult ->
             when (clientResult) {
@@ -287,7 +289,6 @@ class MainActivity : AppCompatActivity() {
                         "",
                         1
                     )
-                    mainViewModel.getSearchedClient("")
                 }
                 is Results.Error -> {
                     showLoading(false)
@@ -306,6 +307,7 @@ class MainActivity : AppCompatActivity() {
             when (result) {
                 is Results.Success -> {
                     showLoading(false)
+                    mainViewModel.getSearchedClient("")
                 }
                 is Results.Error -> {
                     showLoading(false)
@@ -416,10 +418,13 @@ class MainActivity : AppCompatActivity() {
                     searchBar.setText(searchView.text)
                     searchView.hide()
                     mainViewModel.getSearchedClient(textView.text.trim().toString())
+                    searchBarObserver()
                     false
                 }
         }
+    }
 
+    private fun searchBarObserver() {
         mainViewModel.getSearchedClient.removeObservers(this)
         mainViewModel.getSearchedClient.observe(this) { getSearchedClientResult ->
             when (getSearchedClientResult) {
